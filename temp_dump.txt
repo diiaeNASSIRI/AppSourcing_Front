@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthService } from './my-service/auth.service';
@@ -50,3 +50,4 @@ export class AppComponent {
     this.isAdmin = this.auth.isAdmin();
   }
 }
+

@@ -1,0 +1,11 @@
+.besoins { padding: 1rem; }
+thead .bi { opacity: .7; }
+.toolbar { display: flex; gap: .75rem; align-items: center; margin-bottom: .75rem; }
+.error { color: #c0392b; }
+.list { width: 100%; border-collapse: collapse; }
+.list th, .list td { border: 1px solid #eee; padding: .5rem; text-align: left; }
+.form-panel { margin-top: 1rem; border: 1px solid #eee; padding: 1rem; border-radius: 6px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .75rem; }
+label { display: flex; flex-direction: column; gap: .25rem; font-size: .9rem; }
+input { padding: .4rem; border: 1px solid #ccc; border-radius: 4px; }
+.actions { margin-top: .75rem; display: flex; gap: .5rem; }

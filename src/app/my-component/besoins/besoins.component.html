@@ -1,0 +1,166 @@
+<div class="besoins container-fluid py-3">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="page-title m-0">
+      <i class="bi bi-list-task me-2 text-primary"></i>
+      Besoins
+      <span class="badge bg-primary-subtle text-primary ms-2 align-middle">{{ besoins.length || 0 }}</span>
+    </h2>
+    <div>
+      <button class="btn btn-primary" (click)="startCreate()" [disabled]="!canCreate()">
+        <i class="bi bi-plus-lg me-1"></i> Nouveau besoin
+      </button>
+    </div>
+  </div>
+
+  <div class="mb-2">
+    <div *ngIf="loading" class="text-muted">Chargement...</div>
+    <div *ngIf="error" class="alert alert-danger mb-0">{{ error }}</div>
+  </div>
+
+  <div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+      <h6 class="m-0 font-weight-bold text-primary">Besoins</h6>
+      <button class="btn btn-outline-secondary btn-sm" (click)="loadAll()">
+        <i class="bi bi-arrow-repeat me-1"></i> Rafraîchir
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="row g-2 align-items-center mb-3">
+        <div class="col-6 col-sm-5 col-md-4">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" placeholder="Rechercher par Libellé ou Projet..." [formControl]="searchControl" />
+          </div>
+        </div>
+        <div class="col-6 col-sm-4 col-md-3 ms-sm-auto text-sm-end">
+          <div class="d-inline-flex align-items-center">
+            <span class="me-2 small text-muted text-nowrap">Lignes par page</span>
+            <select class="form-select form-select-sm" (change)="pageSize = +$any($event.target).value; page = 1">
+              <option [selected]="pageSize===5" value="5">5</option>
+              <option [selected]="pageSize===10" value="10">10</option>
+              <option [selected]="pageSize===20" value="20">20</option>
+              <option [selected]="pageSize===50" value="50">50</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+      <table class="table table-bordered table-hover align-middle mb-2" *ngIf="totalItems > 0; else empty">
+        <thead class="table-light align-middle">
+          <tr>
+            <th (click)="setSort('libelle')" role="button"><i class="bi bi-tag me-1 text-secondary"></i> Libellé</th>
+            <th (click)="setSort('projet')" role="button"><i class="bi bi-folder2-open me-1 text-secondary"></i> Projet</th>
+            <th (click)="setSort('precision')" role="button"><i class="bi bi-card-text me-1 text-secondary"></i> Précision</th>
+            <th (click)="setSort('owner')" role="button"><i class="bi bi-person me-1 text-secondary"></i> Owner RM</th>
+            <th (click)="setSort('dateCreation')" role="button"><i class="bi bi-calendar-event me-1 text-secondary"></i> Date de création</th>
+            <th (click)="setSort('pru')" role="button"><i class="bi bi-cash-coin me-1 text-secondary"></i> PRU (€)</th>
+            <th (click)="setSort('nbrExperience')" role="button"><i class="bi bi-graph-up me-1 text-secondary"></i> Expérience</th>
+            <th (click)="setSort('priorite')" role="button"><i class="bi bi-exclamation-triangle me-1 text-secondary"></i> Priorité</th>
+            <th (click)="setSort('statut')" role="button"><i class="bi bi-lightning-charge me-1 text-secondary"></i> Statut</th>
+            <th (click)="setSort('site')" role="button"><i class="bi bi-geo-alt me-1 text-secondary"></i> Site</th>
+            <th *ngIf="canEdit() || canDelete()"><i class="bi bi-sliders me-1 text-secondary"></i> Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of pageItems">
+            <td>{{ b.libelle }}</td>
+            <td>{{ b.projet }}</td>
+            <td>{{ b.precision || '-' }}</td>
+            <td>{{ b.owner }}</td>
+            <td>{{ b.dateCreation || '-' }}</td>
+            <td>{{ b.pru != null ? (b.pru | number:'1.0-0') : '-' }}</td>
+            <td>{{ b.nbrExperience != null ? (b.nbrExperience + ' ans') : '-' }}</td>
+            <td><span [ngClass]="priorityClass(b.priorite)">{{ b.priorite || '-' }}</span></td>
+            <td><span [ngClass]="statusClass(b.statut)">{{ b.statut || '-' }}</span></td>
+            <td>{{ b.site || '-' }}</td>
+            <td *ngIf="canEdit() || canDelete()">
+              <button class="btn btn-sm btn-outline-primary me-1" (click)="startEdit(b)" [disabled]="!canEdit()" title="Modifier">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="remove(b)" [disabled]="!canDelete()" title="Supprimer">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="small text-muted">Total: {{ totalItems }}</div>
+        <ngb-pagination [collectionSize]="totalItems" [(page)]="page" [pageSize]="pageSize" [maxSize]="5" [ellipses]="true" [boundaryLinks]="true" size="sm"></ngb-pagination>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #empty>
+    <div class="p-3 text-muted">Aucun besoin trouvé.</div>
+  </ng-template>
+
+  <!-- Modal formulaire Besoin -->
+  <ng-template #besoinForm let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">{{ editingId ? 'Modifier' : 'Créer' }} un besoin</h5>
+      <button type="button" class="btn-close" aria-label="Fermer" (click)="cancelForm()"></button>
+    </div>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Libellé</label>
+            <input class="form-control" formControlName="libelle" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Projet</label>
+            <input class="form-control" formControlName="projet" />
+          </div>
+          <div class="col-md-12">
+            <label class="form-label">Précision</label>
+            <input class="form-control" formControlName="precision" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Owner RM</label>
+            <input class="form-control" formControlName="owner" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Site</label>
+            <input class="form-control" formControlName="site" />
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">PRU (€)</label>
+            <input class="form-control" type="number" formControlName="pru" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Expérience (années)</label>
+            <input class="form-control" type="number" formControlName="nbrExperience" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Priorité</label>
+            <select class="form-select" formControlName="priorite">
+              <option value="">—</option>
+              <option value="Basse">Basse</option>
+              <option value="Moyenne">Moyenne</option>
+              <option value="Haute">Haute</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Statut</label>
+            <select class="form-select" formControlName="statut">
+              <option value="">—</option>
+              <option value="Ouvert">Ouvert</option>
+              <option value="Sourcing">Sourcing</option>
+              <option value="Clos">Clos</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="cancelForm()">Annuler</button>
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading">{{ editingId ? 'Enregistrer' : 'Créer' }}</button>
+      </div>
+    </form>
+  </ng-template>
+</div>
+
+
+

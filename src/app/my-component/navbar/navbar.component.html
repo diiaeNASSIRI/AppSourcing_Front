@@ -1,0 +1,73 @@
+<nav class="navbar navbar-expand navbar-light bg-light topbar mb-4 static-top shadow navbar-custom">
+  <div class="container-fluid d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+      <img src="assets/images/sii_services_maroc_logo.jpg" alt="SII Services Maroc" class="brand-logo me-2">
+      <span class="brand-name d-none d-sm-inline text-primary fw-semibold">Appsourcing</span>
+    </div>
+    <ul class="navbar-nav flex-row align-items-center">
+      <li class="nav-item me-3 d-flex align-items-center">
+        <button (click)="openNotifications()" class="btn btn-link btn-notif me-2">
+          <i class="bi bi-bell fs-4"></i>
+          <span *ngIf="unreadCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger badge-unread">
+            {{ unreadCount }}
+          </span>
+        </button>
+        <img class="img-profile rounded-circle shadow-sm" [src]="'https://ui-avatars.com/api/?name=' + (email || 'User')" alt="avatar">
+        <span class="ms-2 text-dark username">{{ email || 'Utilisateur' }}</span>
+      </li>
+      <li class="nav-item">
+        <button class="btn btn-outline-primary btn-sm ms-2 px-3" (click)="logout()">
+          <i class="bi bi-box-arrow-right me-1"></i> Déconnexion
+        </button>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Modal Notifications -->
+<div class="modal fade show" tabindex="-1"
+     [ngStyle]="{display: showNotifications ? 'block' : 'none', background: showNotifications ? 'rgba(0,0,0,0.3)' : 'none'}"
+     style="z-index: 1050;" *ngIf="showNotifications">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Notifications</h5>
+        <button type="button" class="btn-close" (click)="closeNotifications()"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="notifLoading">Chargement...</div>
+        <div *ngIf="notifError" class="alert alert-danger">{{ notifError }}</div>
+        <ul class="list-group">
+          <li *ngFor="let notif of unreadNotifications"
+              class="list-group-item d-flex justify-content-between align-items-start"
+              (click)="markOneRead(notif)"
+              [ngClass]="{'bg-light': !notif._localRead}">
+            <div class="me-2">
+              <i [ngClass]="iconFor(notif.type)"></i>
+            </div>
+            <div class="flex-fill">
+              <div class="d-flex justify-content-between">
+                <strong>{{ notif.title || notif.action }}</strong>
+                <small class="text-muted">{{ notif.timestamp | date:'short' }}</small>
+              </div>
+              <div class="small" [innerText]="notif.message"></div>
+              <div class="mt-1">
+                <span class="badge" [ngClass]="statusBadgeClass(parseStatus(notif.message))">{{ parseStatus(notif.message) }}</span>
+                <span *ngIf="!notif._localRead" class="badge bg-primary ms-1">Nouveau</span>
+              </div>
+            </div>
+          </li>
+        </ul>
+        <div *ngIf="!notifLoading && unreadNotifications.length === 0" class="alert alert-info mt-2">Aucune nouvelle notification.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary btn-sm" (click)="markAllLocalRead()" [disabled]="unreadNotifications.length===0">Tout marquer comme lu</button>
+        <button class="btn btn-primary btn-sm" (click)="gotoAllNotifications()">Voir toutes</button>
+        <button class="btn btn-secondary btn-sm" (click)="closeNotifications()">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+

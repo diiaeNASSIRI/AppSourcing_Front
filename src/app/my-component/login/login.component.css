@@ -1,0 +1,87 @@
+:host { display: block; }
+
+.login-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border: 1px solid #e6eaf2;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(34,74,190,0.08);
+  padding: 28px 24px;
+}
+
+.login-card__brand { text-align: center; margin-bottom: 8px; }
+.login-card__logo { width: 120px; height: auto; object-fit: contain; margin-bottom: 6px; }
+.login-card__title { font-size: 1.4rem; margin: 0; color: #1f2a44; }
+.login-card__tagline { margin: 4px 0 16px; color: #5a6b8c; font-size: 0.9rem; }
+
+.login-form { display: grid; gap: 14px; margin-top: 8px; }
+.field { display: grid; gap: 6px; }
+.field__label { font-weight: 600; color: #223; }
+.field__control {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d7deea;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+}
+.field__control:focus { border-color: #4e73df; box-shadow: 0 0 0 3px rgba(78,115,223,0.15); }
+
+.password-wrapper { position: relative; }
+.password-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #224abe;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-meta { display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; }
+.remember { display: inline-flex; align-items: center; gap: 6px; color: #334; }
+.forgot { color: #224abe; text-decoration: none; }
+.forgot:hover { text-decoration: underline; }
+
+.form-error { color: #b00020; font-size: 0.85rem; }
+
+.btn {
+  width: 100%;
+  padding: 10px 12px;
+  background: #4e73df;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn[disabled] { opacity: 0.7; cursor: not-allowed; }
+
+.loader {
+  display: inline-block;
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.6);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.checklist-preview { list-style: none; padding: 0; margin: 18px 0 0; color: #667; }
+.item { padding: 6px 0; border-bottom: 1px dashed #e6eaf2; font-size: 0.95rem; }
+.item:last-child { border-bottom: none; }
+
+.copyright { margin-top: 12px; text-align: center; color: #97a1b5; font-size: 0.85rem; }
+

@@ -1,0 +1,5 @@
+thead .bi { opacity: .7; }
+.edit-panel { background: #fff; }
+.create-user { background: #fff; }
+.perm-list { max-height: 220px; overflow: auto; border: 1px solid #e6e6e6; padding: 8px; border-radius: 4px; }
+th[role="button"] { cursor: pointer; user-select: none; }

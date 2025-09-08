@@ -1,1 +1,19 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global styles: managed via angular.json styles array */
+/* You can add global overrides below */
+
+/* Unified page title styling across modules */
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  line-height: 1.2;
+}
+
+/* Consistent badge sizing next to titles */
+.page-title .badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  vertical-align: middle;
+}

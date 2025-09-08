@@ -1,0 +1,13 @@
+[
+  {
+    "context": [
+      "/auth",
+      "/admin",
+      "/besoins"
+    ],
+    "target": "http://localhost:8081",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+]

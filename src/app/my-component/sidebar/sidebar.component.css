@@ -1,0 +1,31 @@
+.sidebar-wrapper { position:fixed; left:0; top:0; height:100vh; width:260px; font-size:1.05rem; background:white; border-right:1px solid #e0e6ed; overflow-y:auto; scrollbar-width:thin; z-index:1030; padding-top: 0.25rem; }
+.sidebar-brand img { width:210px; height:120px; object-fit:contain; display:block; margin:0 auto; }
+.sidebar-wrapper .nav-item { margin: 0.75rem 0.75rem; }
+.nav-link-block { padding:1.05rem 1.25rem; border-radius:0.5rem; transition:background .2s, border-color .2s, color .2s; color:#224abe; background:#f8f9fa; border:1px solid #e9ecef; display:flex; align-items:center; position: relative; }
+.nav-link-block:hover { background:#eef2ff; border-color:#d6dfff; color:#1939b7; }
+.nav-link-block.active { background:#e9f0ff; border-color:#c7d8ff; color:#1939b7; box-shadow: inset 3px 0 0 #4e73df; }
+.nav-link-block.active i { color:#0d6efd; }
+.nav-link-block:focus { outline: 0; box-shadow: 0 0 0 0.2rem rgba(13,110,253,.15); }
+.nav-link-block i { font-size:1.2rem; }
+.nav-link-block .nav-icon { width: 20px; height: 20px; display:inline-block; }
+.nav-link-block span { font-size:1.12rem; font-weight:600; letter-spacing:0.1px; }
+.nav-link-small { padding:0.75rem 1.2rem; border-radius:0.5rem; transition:background .2s; color:#224abe; background:#f8f9fa; border:1px solid #e9ecef; }
+.admin-green { background:#f0fff4; border:1px solid #c6f6d5; }
+.scope-all { background:#eef2ff; border:1px solid #d6dfff; }
+.pending { background:#fffaf0; border:1px solid #fde68a; }
+.returns { background:#f0f9ff; border:1px solid #bae6fd; }
+.heading { color:#778; font-size:0.75rem; font-weight:600; text-transform:uppercase; padding:0 1rem; }
+.admin-heading { color:rgb(34, 25, 150); font-size:0.85rem; }
+.footer-img { width:48px; opacity:0.9; }
+.footer-text { color:#224abe; font-size:0.95em; margin-top:0.5em; }
+.icon-dashboard { color:#4e73df; }
+.icon-checklists { color:#36b9cc; }
+.icon-add { color:#1cc88a; }
+.icon-material { color:#36b9cc; }
+.icon-calendar { color:#4e73df; }
+.icon-scope { color:#224abe; }
+.icon-pending { color:#f6c23e; }
+.icon-return { color:#36b9cc; }
+.icon-users { color:#36b9cc; }
+.icon-teams { color:#1cc88a; }
+.icon-logs { color:#4e73df; }

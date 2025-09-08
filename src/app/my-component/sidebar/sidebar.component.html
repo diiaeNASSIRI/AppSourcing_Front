@@ -1,0 +1,36 @@
+<ul class="navbar-nav sidebar sidebar-light accordion shadow-lg sidebar-wrapper" id="accordionSidebar">
+  <div class="sidebar-brand d-flex align-items-center justify-content-center py-2 mb-2">
+    <img src="assets/images/sii_services_maroc_logo.jpg" alt="Logo SII">
+  </div>
+  <hr class="sidebar-divider my-0">
+
+  <li class="nav-item my-3">
+    <a class="nav-link d-flex align-items-center nav-link-block" [routerLink]="['/admin-users']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <svg class="nav-icon me-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="8" r="4" fill="currentColor"/>
+        <path d="M4 20c0-4 4-6 8-6s8 2 8 6H4z" fill="currentColor" opacity="0.85"/>
+      </svg>
+      <span>Gestion Utilisateurs</span>
+    </a>
+  </li>
+
+  <li class="nav-item my-3">
+    <a class="nav-link d-flex align-items-center nav-link-block" [routerLink]="['/besoins']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <i class="bi bi-list-task me-2"></i>
+      <span>Besoins</span>
+    </a>
+  </li>
+
+  <li class="nav-item my-3">
+    <a class="nav-link d-flex align-items-center nav-link-block" [routerLink]="['/candidats']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <i class="bi bi-people me-2"></i>
+      <span>Candidats</span>
+    </a>
+  </li>
+
+  <hr class="sidebar-divider d-none d-md-block">
+  <div class="text-center mt-4 mb-2 footer-msg">
+    <img src="https://img.icons8.com/color/48/000000/todo-list--v2.png" alt="Checklist" class="footer-img">
+    <div class="footer-text">Organise ta journée !</div>
+  </div>
+</ul>
