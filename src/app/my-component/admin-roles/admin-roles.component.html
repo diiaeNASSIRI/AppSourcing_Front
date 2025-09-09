@@ -1,0 +1,178 @@
+<div class="container-fluid py-3">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="page-title m-0">
+      <i class="bi bi-shield-lock me-2 text-primary"></i>
+      Gestion des rôles
+    </h2>
+  </div>
+
+  <div class="alerts mb-2">
+    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+    <div *ngIf="success" class="alert alert-success">{{ success }}</div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-5">
+      <div class="card shadow-sm">
+        <div class="card-header">Rôles</div>
+        <div class="card-body">
+          <div class="mb-3">
+            <form [formGroup]="createForm" (ngSubmit)="createRole()" class="d-flex gap-2">
+              <input class="form-control" formControlName="name" placeholder="Nouveau rôle (ex: MANAGER)" [disabled]="!canEditAdminRoles()" />
+              <button class="btn btn-primary" type="submit" [disabled]="createForm.invalid || !canEditAdminRoles()">Ajouter</button>
+            </form>
+          </div>
+          <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center"
+                *ngFor="let r of roles"
+                [class.active]="selectedRole?.id === r.id"
+                (click)="selectRole(r)">
+              <span>{{ r.name }}</span>
+              <button class="btn btn-sm btn-outline-danger" (click)="$event.stopPropagation(); deleteRole(r)" *ngIf="canEditAdminRoles()"><i class="bi bi-trash"></i></button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-7" *ngIf="selectedRole as sr">
+      <div class="card shadow-sm mb-3">
+        <div class="card-header">Renommer le rôle</div>
+        <div class="card-body">
+          <form [formGroup]="renameForm" (ngSubmit)="renameRole()" class="d-flex gap-2">
+            <input class="form-control" formControlName="newName" [disabled]="!canEditAdminRoles()" />
+            <button class="btn btn-primary" type="submit" [disabled]="renameForm.invalid || !canEditAdminRoles()">Renommer</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-header">Permissions du rôle « {{ sr.name }} »</div>
+        <div class="card-body">
+          <!-- Groupe Admin -->
+          <div class="mb-3" *ngIf="permsAdmin.length">
+            <div class="d-flex justify-content-between align-items-center">
+              <h6 class="m-0 text-primary">Admin</h6>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" (click)="setGroup('ADMIN_', true)">Tout cocher</button>
+                <button class="btn btn-outline-secondary" (click)="setGroup('ADMIN_', false)">Tout décocher</button>
+              </div>
+            </div>
+            <div class="table-responsive mt-2">
+              <table class="table table-sm table-bordered align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Ressource</th>
+                    <th class="text-center">Voir</th>
+                    <th class="text-center">Créer</th>
+                    <th class="text-center">Modifier</th>
+                    <th class="text-center">Supprimer</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="w-50">Rôles</td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('ADMIN_MANAGE_ROLES_CAN_VIEW')" (change)="togglePerm('ADMIN_MANAGE_ROLES_CAN_VIEW', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('ADMIN_MANAGE_ROLES_CAN_EDIT')" (change)="togglePerm('ADMIN_MANAGE_ROLES_CAN_EDIT', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('ADMIN_MANAGE_ROLES_CAN_VIEW')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('ADMIN_MANAGE_ROLES_CAN_EDIT')" (change)="togglePerm('ADMIN_MANAGE_ROLES_CAN_EDIT', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('ADMIN_MANAGE_ROLES_CAN_VIEW')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('ADMIN_MANAGE_ROLES_CAN_EDIT')" (change)="togglePerm('ADMIN_MANAGE_ROLES_CAN_EDIT', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('ADMIN_MANAGE_ROLES_CAN_VIEW')"></td>
+                  </tr>
+                  <tr>
+                    <td>Utilisateurs</td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('ADMIN_MANAGE_USERS_CAN_VIEW')" (change)="togglePerm('ADMIN_MANAGE_USERS_CAN_VIEW', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('ADMIN_MANAGE_USERS_CAN_EDIT')" (change)="togglePerm('ADMIN_MANAGE_USERS_CAN_EDIT', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('ADMIN_MANAGE_USERS_CAN_VIEW')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('ADMIN_MANAGE_USERS_CAN_EDIT')" (change)="togglePerm('ADMIN_MANAGE_USERS_CAN_EDIT', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('ADMIN_MANAGE_USERS_CAN_VIEW')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('ADMIN_MANAGE_USERS_CAN_EDIT')" (change)="togglePerm('ADMIN_MANAGE_USERS_CAN_EDIT', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('ADMIN_MANAGE_USERS_CAN_VIEW')"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Groupe Besoins (matrice CRUD) -->
+          <div class="mb-3" *ngIf="permsBesoin.length">
+            <div class="d-flex justify-content-between align-items-center">
+              <h6 class="m-0 text-success">Besoins</h6>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" (click)="setGroup('BESOIN_', true)">Tout cocher</button>
+                <button class="btn btn-outline-secondary" (click)="setGroup('BESOIN_', false)">Tout décocher</button>
+              </div>
+            </div>
+            <div class="table-responsive mt-2">
+              <table class="table table-sm table-bordered align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Ressource</th>
+                    <th class="text-center">Voir</th>
+                    <th class="text-center">Créer</th>
+                    <th class="text-center">Modifier</th>
+                    <th class="text-center">Supprimer</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="w-50">Besoins</td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('BESOIN_READ')" (change)="togglePerm('BESOIN_READ', $any($event.target).checked)"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('BESOIN_CREATE')" (change)="togglePerm('BESOIN_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('BESOIN_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('BESOIN_UPDATE')" (change)="togglePerm('BESOIN_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('BESOIN_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('BESOIN_DELETE')" (change)="togglePerm('BESOIN_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('BESOIN_READ')"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Groupe Candidats (matrice CRUD + sous-ressources) -->
+          <div class="mb-3" *ngIf="permsCandidat.length">
+            <div class="d-flex justify-content-between align-items-center">
+              <h6 class="m-0 text-info">Candidats</h6>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" (click)="setGroup('CANDIDAT_', true)">Tout cocher</button>
+                <button class="btn btn-outline-secondary" (click)="setGroup('CANDIDAT_', false)">Tout décocher</button>
+              </div>
+            </div>
+            <div class="table-responsive mt-2">
+              <table class="table table-sm table-bordered align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Ressource</th>
+                    <th class="text-center">Voir</th>
+                    <th class="text-center">Créer</th>
+                    <th class="text-center">Modifier</th>
+                    <th class="text-center">Supprimer</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="w-50">Candidats</td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_READ')" (change)="togglePerm('CANDIDAT_READ', $any($event.target).checked)"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_CREATE')" (change)="togglePerm('CANDIDAT_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_UPDATE')" (change)="togglePerm('CANDIDAT_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_DELETE')" (change)="togglePerm('CANDIDAT_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_READ')"></td>
+                  </tr>
+                  <tr>
+                    <td>Notes</td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_NOTE_READ')" (change)="togglePerm('CANDIDAT_NOTE_READ', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_NOTE_CREATE')" (change)="togglePerm('CANDIDAT_NOTE_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_NOTE_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_NOTE_UPDATE')" (change)="togglePerm('CANDIDAT_NOTE_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_NOTE_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_NOTE_DELETE')" (change)="togglePerm('CANDIDAT_NOTE_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_NOTE_READ')"></td>
+                  </tr>
+                  <tr>
+                    <td>CV</td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_CV_READ')" (change)="togglePerm('CANDIDAT_CV_READ', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_CV_UPLOAD')" (change)="togglePerm('CANDIDAT_CV_UPLOAD', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_CV_READ')"></td>
+                    <td class="text-center text-muted">—</td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_CV_DELETE')" (change)="togglePerm('CANDIDAT_CV_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_CV_READ')"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          
+          <button class="btn btn-success mt-2" (click)="savePermissions()">Appliquer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -141,6 +141,23 @@ export class AuthService {
     add((claims as any)['scopes']);
     add((claims as any)['scope']);
 
+    // Support Keycloak/OpenID style role placement
+    // realm_access.roles => array of role names
+    try {
+      const anyClaims: any = claims;
+      if (anyClaims?.realm_access && Array.isArray(anyClaims.realm_access.roles)) {
+        add(anyClaims.realm_access.roles);
+      }
+      // resource_access => { <client>: { roles: [...] } }
+      if (anyClaims?.resource_access && typeof anyClaims.resource_access === 'object') {
+        Object.values(anyClaims.resource_access).forEach((v: any) => {
+          if (v && Array.isArray(v.roles)) add(v.roles);
+        });
+      }
+    } catch (e) {
+      // ignore malformed nested claims
+    }
+
     // Normalize duplicates and return
     return Array.from(new Set(pool));
   }
@@ -150,6 +167,15 @@ export class AuthService {
   }
 
   isAdmin(): boolean {
-    return this.hasAuthority('ADMIN');
+    // Consider admin if has global ADMIN or any admin view permission
+    return (
+      this.hasAuthority('ADMIN') ||
+      this.hasAuthority('ADMIN_MANAGE_USERS_CAN_VIEW') ||
+      this.hasAuthority('ADMIN_MANAGE_ROLES_CAN_VIEW')
+    );
+  }
+
+  hasAny(...names: string[]): boolean {
+    return names.some((n) => this.hasAuthority(n));
   }
 }

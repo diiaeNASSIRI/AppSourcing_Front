@@ -7,7 +7,7 @@ module.exports = [
       "/candidats",
       "/propositions"
     ],
-    target: "http://localhost:8081",
+    target: "http://localhost:5470",
     secure: false,
     changeOrigin: true,
     logLevel: "debug",

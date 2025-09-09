@@ -87,7 +87,7 @@
             <td>
               <button class="btn btn-sm btn-outline-secondary" (click)="toggleNotes(c)" [disabled]="!canView()" title="Afficher les notes">
                 <i class="bi bi-chat-left-text me-1"></i>
-                Notes <ng-container *ngIf="notesByCandidat[c.id || -1]">({{ notesByCandidat[c.id || -1]?.length || 0 }})</ng-container>
+                Notes <ng-container *ngIf="notesByCandidat[c.id || -1] as notes">({{ notes.length }})</ng-container>
                 <i class="bi" [ngClass]="{ 'bi-caret-down-fill': !isNotesOpen(c), 'bi-caret-up-fill': isNotesOpen(c) }"></i>
               </button>
               <div *ngIf="isNotesOpen(c)" class="mt-2">

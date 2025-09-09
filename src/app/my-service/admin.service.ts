@@ -5,9 +5,16 @@ import { Observable, tap } from 'rxjs';
 export interface AdminUserDto {
   fullName: string;
   email: string;
-  role: string;
+  roleId?: number | null;
+  roleName?: string | null;
   permissions: string[] | Set<string>;
   mustChangePassword?: boolean;
+  authVersion?: number;
+}
+
+export interface RoleDto {
+  id: number;
+  name: string;
 }
 
 export interface ListUsersResponse {
@@ -48,6 +55,39 @@ export class AdminServiceClient {
     return this.http.request<{ email: string; permissions: string[] | Set<string> }>('DELETE', `${this.base}/permissions/users/${encodeURIComponent(email)}`, { body });
   }
 
+  // Roles endpoints
+  listRoles(): Observable<{ roles: RoleDto[] }> {
+    return this.http.get<{ roles: RoleDto[] }>(`${this.base}/roles`);
+  }
+
+  createRole(name: string): Observable<{ name: string }> {
+    return this.http.post<{ name: string }>(`${this.base}/roles`, { name });
+  }
+
+  renameRole(oldName: string, newName: string): Observable<{ name: string }> {
+    return this.http.put<{ name: string }>(`${this.base}/roles/${encodeURIComponent(oldName)}`, { newName });
+  }
+
+  deleteRole(name: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/roles/${encodeURIComponent(name)}`);
+  }
+
+  getRolePermissions(name: string): Observable<{ name: string; permissions: string[] }> {
+    return this.http.get<{ name: string; permissions: string[] }>(`${this.base}/roles/${encodeURIComponent(name)}/permissions`);
+  }
+
+  setRolePermissions(name: string, permissions: string[]): Observable<{ name: string; permissions: string[] }> {
+    return this.http.put<{ name: string; permissions: string[] }>(`${this.base}/roles/${encodeURIComponent(name)}/permissions`, { permissions });
+  }
+
+  addRolePermissions(name: string, permissions: string[]): Observable<{ name: string; permissions: string[] }> {
+    return this.http.post<{ name: string; permissions: string[] }>(`${this.base}/roles/${encodeURIComponent(name)}/permissions`, { permissions });
+  }
+
+  removeRolePermissions(name: string, permissions: string[]): Observable<{ name: string; permissions: string[] }> {
+    return this.http.request<{ name: string; permissions: string[] }>('DELETE', `${this.base}/roles/${encodeURIComponent(name)}/permissions`, { body: { permissions } });
+  }
+
   // Users CRUD
   listUsers(): Observable<ListUsersResponse> {
     return this.http.get<ListUsersResponse>(`${this.base}/users`).pipe(
@@ -62,12 +102,13 @@ export class AdminServiceClient {
     return this.http.get<AdminUserDto>(`${this.base}/users/${encodeURIComponent(email)}`);
   }
 
-  createUser(payload: { fullName: string; email: string; password: string; role?: string }): Observable<AdminUserDto> {
-    return this.http.post<AdminUserDto>(`${this.base}/users`, payload);
+  // Allow assigning a roleId when creating/updating a user (optional)
+  createUser(payload: { fullName: string; email: string; password: string; roleId?: number | null }): Observable<AdminUserDto> {
+    return this.http.post<AdminUserDto>(`${this.base}/users`, payload as any);
   }
 
-  updateUser(email: string, payload: { fullName?: string; role?: string; password?: string }): Observable<AdminUserDto> {
-    return this.http.put<AdminUserDto>(`${this.base}/users/${encodeURIComponent(email)}`, payload);
+  updateUser(email: string, payload: { fullName?: string; password?: string; roleId?: number | null }): Observable<AdminUserDto> {
+    return this.http.put<AdminUserDto>(`${this.base}/users/${encodeURIComponent(email)}`, payload as any);
   }
 
   deleteUser(email: string): Observable<void> {

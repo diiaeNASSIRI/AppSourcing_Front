@@ -1,0 +1,6 @@
+.list-group-item.active {
+  background-color: #e7f1ff;
+  border-color: #b6daff;
+  color: #0d6efd;
+}
+.perm-list { max-height: 260px; overflow: auto; }

@@ -1,6 +1,6 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, Validators, FormControl } from '@angular/forms';
-import { AdminServiceClient, AdminUserDto } from '../../my-service/admin.service';
+import { AdminServiceClient, AdminUserDto, RoleDto } from '../../my-service/admin.service';
 import { AuthService } from '../../my-service/auth.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
@@ -12,9 +12,10 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 export class AdminUsersComponent implements OnInit {
   @ViewChild('createUserTpl') createUserTpl!: TemplateRef<any>;
   @ViewChild('editUserTpl') editUserTpl!: TemplateRef<any>;
+  @ViewChild('noAdminUsersView') noAdminUsersView!: TemplateRef<any>;
   // Data
   users: AdminUserDto[] = [];
-  permissionsAll: string[] = [];
+  roles: RoleDto[] = [];
 
   // UI state
   loading = false;
@@ -22,29 +23,36 @@ export class AdminUsersComponent implements OnInit {
   success: string | null = null;
 
   selectedUser: AdminUserDto | null = null;
-  selectedPerms = new Set<string>();
 
   private activeModal?: NgbModalRef;
+  // (role details modal removed) - role/permission management is read-only via user details
+  // User details modal state (simple view of role + permissions)
+  @ViewChild('userDetailsTpl') userDetailsTpl!: TemplateRef<any>;
+  userDetailsName = '';
+  userDetailsRole: string | null = null;
+  userDetailsPerms: string[] = [];
+  userDetailsLoading = false;
+  userDetailsError: string | null = null;
 
   // Forms
   createForm = this.fb.group({
     fullName: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
-    role: ['USER']
+  roleId: [null],
   });
 
   editForm = this.fb.group({
     fullName: ['', [Validators.required, Validators.minLength(2)]],
-    role: [''],
-    password: ['']
+    password: [''],
+  roleId: [null],
   });
 
   // Table UI state (SB Admin style)
   searchControl = new FormControl<string>('', { nonNullable: true });
   page = 1;
   pageSize = 20;
-  sortKey: 'fullName' | 'email' | 'role' = 'fullName';
+  sortKey: 'fullName' | 'email' | 'roleName' = 'fullName';
   sortDir: 'asc' | 'desc' = 'asc';
 
   constructor(
@@ -63,7 +71,19 @@ export class AdminUsersComponent implements OnInit {
     console.info('[AdminUsersComponent] isAdmin token check:', this.auth.isAdmin());
 
     this.refresh();
-    this.loadPermissions();
+    this.loadRoles();
+  // roles loading enabled
+  }
+
+  loadRoles(): void {
+    this.admin.listRoles().subscribe({
+      next: (res) => {
+        this.roles = res.roles || [];
+      },
+      error: (err) => {
+        console.warn('[AdminUsersComponent] listRoles failed', err);
+      }
+    });
   }
 
   // Derived lists for table
@@ -73,7 +93,7 @@ export class AdminUsersComponent implements OnInit {
     return this.users.filter(u => (
       (u.fullName || '').toLowerCase().includes(q) ||
       (u.email || '').toLowerCase().includes(q) ||
-      (u.role || '').toLowerCase().includes(q)
+      (u.roleName || '').toLowerCase().includes(q)
     ));
   }
 
@@ -100,7 +120,7 @@ export class AdminUsersComponent implements OnInit {
     return this.filteredUsers.length;
   }
 
-  setSort(key: 'fullName'|'email'|'role'): void {
+  setSort(key: 'fullName'|'email'|'roleName'): void {
     if (this.sortKey === key) {
       this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
     } else {
@@ -140,19 +160,20 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
-  loadPermissions(): void {
-    this.admin.listAvailablePermissions().subscribe({
-      next: (res) => {
-        this.permissionsAll = res.permissions || [];
-      },
-      error: () => {
-        // non bloquant
-      }
-    });
+  // No permission grouping/editing in this component
+
+  // Current-user permission checks for Admin Users page
+  canViewAdminUsers(): boolean {
+    return this.auth.hasAny('ADMIN', 'ADMIN_MANAGE_USERS_CAN_VIEW');
+  }
+  canEditAdminUsers(): boolean {
+    return this.auth.hasAny('ADMIN', 'ADMIN_MANAGE_USERS_CAN_EDIT');
   }
 
+  // loadRoles removed
+
   openCreate(): void {
-    this.createForm.reset({ role: 'USER' });
+    this.createForm.reset();
     this.error = null;
     this.success = null;
     this.activeModal = this.modal.open(this.createUserTpl, { centered: true });
@@ -164,11 +185,11 @@ export class AdminUsersComponent implements OnInit {
       return;
     }
     this.error = null;
-    const { fullName, email, password, role } = this.createForm.getRawValue() as any;
-    this.admin.createUser({ fullName, email, password, role }).subscribe({
+    const { fullName, email, password, roleId } = this.createForm.getRawValue() as any;
+  this.admin.createUser({ fullName, email, password, roleId: roleId ?? null }).subscribe({
       next: () => {
         this.success = 'Utilisateur créé';
-        this.createForm.reset({ role: 'USER' });
+    this.createForm.reset();
         this.refresh();
         this.activeModal?.close();
       },
@@ -180,18 +201,16 @@ export class AdminUsersComponent implements OnInit {
 
   startEdit(u: AdminUserDto): void {
     this.selectedUser = u;
-    this.editForm.reset({ fullName: u.fullName, role: u.role || '' });
-    // permissions selection state
-    this.selectedPerms = new Set<string>(Array.from(u.permissions || [] as any));
+  this.editForm.reset({ fullName: u.fullName, roleId: (u.roleId ?? null) as any });
     this.error = null;
     this.success = null;
     this.activeModal = this.modal.open(this.editUserTpl, { size: 'lg', centered: true, backdrop: 'static' });
+  // nothing else to load here for edit form
   }
 
   cancelEdit(): void {
     this.selectedUser = null;
     this.editForm.reset();
-    this.selectedPerms.clear();
     this.success = null;
     this.error = null;
     this.activeModal?.dismiss();
@@ -204,8 +223,8 @@ export class AdminUsersComponent implements OnInit {
       return;
     }
     const email = this.selectedUser.email;
-    const { fullName, role, password } = this.editForm.getRawValue() as any;
-    this.admin.updateUser(email, { fullName, role, password }).subscribe({
+  const { fullName, password, roleId } = this.editForm.getRawValue() as any;
+  this.admin.updateUser(email, { fullName, password, roleId: roleId ?? null }).subscribe({
       next: (u) => {
         this.success = 'Utilisateur mis à jour';
         // Update local list
@@ -220,30 +239,14 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
-  // Permission toggles
-  isPermChecked(name: string): boolean {
-    return this.selectedPerms.has(name);
-  }
-
-  togglePerm(name: string, checked: boolean): void {
-    if (checked) this.selectedPerms.add(name); else this.selectedPerms.delete(name);
-  }
-
-  savePermissions(): void {
-    if (!this.selectedUser) return;
-    const email = this.selectedUser.email;
-    const perms = Array.from(this.selectedPerms);
-    this.admin.setUserPermissions(email, perms).subscribe({
-      next: (res) => {
-        this.success = 'Permissions mises à jour';
-        // reflect in list
-        const idx = this.users.findIndex((x) => x.email === email);
-        if (idx >= 0) this.users[idx].permissions = Array.from(res.permissions as any);
-      },
-      error: (err) => {
-        this.error = err?.error?.message || 'Mise à jour des permissions échouée';
-      }
-    });
+  // Show user details: role and permissions
+  showUserDetails(u: AdminUserDto): void {
+    this.userDetailsName = u.fullName || u.email;
+    this.userDetailsRole = u.roleName ?? null;
+    this.userDetailsPerms = Array.isArray(u.permissions) ? u.permissions : Array.from(u.permissions as Set<string> || []);
+    this.userDetailsError = null;
+    this.userDetailsLoading = false;
+    this.activeModal = this.modal.open(this.userDetailsTpl, { size: 'md', centered: true });
   }
 
   deleteUser(u: AdminUserDto): void {
@@ -263,5 +266,11 @@ export class AdminUsersComponent implements OnInit {
   toArray(perms: string[] | Set<string> | null | undefined): string[] {
     if (!perms) return [];
     return Array.isArray(perms) ? perms : Array.from(perms);
+  }
+
+  // Check whether the currently opened user details contain a permission
+  hasUserPerm(p: string): boolean {
+    if (!this.userDetailsPerms) return false;
+    return this.userDetailsPerms.indexOf(p) >= 0;
   }
 }

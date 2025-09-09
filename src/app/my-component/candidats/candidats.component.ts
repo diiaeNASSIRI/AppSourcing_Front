@@ -305,10 +305,13 @@ export class CandidatsComponent implements OnInit {
   }
 
   // Permissions
-  canView(): boolean { return this.auth.hasAuthority('CAN_VIEW'); }
-  canCreate(): boolean { return this.auth.hasAuthority('CAN_CREATE') || this.auth.hasAuthority('CAN_EDIT'); }
-  canEdit(): boolean { return this.auth.hasAuthority('CAN_EDIT'); }
-  canDelete(): boolean { return this.auth.hasAuthority('CAN_DELETE'); }
+  canView(): boolean { return this.auth.hasAuthority('CANDIDAT_READ') || this.auth.hasAuthority('CAN_VIEW'); }
+  canCreate(): boolean {
+    return this.auth.hasAuthority('CANDIDAT_CREATE') || this.auth.hasAuthority('CANDIDAT_UPDATE') ||
+           this.auth.hasAuthority('CAN_CREATE') || this.auth.hasAuthority('CAN_EDIT');
+  }
+  canEdit(): boolean { return this.auth.hasAuthority('CANDIDAT_UPDATE') || this.auth.hasAuthority('CAN_EDIT'); }
+  canDelete(): boolean { return this.auth.hasAuthority('CANDIDAT_DELETE') || this.auth.hasAuthority('CAN_DELETE'); }
 
   // File handlers
   onCvSelected(event: Event): void {

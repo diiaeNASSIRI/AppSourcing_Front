@@ -4,7 +4,7 @@
   </div>
   <hr class="sidebar-divider my-0">
 
-  <li class="nav-item my-3">
+  <li class="nav-item my-3" *ngIf="canSeeAdminUsers">
     <a class="nav-link d-flex align-items-center nav-link-block" [routerLink]="['/admin-users']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       <svg class="nav-icon me-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <circle cx="12" cy="8" r="4" fill="currentColor"/>
@@ -14,14 +14,21 @@
     </a>
   </li>
 
-  <li class="nav-item my-3">
+  <li class="nav-item my-3" *ngIf="canSeeAdminRoles">
+    <a class="nav-link d-flex align-items-center nav-link-block" [routerLink]="['/admin-roles']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <i class="bi bi-shield-lock me-2"></i>
+      <span>Gestion Rôles</span>
+    </a>
+  </li>
+
+  <li class="nav-item my-3" *ngIf="canSeeBesoins">
     <a class="nav-link d-flex align-items-center nav-link-block" [routerLink]="['/besoins']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       <i class="bi bi-list-task me-2"></i>
       <span>Besoins</span>
     </a>
   </li>
 
-  <li class="nav-item my-3">
+  <li class="nav-item my-3" *ngIf="canSeeCandidats">
     <a class="nav-link d-flex align-items-center nav-link-block" [routerLink]="['/candidats']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       <i class="bi bi-people me-2"></i>
       <span>Candidats</span>

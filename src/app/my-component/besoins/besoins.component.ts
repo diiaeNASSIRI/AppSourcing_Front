@@ -214,10 +214,10 @@ export class BesoinsComponent implements OnInit {
   }
 
   // Permissions helpers
-  canView(): boolean { return this.auth.hasAuthority('CAN_VIEW'); }
-  canCreate(): boolean { return this.auth.hasAuthority('CAN_CREATE') || this.auth.hasAuthority('CAN_EDIT'); }
-  canEdit(): boolean { return this.auth.hasAuthority('CAN_EDIT'); }
-  canDelete(): boolean { return this.auth.hasAuthority('CAN_DELETE'); }
+  canView(): boolean { return this.auth.hasAuthority('BESOIN_READ') || this.auth.hasAuthority('CAN_VIEW'); }
+  canCreate(): boolean { return this.auth.hasAuthority('BESOIN_CREATE') || this.auth.hasAuthority('BESOIN_UPDATE') || this.auth.hasAuthority('CAN_CREATE') || this.auth.hasAuthority('CAN_EDIT'); }
+  canEdit(): boolean { return this.auth.hasAuthority('BESOIN_UPDATE') || this.auth.hasAuthority('CAN_EDIT'); }
+  canDelete(): boolean { return this.auth.hasAuthority('BESOIN_DELETE') || this.auth.hasAuthority('CAN_DELETE'); }
 
   // UI helpers for badges
   priorityClass(p?: string | null): string {

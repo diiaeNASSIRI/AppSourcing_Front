@@ -6,6 +6,10 @@
 # Node artifact files
 node_modules/
 dist/
+out-tsc/
+coverage/
+.angular/
+.angular/cache/
 
 # Compiled Java class files
 *.class
