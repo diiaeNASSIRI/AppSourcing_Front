@@ -1,6 +1,7 @@
 module.exports = [
   {
     context: [
+      "/api",
       "/auth",
       "/admin",
       "/besoins",

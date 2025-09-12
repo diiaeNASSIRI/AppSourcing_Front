@@ -1,6 +1,7 @@
 [
   {
     "context": [
+      "/api",
       "/auth",
       "/admin",
       "/besoins"

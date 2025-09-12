@@ -70,9 +70,9 @@
             <td>{{ b.dateCreation || '-' }}</td>
             <td>{{ b.pru != null ? (b.pru | number:'1.0-0') : '-' }}</td>
             <td>{{ b.nbrExperience != null ? (b.nbrExperience + ' ans') : '-' }}</td>
-            <td><span [ngClass]="priorityClass(b.priorite)">{{ b.priorite || '-' }}</span></td>
-            <td><span [ngClass]="statusClass(b.statut)">{{ b.statut || '-' }}</span></td>
-            <td>{{ b.site || '-' }}</td>
+            <td><span [class]="colorClassFor(b.priorite?.sortOrder)">{{ b.priorite?.label || '-' }}</span></td>
+            <td><span [class]="colorClassFor(b.statut?.sortOrder)">{{ b.statut?.label || '-' }}</span></td>
+            <td>{{ b.site?.label || '-' }}</td>
             <td *ngIf="canEdit() || canDelete()">
               <button class="btn btn-sm btn-outline-primary me-1" (click)="startEdit(b)" [disabled]="!canEdit()" title="Modifier">
                 <i class="bi bi-pencil"></i>
@@ -124,7 +124,10 @@
           </div>
           <div class="col-md-4">
             <label class="form-label">Site</label>
-            <input class="form-control" formControlName="site" />
+            <select class="form-select" formControlName="siteId">
+              <option [ngValue]="null">—</option>
+              <option *ngFor="let s of refSites" [ngValue]="s.id">{{ s.label }}</option>
+            </select>
           </div>
           <div class="col-md-2">
             <label class="form-label">PRU (€)</label>
@@ -136,20 +139,16 @@
           </div>
           <div class="col-md-3">
             <label class="form-label">Priorité</label>
-            <select class="form-select" formControlName="priorite">
-              <option value="">—</option>
-              <option value="Basse">Basse</option>
-              <option value="Moyenne">Moyenne</option>
-              <option value="Haute">Haute</option>
+            <select class="form-select" formControlName="prioriteId">
+              <option [ngValue]="null">—</option>
+              <option *ngFor="let p of refPriorities" [ngValue]="p.id">{{ p.label }}</option>
             </select>
           </div>
           <div class="col-md-3">
             <label class="form-label">Statut</label>
-            <select class="form-select" formControlName="statut">
-              <option value="">—</option>
-              <option value="Ouvert">Ouvert</option>
-              <option value="Sourcing">Sourcing</option>
-              <option value="Clos">Clos</option>
+            <select class="form-select" formControlName="statutId">
+              <option [ngValue]="null">—</option>
+              <option *ngFor="let st of refStatus" [ngValue]="st.id">{{ st.label }}</option>
             </select>
           </div>
         </div>
@@ -161,6 +160,3 @@
     </form>
   </ng-template>
 </div>
-
-
-

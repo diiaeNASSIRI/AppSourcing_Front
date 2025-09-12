@@ -1,9 +1,11 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
-import { Besoin, BesoinRequest } from '../../models/besoin.model';
+import { Besoin, BesoinRequest, RefItem } from '../../models/besoin.model';
 import { BesoinServiceClient } from '../../my-service/besoin.service';
 import { AuthService } from '../../my-service/auth.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { ReferenceStyleService } from '../../my-service/reference-style.service';
+import { ReferenceService, ReferenceType } from '../../my-service/reference.service';
 
 @Component({
   selector: 'app-besoins',
@@ -30,11 +32,18 @@ export class BesoinsComponent implements OnInit {
   sortKey: 'libelle' | 'projet' | 'precision' | 'owner' | 'dateCreation' | 'pru' | 'nbrExperience' | 'priorite' | 'statut' | 'site' = 'libelle';
   sortDir: 'asc' | 'desc' = 'asc';
 
+  // Reference lists
+  refStatus: RefItem[] = [];
+  refSites: RefItem[] = [];
+  refPriorities: RefItem[] = [];
+
   constructor(
     private readonly besoinApi: BesoinServiceClient,
     private readonly fb: FormBuilder,
     public readonly auth: AuthService,
-    private readonly modal: NgbModal
+    private readonly modal: NgbModal,
+    private readonly refs: ReferenceService,
+    private readonly style: ReferenceStyleService,
   ) {}
 
   ngOnInit(): void {
@@ -42,15 +51,16 @@ export class BesoinsComponent implements OnInit {
       libelle: ['', [Validators.required, Validators.maxLength(255)]],
       projet: ['', [Validators.required, Validators.maxLength(255)]],
       owner: ['', [Validators.required, Validators.maxLength(255)]],
-      site: ['', [Validators.maxLength(255)]],
+      siteId: [null],
       pru: [null, [Validators.min(0)]],
       precision: ['', [Validators.maxLength(255)]],
-      priorite: ['', [Validators.maxLength(50)]],
-      statut: ['', [Validators.maxLength(50)]],
+      prioriteId: [null],
+      statutId: [null],
       nbrExperience: [null, [Validators.min(0)]],
     });
 
     if (this.canView()) {
+      this.loadReferences();
       this.loadAll();
     } else {
       console.warn('[Besoins] Accès refusé: permission CAN_VIEW manquante');
@@ -67,7 +77,7 @@ export class BesoinsComponent implements OnInit {
       (b.projet || '').toLowerCase().includes(q) ||
       (b.precision || '').toLowerCase().includes(q) ||
       (b.owner || '').toLowerCase().includes(q) ||
-      (b.site || '').toLowerCase().includes(q)
+      (b.site?.label || '').toLowerCase().includes(q)
     ));
   }
 
@@ -82,8 +92,15 @@ export class BesoinsComponent implements OnInit {
         const bv = Number(b?.[k] ?? 0);
         return (av - bv) * d;
       }
-      const av = (a?.[k] ?? '').toString().toLowerCase();
-      const bv = (b?.[k] ?? '').toString().toLowerCase();
+      // nested label for refs
+      const getVal = (obj: any): string => {
+        if (k === 'priorite' || k === 'statut' || k === 'site') {
+          return (obj?.[k]?.label ?? '').toString().toLowerCase();
+        }
+        return (obj?.[k] ?? '').toString().toLowerCase();
+      };
+      const av = getVal(a);
+      const bv = getVal(b);
       if (av < bv) return -1 * d;
       if (av > bv) return 1 * d;
       return 0;
@@ -107,6 +124,22 @@ export class BesoinsComponent implements OnInit {
       this.sortKey = key;
       this.sortDir = 'asc';
     }
+  }
+
+  private loadReferences(): void {
+    const normalize = (list: RefItem[]): RefItem[] => {
+      const onlyActive = (list || []).filter((r) => r && r.active !== false);
+      return onlyActive.sort((a, b) => (Number(a.sortOrder ?? 0) - Number(b.sortOrder ?? 0)) || a.label.localeCompare(b.label));
+    };
+    const load = (type: ReferenceType, assign: (arr: RefItem[]) => void) => {
+      this.refs.list(type).subscribe({
+        next: (arr: any) => assign(normalize((arr || []) as RefItem[])),
+        error: (e) => console.warn('[Besoins] failed to load refs', type, e)
+      });
+    };
+    load('status', (a) => this.refStatus = a);
+    load('site', (a) => this.refSites = a);
+    load('priority', (a) => this.refPriorities = a);
   }
 
   loadAll(): void {
@@ -137,11 +170,11 @@ export class BesoinsComponent implements OnInit {
       libelle: '',
       projet: '',
       owner: '',
-      site: '',
+      siteId: null,
       pru: null,
       precision: '',
-      priorite: '',
-      statut: '',
+      prioriteId: null,
+      statutId: null,
       nbrExperience: null,
     });
     this.editingId = null;
@@ -154,12 +187,12 @@ export class BesoinsComponent implements OnInit {
       libelle: b.libelle ?? '',
       projet: b.projet ?? '',
       owner: b.owner ?? '',
-      site: b.site ?? '',
+      siteId: b.site?.id ?? null,
       pru: b.pru ?? null,
       precision: b.precision ?? '',
-      priorite: b.priorite ?? '',
-      statut: b.statut ?? '',
-      nbrExperience: b.nbrExperience ?? null,
+      prioriteId: b.priorite?.id ?? null,
+      statutId: b.statut?.id ?? null,
+      nbrExperience: (typeof b.nbrExperience === 'number' ? b.nbrExperience : parseInt(String(b.nbrExperience||'')||'0',10)) || null,
     });
     this.editingId = b.id ?? null;
     this.modalRef = this.modal.open(this.besoinFormTpl, { size: 'lg', centered: true, backdrop: 'static' });
@@ -173,7 +206,19 @@ export class BesoinsComponent implements OnInit {
 
   submit(): void {
     if (this.form.invalid) return;
-    const payload: BesoinRequest = this.form.value;
+    const v = this.form.value as any;
+    const payload: BesoinRequest = {
+      libelle: v.libelle,
+      projet: v.projet,
+      owner: v.owner,
+      precision: v.precision ?? null,
+      pru: v.pru ?? null,
+      dateCreation: null,
+      nbrExperience: v.nbrExperience != null ? String(v.nbrExperience) : null,
+      prioriteId: v.prioriteId ?? null,
+      statutId: v.statutId ?? null,
+      siteId: v.siteId ?? null,
+    };
     this.loading = true;
     this.error = null;
 
@@ -220,20 +265,6 @@ export class BesoinsComponent implements OnInit {
   canDelete(): boolean { return this.auth.hasAuthority('BESOIN_DELETE') || this.auth.hasAuthority('CAN_DELETE'); }
 
   // UI helpers for badges
-  priorityClass(p?: string | null): string {
-    const v = (p || '').toLowerCase();
-    if (v === 'haute' || v === 'high') return 'badge bg-danger';
-    if (v === 'moyenne' || v === 'medium') return 'badge bg-warning text-dark';
-    if (v === 'basse' || v === 'low') return 'badge bg-success';
-    return 'badge bg-secondary';
-  }
-
-  statusClass(s?: string | null): string {
-    const v = (s || '').toLowerCase();
-    if (v === 'sourcing') return 'badge bg-warning text-dark';
-    if (v === 'ouvert' || v === 'open') return 'badge bg-primary';
-    if (v === 'clos' || v === 'closed') return 'badge bg-secondary';
-    if (v === 'en cours' || v === 'in progress') return 'badge bg-info text-dark';
-    return 'badge bg-light text-dark border';
-  }
+  colorClassFor(v?: number | null): string { return this.style.colorClassFor(v); }
+  colorLabelFor(v?: number | null): string { return this.style.colorLabelFor(v); }
 }

@@ -28,13 +28,16 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(outbound).pipe(
       catchError((err) => {
-        if (err && (err.status === 401 || err.status === 403)) {
-          // Token expiré/invalidé (ex: ver mismatch) → logout + retour login
+        if (err && err.status === 401) {
+          // Token expiré/invalidé (ex: version mismatch) -> logout + retour login
           this.auth.logout();
           this.router.navigateByUrl('/');
+          return throwError(() => err);
         }
+        // Laisser l'application gérer les 403 (accès refusé) sans déconnexion
         return throwError(() => err);
       })
     );
   }
 }
+

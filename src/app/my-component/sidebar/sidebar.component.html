@@ -21,6 +21,13 @@
     </a>
   </li>
 
+  <li class="nav-item my-3" *ngIf="canSeeReferences">
+    <a class="nav-link d-flex align-items-center nav-link-block" [routerLink]="['/admin-references']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <i class="bi bi-gear me-2"></i>
+      <span>Références</span>
+    </a>
+  </li>
+
   <li class="nav-item my-3" *ngIf="canSeeBesoins">
     <a class="nav-link d-flex align-items-center nav-link-block" [routerLink]="['/besoins']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       <i class="bi bi-list-task me-2"></i>
@@ -41,3 +48,4 @@
     <div class="footer-text">Organise ta journée !</div>
   </div>
 </ul>
+

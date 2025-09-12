@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { AuthService } from '../../my-service/auth.service';
+import { Roles } from '../../config/permissions';
 
 @Component({
   selector: 'app-sidebar',
@@ -26,6 +27,16 @@ export class SidebarComponent {
 
   get canSeeCandidats(): boolean {
     return this.auth.hasAny('ADMIN', 'CANDIDAT_READ');
+  }
+
+  get canSeeReferences(): boolean {
+    return this.auth.hasAny(
+      Roles.Admin,
+      'REF_MANAGER',
+      'REFERENCE_STATUS_READ',
+      'REFERENCE_SITE_READ',
+      'REFERENCE_PRIORITY_READ'
+    );
   }
 }
 

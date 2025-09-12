@@ -7,14 +7,30 @@ import { AdminUsersComponent } from './my-component/admin-users/admin-users.comp
 import { BesoinsComponent } from './my-component/besoins/besoins.component';
 import { AdminRolesComponent } from './my-component/admin-roles/admin-roles.component';
 import { CandidatsComponent } from './my-component/candidats/candidats.component';
+import { AdminReferencesComponent } from './my-component/admin-references/admin-references.component';
+import { PermissionGuard } from './my-service/permission.guard';
 
 const routes: Routes = [
   { path: '', component: LoginComponent, pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'admin-users', component: AdminUsersComponent, canActivate: [AuthGuard] },
   { path: 'admin-roles', component: AdminRolesComponent, canActivate: [AuthGuard] },
-  { path: 'besoins', component: BesoinsComponent, canActivate: [AuthGuard] },
+  { path: 'besoins', component: BesoinsComponent, canActivate: [AuthGuard, PermissionGuard], data: { perms: ['ADMIN','BESOIN_READ'] } },
   { path: 'candidats', component: CandidatsComponent, canActivate: [AuthGuard] },
+  {
+    path: 'admin-references',
+    component: AdminReferencesComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: {
+      perms: [
+        'ADMIN',
+        'REF_MANAGER',
+        'REFERENCE_STATUS_READ','REFERENCE_STATUS_CREATE','REFERENCE_STATUS_UPDATE','REFERENCE_STATUS_DELETE',
+        'REFERENCE_SITE_READ','REFERENCE_SITE_CREATE','REFERENCE_SITE_UPDATE','REFERENCE_SITE_DELETE',
+        'REFERENCE_PRIORITY_READ','REFERENCE_PRIORITY_CREATE','REFERENCE_PRIORITY_UPDATE','REFERENCE_PRIORITY_DELETE'
+      ]
+    }
+  },
   { path: '**', redirectTo: '' }
 ];
 

@@ -92,7 +92,7 @@
           <!-- Groupe Besoins (matrice CRUD) -->
           <div class="mb-3" *ngIf="permsBesoin.length">
             <div class="d-flex justify-content-between align-items-center">
-              <h6 class="m-0 text-success">Besoins</h6>
+              <h6 class="m-0 text-primary">Besoins</h6>
               <div class="btn-group btn-group-sm">
                 <button class="btn btn-outline-secondary" (click)="setGroup('BESOIN_', true)">Tout cocher</button>
                 <button class="btn btn-outline-secondary" (click)="setGroup('BESOIN_', false)">Tout décocher</button>
@@ -125,7 +125,7 @@
           <!-- Groupe Candidats (matrice CRUD + sous-ressources) -->
           <div class="mb-3" *ngIf="permsCandidat.length">
             <div class="d-flex justify-content-between align-items-center">
-              <h6 class="m-0 text-info">Candidats</h6>
+              <h6 class="m-0 text-primary">Candidats</h6>
               <div class="btn-group btn-group-sm">
                 <button class="btn btn-outline-secondary" (click)="setGroup('CANDIDAT_', true)">Tout cocher</button>
                 <button class="btn btn-outline-secondary" (click)="setGroup('CANDIDAT_', false)">Tout décocher</button>
@@ -169,7 +169,53 @@
             </div>
           </div>
 
-          
+          <!-- Référentiels group -->
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <h6 class="m-0 text-primary">Référentiels</h6>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" (click)="setGroup('REFERENCE_', true)">Tout cocher</button>
+                <button class="btn btn-outline-secondary" (click)="setGroup('REFERENCE_', false)">Tout décocher</button>
+              </div>
+            </div>
+            <div class="table-responsive mt-2">
+              <table class="table table-sm table-bordered align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Ressource</th>
+                    <th class="text-center">Voir</th>
+                    <th class="text-center">Créer</th>
+                    <th class="text-center">Modifier</th>
+                    <th class="text-center">Supprimer</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="w-50">Statuts</td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUS_READ')" (change)="togglePerm('REFERENCE_STATUS_READ', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUS_CREATE')" (change)="togglePerm('REFERENCE_STATUS_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_STATUS_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUS_UPDATE')" (change)="togglePerm('REFERENCE_STATUS_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_STATUS_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUS_DELETE')" (change)="togglePerm('REFERENCE_STATUS_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_STATUS_READ')"></td>
+                  </tr>
+                  <tr>
+                    <td>Sites</td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_SITE_READ')" (change)="togglePerm('REFERENCE_SITE_READ', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_SITE_CREATE')" (change)="togglePerm('REFERENCE_SITE_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_SITE_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_SITE_UPDATE')" (change)="togglePerm('REFERENCE_SITE_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_SITE_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_SITE_DELETE')" (change)="togglePerm('REFERENCE_SITE_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_SITE_READ')"></td>
+                  </tr>
+                  <tr>
+                    <td>Priorités</td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_PRIORITY_READ')" (change)="togglePerm('REFERENCE_PRIORITY_READ', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_PRIORITY_CREATE')" (change)="togglePerm('REFERENCE_PRIORITY_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_PRIORITY_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_PRIORITY_UPDATE')" (change)="togglePerm('REFERENCE_PRIORITY_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_PRIORITY_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_PRIORITY_DELETE')" (change)="togglePerm('REFERENCE_PRIORITY_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_PRIORITY_READ')"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <button class="btn btn-success mt-2" (click)="savePermissions()">Appliquer</button>
         </div>
       </div>
