@@ -2,8 +2,8 @@
   <div class="login-card" role="form" aria-labelledby="loginTitle">
     <div class="login-card__brand">
       <img src="assets/images/sii_services_maroc_logo.jpg" alt="Logo" class="login-card__logo" />
-      <h1 id="loginTitle" class="login-card__title">Espace Checklists</h1>
-      <p class="login-card__tagline">Developing a digital & sustainable world together</p>
+  <h1 id="loginTitle" class="login-card__title">appsourcing</h1>
+  <p class="login-card__tagline">Developing a digital & sustainable world together</p>
 </div>
 
 <!-- Modal: Force password change on first login/admin reset -->
@@ -44,46 +44,48 @@
 </ng-template>
 
     <form (ngSubmit)="submit()" autocomplete="on" class="login-form" [formGroup]="form">
-      <div class="field">
+      <div class="mb-2">
         <label for="email" class="field__label form-label">Email</label>
-        <input id="email" type="email" placeholder="email@example.com" formControlName="email" required class="field__control form-control" />
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+          <input id="email" type="email" placeholder="email@example.com" formControlName="email" required class="form-control" />
+        </div>
         <small class="form-error" *ngIf="form.controls.email.touched && form.controls.email.invalid">Email invalide</small>
       </div>
 
-      <div class="field">
+      <div class="mb-1">
         <label for="password" class="field__label form-label">Mot de passe</label>
-        <div class="password-wrapper">
-          <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" required class="field__control form-control" />
-          <button type="button" class="password-toggle" (click)="togglePasswordVisibility()" [attr.aria-label]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
-            <span *ngIf="!showPassword">Afficher</span>
-            <span *ngIf="showPassword">Masquer</span>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-lock"></i></span>
+          <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" required class="form-control" />
+          <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility()" [attr.aria-label]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+            <i [class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
           </button>
         </div>
         <small class="form-error" *ngIf="form.controls.password.touched && form.controls.password.invalid">Mot de passe requis (6+ caractères)</small>
       </div>
 
-      <div class="login-meta d-flex justify-content-between align-items-center">
+      <div class="login-meta d-flex justify-content-between align-items-center mt-2">
         <label class="remember">
           <input type="checkbox" class="form-check-input" />
           <span class="form-check-label">Se souvenir</span>
         </label>
-        <a href="#" (click)="$event.preventDefault()" class="forgot">Mot de passe oublié ?</a>
       </div>
 
       <div *ngIf="error" class="form-error text-danger mt-2" role="alert">{{ error }}</div>
 
-      <button class="btn btn-primary w-100 mt-2" type="submit" [disabled]="loading">
+      <button class="btn btn-primary w-100 mt-3" type="submit" [disabled]="loading">
         <span *ngIf="!loading">Se connecter</span>
         <span *ngIf="loading" class="loader" aria-label="Chargement"></span>
       </button>
+
+      <p class="text-muted small text-center mt-3 mb-0">
+        Vous avez oublié votre mot de passe ? Veuillez contacter l’administrateur pour le réinitialiser.
+      </p>
     </form>
 
-    <ul class="checklist-preview" aria-hidden="true">
-      <li class="item">Préparer les éléments</li>
-      <li class="item">Valider les actions</li>
-      <li class="item">Suivre le statut</li>
-    </ul>
+    
 
-    <div class="copyright">© {{ currentYear }} SII Maroc</div>
+  <div class="copyright">© {{ currentYear }} SII Maroc</div>
   </div>
 </div>

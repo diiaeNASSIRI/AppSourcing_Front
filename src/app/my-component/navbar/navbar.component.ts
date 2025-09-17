@@ -1,4 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { AuthService } from '../../my-service/auth.service';
 
 interface NotificationItem {
   title?: string;
@@ -25,6 +28,21 @@ export class NavbarComponent {
   showNotifications = false;
   notifLoading = false;
   notifError: string | null = null;
+
+  // Change password modal
+  @ViewChild('changePwdTpl') changePwdTpl!: TemplateRef<any>;
+  modalRef?: NgbModalRef;
+  changeLoading = false;
+  changeError: string | null = null;
+  changeSuccess: string | null = null;
+  showCurrent = false;
+  showNew = false;
+  showConfirm = false;
+  changeForm = this.fb.group({
+    currentPassword: ['', [Validators.required, Validators.minLength(6)]],
+    newPassword: ['', [Validators.required, Validators.minLength(8)]],
+    confirmPassword: ['', [Validators.required, Validators.minLength(8)]],
+  });
 
   get unreadNotifications(): NotificationItem[] {
     // Fallback to provided notifications list. In a real app, filter by read flag.
@@ -81,7 +99,44 @@ export class NavbarComponent {
     return 'bg-secondary';
   }
 
+  constructor(private fb: FormBuilder, private modal: NgbModal, private auth: AuthService) {}
+
   logout(): void {
     this.logoutClick.emit();
+  }
+
+  openChangePasswordModal(): void {
+    this.changeError = null;
+    this.changeSuccess = null;
+    this.changeForm.reset();
+    this.showCurrent = this.showNew = this.showConfirm = false;
+    this.modalRef = this.modal.open(this.changePwdTpl, { centered: true, backdrop: 'static', keyboard: false });
+  }
+
+  submitChangePassword(): void {
+    this.changeError = null;
+    this.changeSuccess = null;
+    const { currentPassword, newPassword, confirmPassword } = this.changeForm.getRawValue() as any;
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      this.changeError = 'Veuillez remplir tous les champs.';
+      this.changeForm.markAllAsTouched();
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      this.changeError = 'Les mots de passe ne correspondent pas.';
+      return;
+    }
+    this.changeLoading = true;
+    this.auth.changePassword({ oldPassword: currentPassword, newPassword }).subscribe({
+      next: (res) => {
+        this.changeLoading = false;
+        this.changeSuccess = res?.message || 'Mot de passe modifié avec succès.';
+        setTimeout(() => this.modalRef?.close(), 700);
+      },
+      error: (err) => {
+        this.changeLoading = false;
+        this.changeError = err?.error?.message || err?.message || 'Echec de la modification du mot de passe';
+      }
+    });
   }
 }

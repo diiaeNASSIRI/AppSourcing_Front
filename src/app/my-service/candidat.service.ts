@@ -32,19 +32,4 @@ export class CandidatServiceClient {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
   }
-
-  // Upload CV (multipart/form-data)
-  uploadCv(id: number, file: File): Observable<{ path?: string; url?: string } | any> {
-    const form = new FormData();
-    form.append('file', file, file.name);
-    return this.http.post(`${this.base}/${id}/cv`, form);
-  }
-
-  // Download CV as Blob with headers (for filename)
-  downloadCv(id: number) {
-    return this.http.get(`${this.base}/${id}/cv`, {
-      observe: 'response',
-      responseType: 'blob' as const,
-    }) as unknown as Observable<HttpResponse<Blob>>;
-  }
 }

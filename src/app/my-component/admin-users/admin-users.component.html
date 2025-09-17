@@ -1,4 +1,4 @@
-﻿<div class="admin-users container-fluid py-3">
+﻿<div class="admin-users entity-page container-fluid py-3">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h2 class="page-title m-0">
       <i class="bi bi-people-fill me-2 text-primary"></i>
@@ -27,9 +27,9 @@
       <div *ngIf="success" class="alert alert-success">{{ success }}</div>
     </div>
 
-    <div *ngIf="canViewAdminUsers(); else noAdminUsersView" class="card shadow mb-4">
+    <div *ngIf="canViewAdminUsers(); else noAdminUsersView" class="card entity-card shadow mb-4">
       <div class="card-header py-3 d-flex align-items-center justify-content-between">
-        <h6 class="m-0 font-weight-bold text-primary">Utilisateurs</h6>
+        <h6 class="m-0 text-primary">Utilisateurs</h6>
         <button class="btn btn-outline-secondary btn-sm" (click)="refresh()">
           <i class="bi bi-arrow-repeat me-1"></i> Rafraîchir
         </button>
@@ -57,7 +57,7 @@
 
         <div *ngIf="loading" class="text-muted">Chargement...</div>
         <div *ngIf="!loading" class="table-responsive">
-          <table class="table table-bordered table-hover align-middle mb-2">
+          <table class="table entity-table table-bordered table-hover align-middle">
             <thead class="table-light align-middle">
               <tr>
                 <th (click)="setSort('fullName')" role="button">
@@ -76,7 +76,7 @@
                   <i *ngIf="sortKey==='roleName'" class="bi" [ngClass]="{'bi-caret-up-fill': sortDir==='asc', 'bi-caret-down-fill': sortDir==='desc'}"></i>
                 </th>
                 <th style="width: 140px;"><i class="bi bi-key-fill me-1 text-secondary"></i> Mot de passe</th>
-                <th style="width: 160px;"><i class="bi bi-sliders me-1 text-secondary"></i> Actions</th>
+                <th style="width: 160px;" class="entity-actions"><i class="bi bi-sliders me-1 text-secondary"></i> Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -93,7 +93,7 @@
                     {{ u.mustChangePassword ? 'À changer' : 'OK' }}
                   </span>
                 </td>
-                <td>
+        <td class="entity-actions">
                   <button class="btn btn-sm btn-outline-primary me-1" (click)="startEdit(u)" title="Modifier" *ngIf="canEditAdminUsers()">
                     <i class="bi bi-pencil"></i>
                   </button>
@@ -107,8 +107,7 @@
               </tr>
             </tbody>
           </table>
-
-          <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex justify-content-between align-items-center entity-footer">
             <div class="small text-muted">Total: {{ totalItems }}</div>
             <ngb-pagination [collectionSize]="totalItems" [(page)]="page" [pageSize]="pageSize" [maxSize]="5" [ellipses]="true" [boundaryLinks]="true" size="sm"></ngb-pagination>
           </div>

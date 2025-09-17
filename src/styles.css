@@ -17,3 +17,104 @@
   padding: 0.25rem 0.5rem;
   vertical-align: middle;
 }
+
+/* =====================================================
+   Unified entity management UI (tables, cards, modals)
+   Applied across: candidats, besoins, propositions,
+   admin-users, admin-roles, admin-references
+   ----------------------------------------------------- */
+
+/* Page wrapper */
+.entity-page {
+  --entity-accent: var(--bs-primary);
+}
+
+/* Card */
+.entity-card {
+  border: 1px solid #e5e7eb;
+  border-radius: .5rem;
+}
+.entity-card > .card-header {
+  background: linear-gradient(135deg,#f8f9fa,#f1f5f9);
+  font-weight: 600;
+  font-size: .85rem;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  padding-top: .65rem;
+  padding-bottom: .6rem;
+}
+
+/* Tables */
+.entity-table {
+  --row-hover-bg: #f5f9ff;
+  --header-bg: #f1f5f9;
+  --header-border: #d9dee3;
+  margin-bottom: .25rem;
+  font-size: .85rem;
+}
+.entity-table thead.table-light {
+  background-color: var(--header-bg) !important;
+  border-color: var(--header-border);
+}
+.entity-table th {
+  vertical-align: middle;
+  white-space: nowrap;
+  user-select: none;
+}
+.entity-table th[role=button] { cursor: pointer; position: relative; }
+.entity-table th[role=button]:hover { background: #eef3f8; }
+.entity-table tbody tr:hover { background: var(--row-hover-bg); }
+.entity-table td, .entity-table th { padding: .55rem .75rem; }
+.entity-table .badge { font-weight: 500; }
+
+/* Actions column */
+.entity-actions { width: 115px; }
+.entity-actions .btn { padding: .25rem .45rem; }
+.entity-actions .btn i { font-size: .8rem; }
+
+/* Empty state */
+.empty-state {
+  padding: 1.25rem;
+  border: 1px dashed #cbd5e1;
+  background: #f8fafc;
+  border-radius: .5rem;
+  font-size: .85rem;
+}
+
+/* Pagination footer */
+.entity-footer {
+  border-top: 1px solid #e2e8f0;
+  padding-top: .5rem;
+  margin-top: .5rem;
+}
+
+/* Modal consistency */
+.modal-header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e2e8f0;
+}
+.modal-footer {
+  background: #f8f9fa;
+  border-top: 1px solid #e2e8f0;
+}
+.modal-title { font-weight: 600; }
+
+/* Form spacing inside modals */
+.modal-body .form-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; color: #475569; }
+.modal-body input.form-control, .modal-body select.form-select { font-size: .85rem; }
+
+/* Utility chips for colored labels (reuse existing colorClassFor) */
+.entity-chip { display: inline-block; padding: .25rem .5rem; font-size: .65rem; border-radius: .5rem; font-weight: 600; letter-spacing: .5px; }
+
+/* Scroll within wide permission matrices without shrinking text */
+.permission-matrix-wrapper { max-height: 400px; overflow: auto; }
+
+/* Focus styles for accessibility */
+.entity-table button:focus, .entity-table a:focus { outline: 2px solid var(--entity-accent); outline-offset: 2px; }
+
+/* Subtle divider */
+.entity-divider { border-top: 1px solid #e2e8f0; margin: 1rem 0; }
+
+/* Link toggle section (candidats links) */
+.links-block { border-left: 3px solid var(--bs-primary); padding-left: .5rem; }
+
