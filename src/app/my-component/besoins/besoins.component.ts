@@ -51,12 +51,13 @@ export class BesoinsComponent implements OnInit {
       libelle: ['', [Validators.required, Validators.maxLength(255)]],
       projet: ['', [Validators.required, Validators.maxLength(255)]],
       owner: ['', [Validators.required, Validators.maxLength(255)]],
+  dateCreation: [null], // date saisie par l'utilisateur (yyyy-MM-dd)
       siteId: [null],
       pru: [null, [Validators.min(0)]],
       precision: ['', [Validators.maxLength(255)]],
       prioriteId: [null],
       statutId: [null],
-      nbrExperience: [null, [Validators.min(0)]],
+  nbrExperience: [null], // texte libre désormais
     });
 
     if (this.canView()) {
@@ -170,12 +171,13 @@ export class BesoinsComponent implements OnInit {
       libelle: '',
       projet: '',
       owner: '',
+  dateCreation: null,
       siteId: null,
       pru: null,
       precision: '',
       prioriteId: null,
       statutId: null,
-      nbrExperience: null,
+  nbrExperience: null,
     });
     this.editingId = null;
     this.modalRef = this.modal.open(this.besoinFormTpl, { size: 'lg', centered: true, backdrop: 'static' });
@@ -187,12 +189,13 @@ export class BesoinsComponent implements OnInit {
       libelle: b.libelle ?? '',
       projet: b.projet ?? '',
       owner: b.owner ?? '',
+  dateCreation: b.dateCreation ?? null,
       siteId: b.site?.id ?? null,
       pru: b.pru ?? null,
       precision: b.precision ?? '',
       prioriteId: b.priorite?.id ?? null,
       statutId: b.statut?.id ?? null,
-      nbrExperience: (typeof b.nbrExperience === 'number' ? b.nbrExperience : parseInt(String(b.nbrExperience||'')||'0',10)) || null,
+  nbrExperience: b.nbrExperience ?? null,
     });
     this.editingId = b.id ?? null;
     this.modalRef = this.modal.open(this.besoinFormTpl, { size: 'lg', centered: true, backdrop: 'static' });
@@ -213,8 +216,8 @@ export class BesoinsComponent implements OnInit {
       owner: v.owner,
       precision: v.precision ?? null,
       pru: v.pru ?? null,
-      dateCreation: null,
-      nbrExperience: v.nbrExperience != null ? String(v.nbrExperience) : null,
+  dateCreation: v.dateCreation || null, // conserver la date saisie (ou null si non fournie)
+  nbrExperience: v.nbrExperience != null ? String(v.nbrExperience).trim() || null : null,
       prioriteId: v.prioriteId ?? null,
       statutId: v.statutId ?? null,
       siteId: v.siteId ?? null,

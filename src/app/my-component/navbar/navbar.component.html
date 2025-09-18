@@ -12,6 +12,9 @@
             {{ unreadCount }}
           </span>
         </button>
+        <button type="button" class="btn btn-link me-2" (click)="openChangePasswordModal()" aria-label="Changer le mot de passe" title="Changer le mot de passe">
+          <i class="bi bi-key fs-5"></i>
+        </button>
         <img class="img-profile rounded-circle shadow-sm" [src]="'https://ui-avatars.com/api/?name=' + (email || 'User')" alt="avatar">
         <span class="ms-2 text-dark username">{{ email || 'Utilisateur' }}</span>
       </li>
@@ -68,6 +71,63 @@
     </div>
   </div>
 </div>
+
+
+
+<!-- Modal template: Change password -->
+<ng-template #changePwdTpl>
+  <div class="modal-header">
+    <h5 class="modal-title">Changer le mot de passe</h5>
+    <button type="button" class="btn-close" aria-label="Fermer" (click)="modalRef?.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="changeForm" (ngSubmit)="submitChangePassword()">
+      <div class="mb-3">
+        <label class="form-label">Mot de passe actuel</label>
+        <div class="input-group">
+          <input [type]="showCurrent ? 'text' : 'password'" class="form-control" formControlName="currentPassword" />
+          <button type="button" class="btn btn-outline-secondary" (click)="showCurrent = !showCurrent">
+            <i [class]="showCurrent ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+          </button>
+        </div>
+        <small class="text-danger" *ngIf="changeForm.controls.currentPassword.touched && changeForm.controls.currentPassword.invalid">
+          Requis
+        </small>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Nouveau mot de passe</label>
+        <div class="input-group">
+          <input [type]="showNew ? 'text' : 'password'" class="form-control" formControlName="newPassword" />
+          <button type="button" class="btn btn-outline-secondary" (click)="showNew = !showNew">
+            <i [class]="showNew ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+          </button>
+        </div>
+        <small class="text-muted">Min 8 caractères, avec majuscule, minuscule, chiffre et caractère spécial.</small>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">Confirmer le mot de passe</label>
+        <div class="input-group">
+          <input [type]="showConfirm ? 'text' : 'password'" class="form-control" formControlName="confirmPassword" />
+          <button type="button" class="btn btn-outline-secondary" (click)="showConfirm = !showConfirm">
+            <i [class]="showConfirm ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="changeError" class="alert alert-danger py-1">{{ changeError }}</div>
+      <div *ngIf="changeSuccess" class="alert alert-success py-1">{{ changeSuccess }}</div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-outline-secondary" [disabled]="changeLoading" (click)="modalRef?.dismiss()">Annuler</button>
+    <button class="btn btn-primary" [disabled]="changeLoading" (click)="submitChangePassword()">
+      <span *ngIf="changeLoading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+      Enregistrer
+    </button>
+  </div>
+</ng-template>
 
 
 

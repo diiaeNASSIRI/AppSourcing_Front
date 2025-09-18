@@ -18,7 +18,7 @@ export interface Besoin {
   precision?: string | null;
   priorite?: RefItem | null; // nested ref entity
   statut?: RefItem | null;   // nested ref entity
-  nbrExperience?: number | string | null; // backend stores string
+  nbrExperience?: string | null; // maintenant libre (ex: "2 ans", "Junior", etc.)
 }
 
 export interface BesoinRequest {
@@ -28,7 +28,7 @@ export interface BesoinRequest {
   precision?: string | null;
   pru?: number | null;
   dateCreation?: string | null;
-  nbrExperience?: string | null;
+  nbrExperience?: string | null; // string uniquement côté frontend
   prioriteId?: number | null;
   statutId?: number | null;
   siteId?: number | null;

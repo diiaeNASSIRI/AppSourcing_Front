@@ -62,7 +62,7 @@ export class AdminRolesComponent implements OnInit {
     if (this.createForm.invalid) { this.createForm.markAllAsTouched(); return; }
     const { name } = this.createForm.getRawValue() as any;
     this.admin.createRole(name).subscribe({
-      next: () => { this.success = 'Role created'; this.createForm.reset(); this.refresh(); },
+  next: () => { this.success = 'Role created'; this.createForm.reset(); this.refresh(); },
       error: (err) => { this.error = err?.error?.message || 'Create failed'; }
     });
   }
@@ -72,7 +72,7 @@ export class AdminRolesComponent implements OnInit {
     if (this.renameForm.invalid) { this.renameForm.markAllAsTouched(); return; }
     const { newName } = this.renameForm.getRawValue() as any;
     this.admin.renameRole(this.selectedRole.name, newName).subscribe({
-      next: () => { this.success = 'Role renamed'; this.refresh(); },
+  next: () => { this.success = 'Role renamed'; this.refresh(); },
       error: (err) => { this.error = err?.error?.message || 'Rename failed'; }
     });
   }
@@ -84,6 +84,8 @@ export class AdminRolesComponent implements OnInit {
       error: (err) => { this.error = err?.error?.message || 'Delete failed'; }
     });
   }
+
+  // (Ancienne version sans recherche/pagination)
 
   togglePerm(name: string, checked: boolean): void {
     // Core toggle
@@ -104,7 +106,7 @@ export class AdminRolesComponent implements OnInit {
 
   savePermissions(): void {
     if (!this.selectedRole) return;
-    const perms = Array.from(this.selectedPerms).filter(p => !p.startsWith('CAN_') && p !== 'ADMIN_PANEL');
+  const perms = Array.from(this.selectedPerms).filter(p => !p.startsWith('CAN_') && p !== 'ADMIN_PANEL');
     this.admin.setRolePermissions(this.selectedRole.name, perms).subscribe({
       next: (res) => { this.success = 'Permissions updated'; this.selectedPerms = new Set(res.permissions || []); },
       error: (err) => { this.error = err?.error?.message || 'Update permissions failed'; }
@@ -140,48 +142,26 @@ export class AdminRolesComponent implements OnInit {
   }
 
   private viewFor(p: string): string | null {
-    // Admin roles/users: EDIT depends on VIEW
     if (p === 'ADMIN_MANAGE_ROLES_CAN_EDIT') return 'ADMIN_MANAGE_ROLES_CAN_VIEW';
     if (p === 'ADMIN_MANAGE_USERS_CAN_EDIT') return 'ADMIN_MANAGE_USERS_CAN_VIEW';
-
-    // Besoins
     if (p.startsWith('BESOIN_')) return p.endsWith('_READ') ? p : 'BESOIN_READ';
-
-    // Candidats main
-    if (p.startsWith('CANDIDAT_NOTE_')) return p.endsWith('_READ') ? p : 'CANDIDAT_NOTE_READ';
-    if (p.startsWith('CANDIDAT_CV_')) return p.endsWith('_READ') ? p : 'CANDIDAT_CV_READ';
     if (p.startsWith('CANDIDAT_')) return p.endsWith('_READ') ? p : 'CANDIDAT_READ';
-
-    // Référentiels
     if (p.startsWith('REFERENCE_STATUS_')) return p.endsWith('_READ') ? p : 'REFERENCE_STATUS_READ';
     if (p.startsWith('REFERENCE_SITE_')) return p.endsWith('_READ') ? p : 'REFERENCE_SITE_READ';
     if (p.startsWith('REFERENCE_PRIORITY_')) return p.endsWith('_READ') ? p : 'REFERENCE_PRIORITY_READ';
-
     return null;
   }
 
-    private dependentsForView(view: string): string[] {
-      switch (view) {
-        case 'ADMIN_MANAGE_ROLES_CAN_VIEW':
-          return ['ADMIN_MANAGE_ROLES_CAN_EDIT'];
-        case 'ADMIN_MANAGE_USERS_CAN_VIEW':
-          return ['ADMIN_MANAGE_USERS_CAN_EDIT'];
-        case 'BESOIN_READ':
-          return ['BESOIN_CREATE','BESOIN_UPDATE','BESOIN_DELETE'];
-        case 'CANDIDAT_READ':
-          return ['CANDIDAT_CREATE','CANDIDAT_UPDATE','CANDIDAT_DELETE'];
-        case 'CANDIDAT_NOTE_READ':
-          return ['CANDIDAT_NOTE_CREATE','CANDIDAT_NOTE_UPDATE','CANDIDAT_NOTE_DELETE'];
-        case 'CANDIDAT_CV_READ':
-          return ['CANDIDAT_CV_UPLOAD','CANDIDAT_CV_DELETE'];
-        case 'REFERENCE_STATUS_READ':
-          return ['REFERENCE_STATUS_CREATE','REFERENCE_STATUS_UPDATE','REFERENCE_STATUS_DELETE'];
-        case 'REFERENCE_SITE_READ':
-          return ['REFERENCE_SITE_CREATE','REFERENCE_SITE_UPDATE','REFERENCE_SITE_DELETE'];
-        case 'REFERENCE_PRIORITY_READ':
-          return ['REFERENCE_PRIORITY_CREATE','REFERENCE_PRIORITY_UPDATE','REFERENCE_PRIORITY_DELETE'];
-        default:
-          return [];
-      }
+  private dependentsForView(view: string): string[] {
+    switch (view) {
+      case 'ADMIN_MANAGE_ROLES_CAN_VIEW': return ['ADMIN_MANAGE_ROLES_CAN_EDIT'];
+      case 'ADMIN_MANAGE_USERS_CAN_VIEW': return ['ADMIN_MANAGE_USERS_CAN_EDIT'];
+      case 'BESOIN_READ': return ['BESOIN_CREATE','BESOIN_UPDATE','BESOIN_DELETE'];
+      case 'CANDIDAT_READ': return ['CANDIDAT_CREATE','CANDIDAT_UPDATE','CANDIDAT_DELETE'];
+      case 'REFERENCE_STATUS_READ': return ['REFERENCE_STATUS_CREATE','REFERENCE_STATUS_UPDATE','REFERENCE_STATUS_DELETE'];
+      case 'REFERENCE_SITE_READ': return ['REFERENCE_SITE_CREATE','REFERENCE_SITE_UPDATE','REFERENCE_SITE_DELETE'];
+      case 'REFERENCE_PRIORITY_READ': return ['REFERENCE_PRIORITY_CREATE','REFERENCE_PRIORITY_UPDATE','REFERENCE_PRIORITY_DELETE'];
+      default: return [];
     }
+  }
 }

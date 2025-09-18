@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReferenceService, ReferenceType, ReferenceItem } from '../../my-service/reference.service';
 import { AuthService } from '../../my-service/auth.service';
 import { Perms, Roles } from '../../config/permissions';
 import { ReferenceStyleService } from '../../my-service/reference-style.service';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-admin-references',
@@ -20,11 +21,22 @@ export class AdminReferencesComponent implements OnInit {
   editingId: number | null = null;
   isEditing = false;
 
+  // UI list state (comme autres interfaces)
+  page = 1;
+  pageSize = 20;
+  search = '';
+  sortKey: 'code' | 'label' | 'active' | 'sortOrder' = 'label';
+  sortDir: 'asc' | 'desc' = 'asc';
+
+  private modalRef?: NgbModalRef;
+  @ViewChild('refForm') refFormTpl?: TemplateRef<any>;
+
   constructor(
     private readonly refs: ReferenceService,
     private readonly fb: FormBuilder,
     public readonly auth: AuthService,
-    private readonly style: ReferenceStyleService,
+  private readonly style: ReferenceStyleService,
+  private readonly modal: NgbModal,
   ) {}
 
   ngOnInit(): void {
@@ -55,6 +67,8 @@ export class AdminReferencesComponent implements OnInit {
     this.editingId = null;
     this.isEditing = false;
     this.form.reset({ code: '', label: '', description: '', active: true, sortOrder: 1 });
+  this.page = 1;
+  this.search = '';
     this.load();
   }
 
@@ -62,7 +76,14 @@ export class AdminReferencesComponent implements OnInit {
     this.loading = true;
     this.error = null;
     this.refs.list(this.current).subscribe({
-      next: d => { this.data = d || []; this.loading = false; },
+      next: d => {
+        this.data = d || [];
+        // réajuster la page si nécessaire
+        const total = this.filtered.length;
+        const maxPage = Math.max(1, Math.ceil(total / this.pageSize));
+        if (this.page > maxPage) this.page = 1;
+        this.loading = false;
+      },
       error: () => { this.error = 'Erreur de chargement'; this.loading = false; }
     });
   }
@@ -72,6 +93,7 @@ export class AdminReferencesComponent implements OnInit {
     this.editingId = null;
     this.isEditing = false;
     this.form.reset({ code: '', label: '', description: '', active: true, sortOrder: 1 });
+    this.openForm();
   }
 
   startEdit(item: ReferenceItem): void {
@@ -85,6 +107,7 @@ export class AdminReferencesComponent implements OnInit {
       active: item.active ?? true,
       sortOrder: item.sortOrder ?? 1
     });
+    this.openForm();
   }
 
   remove(item: ReferenceItem): void {
@@ -107,9 +130,60 @@ export class AdminReferencesComponent implements OnInit {
       ? this.refs.update(this.current, this.editingId!, payload)
       : this.refs.create(this.current, payload);
     obs.subscribe({
-      next: () => { this.editingId = null; this.load(); },
+      next: () => { this.editingId = null; this.closeForm(); this.load(); },
       error: () => { this.error = 'Opération échouée'; this.loading = false; }
     });
+  }
+
+  openForm(): void {
+    if (!this.refFormTpl) return;
+    this.modalRef = this.modal.open(this.refFormTpl, { size: 'lg', backdrop: 'static', centered: true });
+  }
+
+  closeForm(): void { this.modalRef?.close(); }
+  cancelForm(): void { this.editingId = null; this.isEditing = false; this.closeForm(); }
+
+  // =================== Table helpers =====================
+  get filtered(): ReferenceItem[] {
+    const q = (this.search || '').trim().toLowerCase();
+    if (!q) return this.data;
+    return this.data.filter(r => (
+      (r.code || '').toLowerCase().includes(q) ||
+      (r.label || '').toLowerCase().includes(q) ||
+      (r.description || '').toLowerCase().includes(q) ||
+      this.colorLabelFor(r.sortOrder)?.toLowerCase().includes(q)
+    ));
+  }
+
+  get sorted(): ReferenceItem[] {
+    const arr = [...this.filtered];
+    const k = this.sortKey;
+    const d = this.sortDir === 'asc' ? 1 : -1;
+    arr.sort((a: any, b: any) => {
+      if (k === 'active' || k === 'sortOrder') {
+        const av = Number(a?.[k] ?? 0);
+        const bv = Number(b?.[k] ?? 0);
+        return (av - bv) * d;
+      }
+      const av = (a?.[k] ?? '').toString().toLowerCase();
+      const bv = (b?.[k] ?? '').toString().toLowerCase();
+      if (av < bv) return -1 * d;
+      if (av > bv) return 1 * d;
+      return 0;
+    });
+    return arr;
+  }
+
+  get pageItems(): ReferenceItem[] {
+    const start = (this.page - 1) * this.pageSize;
+    return this.sorted.slice(start, start + this.pageSize);
+  }
+
+  get totalItems(): number { return this.filtered.length; }
+
+  setSort(key: typeof this.sortKey): void {
+    if (this.sortKey === key) this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    else { this.sortKey = key; this.sortDir = 'asc'; }
   }
 
   // Permissions par type
@@ -172,5 +246,29 @@ export class AdminReferencesComponent implements OnInit {
   // Couleur: helpers d’affichage
   colorClassFor(v?: number | null): string { return this.style.colorClassFor(v); }
   colorLabelFor(v?: number | null): string { return this.style.colorLabelFor(v); }
+
+  // Description courte affichée dans l'UI pour expliquer l'usage du référentiel courant
+  get typeDescription(): string {
+    switch (this.current) {
+      case 'status':
+  return 'Statuts utilisés dans l\'interface Besoins (colonne Statut).';
+      case 'site':
+  return 'Sites utilisés dans l\'interface Besoins (localisation / centre).';
+      case 'priority':
+  return 'Priorités utilisées dans l\'interface Besoins.';
+      default:
+        return '';
+    }
+  }
+
+  // Libellé lisible (pluriel) pour affichage dans le header / modal
+  get currentLabel(): string {
+    switch (this.current) {
+      case 'status': return 'Statuts';
+      case 'site': return 'Sites';
+      case 'priority': return 'Priorités';
+      default: return this.current;
+    }
+  }
 }
 

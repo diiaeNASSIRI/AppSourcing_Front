@@ -1,0 +1,156 @@
+﻿<div class="propositions entity-page container-fluid py-3">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="page-title m-0">
+      <i class="bi bi-card-checklist me-2 text-primary"></i>
+      Propositions
+      <span class="badge bg-primary-subtle text-primary ms-2 align-middle">{{ items.length || 0 }}</span>
+    </h2>
+    <div>
+      <button class="btn btn-primary" (click)="startCreate()" [disabled]="!canCreate()">
+        <i class="bi bi-plus-lg me-1"></i> Nouvelle proposition
+      </button>
+    </div>
+  </div>
+
+  <div class="mb-2">
+    <div *ngIf="loading" class="text-muted">Chargement...</div>
+    <div *ngIf="error" class="alert alert-danger mb-0">{{ error }}</div>
+  </div>
+
+  <div class="card entity-card shadow mb-4">
+    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+      <h6 class="m-0 text-primary">Propositions</h6>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-danger btn-sm" (click)="removeAll()" *ngIf="canDelete() && totalItems">
+          <i class="bi bi-trash me-1"></i> Tout supprimer
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="loadAll()">
+          <i class="bi bi-arrow-repeat me-1"></i> Rafraîchir
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row g-2 align-items-center mb-3">
+        <div class="col-6 col-sm-5 col-md-4">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" placeholder="Rechercher (ID, Candidat, Besoin, Statut...)" [(ngModel)]="search" />
+          </div>
+        </div>
+        <div class="col-6 col-sm-4 col-md-3 ms-sm-auto text-sm-end">
+          <div class="d-inline-flex align-items-center">
+            <span class="me-2 small text-muted text-nowrap">Lignes par page</span>
+            <select class="form-select form-select-sm" (change)="pageSize = +$any($event.target).value; page = 1">
+              <option [selected]="pageSize===5" value="5">5</option>
+              <option [selected]="pageSize===10" value="10">10</option>
+              <option [selected]="pageSize===20" value="20">20</option>
+              <option [selected]="pageSize===50" value="50">50</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table entity-table table-bordered table-hover align-middle" *ngIf="totalItems > 0; else empty">
+          <thead class="table-light align-middle">
+            <tr>
+              <th (click)="setSort('id')" role="button"><i class="bi bi-hash me-1 text-secondary"></i>ID</th>
+              <th (click)="setSort('candidatName')" role="button"><i class="bi bi-person-badge me-1 text-secondary"></i>Candidat</th>
+              <th (click)="setSort('besoinLibelle')" role="button"><i class="bi bi-briefcase-fill me-1 text-secondary"></i>Besoin</th>
+              <th (click)="setSort('dateProposition')" role="button"><i class="bi bi-calendar-event me-1 text-secondary"></i>Date Proposition</th>
+              <th (click)="setSort('delaiReponse')" role="button"><i class="bi bi-hourglass-split me-1 text-secondary"></i>Délai Réponse</th>
+              <th (click)="setSort('datePropale')" role="button"><i class="bi bi-calendar-check me-1 text-secondary"></i>Date Propale</th>
+              <th (click)="setSort('dateDemarrage')" role="button"><i class="bi bi-play-fill me-1 text-secondary"></i>Date Démarrage</th>
+              <th (click)="setSort('statutQualif')" role="button"><i class="bi bi-flag-fill me-1 text-secondary"></i>Statut</th>
+              <th *ngIf="canEdit() || canDelete()" class="entity-actions"><i class="bi bi-tools me-1 text-secondary"></i>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of pageItems; trackBy: trackById">
+              <td>{{ p.id }}</td>
+              <td>{{ p.candidatName || '-' }}</td>
+              <td>{{ p.besoinLibelle || '-' }}</td>
+              <td>{{ p.dateProposition || '-' }}</td>
+              <td>{{ p.delaiReponse || '-' }}</td>
+              <td>{{ p.datePropale || '-' }}</td>
+              <td>{{ p.dateDemarrage || '-' }}</td>
+              <td>{{ p.statutQualif || '-' }}</td>
+              <td *ngIf="canEdit() || canDelete()" class="entity-actions">
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="startEdit(p)" [disabled]="!canEdit()" title="Modifier">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="remove(p)" [disabled]="!canDelete()" title="Supprimer">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <ng-template #empty>
+          <div class="empty-state">Aucune proposition trouvée.</div>
+        </ng-template>
+      </div>
+      <div class="d-flex justify-content-between align-items-center entity-footer">
+        <div class="small text-muted">Total: {{ totalItems }}</div>
+        <ngb-pagination [collectionSize]="totalItems" [(page)]="page" [pageSize]="pageSize" [maxSize]="5" [ellipses]="true" [boundaryLinks]="true" size="sm"></ngb-pagination>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Form (simple selects: choisir Candidat et Besoin) -->
+  <ng-template #propForm>
+    <div class="modal-header">
+  <h5 class="modal-title">{{ editingId ? 'Modifier' : 'Créer' }} une proposition</h5>
+      <button type="button" class="btn-close" aria-label="Fermer" (click)="cancelForm()"></button>
+    </div>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="modal-body">
+        <div *ngIf="formError" class="alert alert-danger py-2">{{ formError }}</div>
+        <div class="row g-3">
+          <!-- Simple selects -->
+          <div class="col-md-6">
+            <label class="form-label">Candidat</label>
+            <select class="form-select" formControlName="candidatId" required>
+              <option [ngValue]="null">-- choisir un candidat --</option>
+              <option *ngFor="let c of candidats" [ngValue]="c.id">{{ c.label }} ({{ c.id }})</option>
+            </select>
+            <div class="text-danger small mt-1" *ngIf="form.get('candidatId')?.invalid && (form.get('candidatId')?.dirty || form.get('candidatId')?.touched)">Candidat requis</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Besoin</label>
+            <select class="form-select" formControlName="besoinId" required>
+              <option [ngValue]="null">-- choisir un besoin --</option>
+              <option *ngFor="let b of besoins" [ngValue]="b.id">{{ b.label }} ({{ b.id }})</option>
+            </select>
+            <div class="text-danger small mt-1" *ngIf="form.get('besoinId')?.invalid && (form.get('besoinId')?.dirty || form.get('besoinId')?.touched)">Besoin requis</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Date proposition</label>
+            <input type="date" class="form-control" formControlName="dateProposition" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Délai réponse</label>
+            <input type="text" class="form-control" formControlName="delaiReponse" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Date propale</label>
+            <input type="date" class="form-control" formControlName="datePropale" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Date démarrage</label>
+            <input type="date" class="form-control" formControlName="dateDemarrage" />
+          </div>
+          <div class="col-md-12">
+            <label class="form-label">Statut qualification</label>
+            <input type="text" class="form-control" formControlName="statutQualif" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="cancelForm()">Annuler</button>
+  <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading">{{ editingId ? 'Enregistrer' : 'Créer' }}</button>
+      </div>
+    </form>
+  </ng-template>
+</div>
+
