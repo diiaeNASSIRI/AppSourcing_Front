@@ -1,17 +1,23 @@
 <ng-container *ngIf="showChrome; else loginOnly">
-  <app-navbar
-    [email]="email"
-    [unreadCount]="unreadCount"
-    [notifications]="notifications"
-    (logoutClick)="onLogout()"
-    (viewAll)="goToNotifications()"
-  ></app-navbar>
+  <div class="app-shell" [class.mobile]="isMobile" [class.sidebar-open]="sidebarOpen">
+    <app-navbar
+      [email]="email"
+      [unreadCount]="unreadCount"
+      [notifications]="notifications"
+      (logoutClick)="onLogout()"
+      (viewAll)="goToNotifications()"
+      (menuToggle)="toggleSidebar()"
+    ></app-navbar>
 
-  <app-sidebar [isAdmin]="isAdmin"></app-sidebar>
+    <app-sidebar [isAdmin]="isAdmin"></app-sidebar>
 
-  <main class="app-content">
-    <router-outlet></router-outlet>
-  </main>
+    <main class="app-content">
+      <router-outlet></router-outlet>
+    </main>
+
+    <!-- Mobile backdrop to close the sidebar when open -->
+    <div class="backdrop" *ngIf="isMobile && sidebarOpen" (click)="toggleSidebar()"></div>
+  </div>
 </ng-container>
 
 <ng-template #loginOnly>

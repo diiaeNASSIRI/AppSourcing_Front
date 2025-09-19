@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, Validators, FormControl } from '@angular/forms';
 import { AdminServiceClient, AdminUserDto, RoleDto } from '../../my-service/admin.service';
 import { AuthService } from '../../my-service/auth.service';
@@ -150,9 +150,9 @@ export class AdminUsersComponent implements OnInit {
           error: err?.error,
         });
         if (err?.status === 403) {
-          this.error = 'Accès refusé (ADMIN requis). Vérifiez votre rôle/permissions.';
+          this.error = 'AccÃ¨s refusÃ© (ADMIN requis). VÃ©rifiez votre rÃ´le/permissions.';
         } else if (err?.status === 401) {
-          this.error = 'Session invalide/expirée. Veuillez vous reconnecter.';
+          this.error = 'Session invalide/expirÃ©e. Veuillez vous reconnecter.';
         } else {
           this.error = err?.error?.message || 'Erreur lors du chargement des utilisateurs';
         }
@@ -188,13 +188,13 @@ export class AdminUsersComponent implements OnInit {
     const { fullName, email, password, roleId } = this.createForm.getRawValue() as any;
   this.admin.createUser({ fullName, email, password, roleId: roleId ?? null }).subscribe({
       next: () => {
-        this.success = 'Utilisateur créé';
+        this.success = 'Utilisateur crÃ©Ã©';
     this.createForm.reset();
         this.refresh();
         this.activeModal?.close();
       },
       error: (err) => {
-        this.error = err?.error?.message || 'Création échouée';
+        this.error = err?.error?.message || 'CrÃ©ation Ã©chouÃ©e';
       }
     });
   }
@@ -226,7 +226,7 @@ export class AdminUsersComponent implements OnInit {
   const { fullName, password, roleId } = this.editForm.getRawValue() as any;
   this.admin.updateUser(email, { fullName, password, roleId: roleId ?? null }).subscribe({
       next: (u) => {
-        this.success = 'Utilisateur mis à jour';
+        this.success = 'Utilisateur mis Ã  jour';
         // Update local list
         const idx = this.users.findIndex((x) => x.email === u.email);
         if (idx >= 0) this.users[idx] = u;
@@ -234,7 +234,7 @@ export class AdminUsersComponent implements OnInit {
         this.activeModal?.close();
       },
       error: (err) => {
-        this.error = err?.error?.message || 'Mise à jour échouée';
+        this.error = err?.error?.message || 'Mise Ã  jour Ã©chouÃ©e';
       }
     });
   }
@@ -257,7 +257,7 @@ export class AdminUsersComponent implements OnInit {
         if (this.selectedUser?.email === u.email) this.cancelEdit();
       },
       error: (err) => {
-        this.error = err?.error?.message || 'Suppression échouée';
+        this.error = err?.error?.message || 'Suppression Ã©chouÃ©e';
       }
     });
   }
@@ -274,3 +274,4 @@ export class AdminUsersComponent implements OnInit {
     return this.userDetailsPerms.indexOf(p) >= 0;
   }
 }
+

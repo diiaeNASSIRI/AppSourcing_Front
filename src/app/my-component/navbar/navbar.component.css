@@ -1,4 +1,4 @@
-.navbar-custom { border-bottom: 1px solid #e0e6ed; min-height: 70px; }
+﻿.navbar-custom { border-bottom: 1px solid #e0e6ed; min-height: 70px; }
 .brand-logo { height: 34px; width: auto; object-fit: contain; }
 .brand-name { font-size: 1.05rem; }
 .img-profile { width:38px; height:38px; object-fit:cover; border:2px solid #4e73df; background:#f3f6fb; }
@@ -8,3 +8,4 @@
 
 /* Ensure modal overlay sits above navbar */
 .modal { display: block; }
+

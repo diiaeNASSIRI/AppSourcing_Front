@@ -42,6 +42,13 @@
     </a>
   </li>
 
+  <li class="nav-item my-3" *ngIf="canSeePropositions">
+    <a class="nav-link d-flex align-items-center nav-link-block" [routerLink]="['/propositions']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <i class="bi bi-card-checklist me-2"></i>
+      <span>Propositions</span>
+    </a>
+  </li>
+
   <hr class="sidebar-divider d-none d-md-block">
   <div class="text-center mt-4 mb-2 footer-msg">
     <img src="https://img.icons8.com/color/48/000000/todo-list--v2.png" alt="Checklist" class="footer-img">

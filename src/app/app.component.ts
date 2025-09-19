@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthService } from './my-service/auth.service';
@@ -16,6 +16,8 @@ export class AppComponent {
   isAdmin = false;
   unreadCount = 0;
   notifications: Array<any> = [];
+  isMobile = false;
+  sidebarOpen = false;
 
   constructor(private router: Router, private auth: AuthService) {
     // Set initial state and react to route changes
@@ -27,12 +29,18 @@ export class AppComponent {
     // Initialize user info from JWT (if present) and keep it in sync on login/logout
     this.refreshUserInfo();
     this.auth.isLoggedIn$().subscribe(() => this.refreshUserInfo());
+
+    // Evaluate initial viewport
+    this.isMobile = window.innerWidth < 992; // Bootstrap lg breakpoint
   }
 
   private updateChromeVisibility(url: string): void {
     // Hide chrome on login route (root path)
     const cleanUrl = (url || '').split('?')[0].split('#')[0];
     this.showChrome = cleanUrl !== '/' && cleanUrl !== '';
+    if (!this.showChrome) {
+      this.sidebarOpen = false;
+    }
   }
 
   onLogout(): void {
@@ -48,5 +56,19 @@ export class AppComponent {
   private refreshUserInfo(): void {
     this.email = this.auth.getEmailFromToken() || '';
     this.isAdmin = this.auth.isAdmin();
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    const wasMobile = this.isMobile;
+    this.isMobile = window.innerWidth < 992;
+    if (!this.isMobile && wasMobile) {
+      // Ensure sidebar closes overlay mode when returning to desktop
+      this.sidebarOpen = false;
+    }
   }
 }

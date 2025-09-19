@@ -1,6 +1,5 @@
 <div class="dashboard">
   <h2>Bienvenue</h2>
-  <p *ngIf="me">ConnectÃ© en tant que {{ me.fullName }} ({{ me.email }})</p>
-  <p *ngIf="!me">Chargement des informationsâ€¦</p>
+  <p *ngIf="me as user">Connecté en tant que {{ user.fullName }} ({{ user.email }})</p>
+  <p *ngIf="!me">Chargement des informations…</p>
 </div>
-

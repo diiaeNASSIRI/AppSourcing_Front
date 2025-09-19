@@ -1,4 +1,4 @@
-:host { display: block; }
+﻿:host { display: block; }
 
 .login-page {
   min-height: 100vh;
@@ -71,4 +71,5 @@
 /* checklist preview removed */
 
 .copyright { margin-top: 12px; text-align: center; color: #97a1b5; font-size: 0.85rem; }
+
 

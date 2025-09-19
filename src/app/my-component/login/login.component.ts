@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../my-service/auth.service';
@@ -121,4 +121,5 @@ export class LoginComponent implements OnInit {
     return new Date().getFullYear();
   }
 }
+
 

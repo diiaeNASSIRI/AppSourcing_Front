@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
+﻿import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from '../../my-service/auth.service';
@@ -24,6 +24,7 @@ export class NavbarComponent {
 
   @Output() logoutClick = new EventEmitter<void>();
   @Output() viewAll = new EventEmitter<void>();
+  @Output() menuToggle = new EventEmitter<void>();
 
   showNotifications = false;
   notifLoading = false;
@@ -85,16 +86,16 @@ export class NavbarComponent {
 
   parseStatus(message: string): string {
     const msg = (message || '').toLowerCase();
-    if (msg.includes('succès') || msg.includes('success')) return 'Succès';
-    if (msg.includes('erreur') || msg.includes('échec') || msg.includes('echec') || msg.includes('error')) return 'Erreur';
+    if (msg.includes('succÃ¨s') || msg.includes('success')) return 'SuccÃ¨s';
+    if (msg.includes('erreur') || msg.includes('Ã©chec') || msg.includes('echec') || msg.includes('error')) return 'Erreur';
     if (msg.includes('attente') || msg.includes('pending')) return 'En attente';
     return 'Info';
   }
 
   statusBadgeClass(status: string): string {
     const s = status.toLowerCase();
-    if (s.includes('succès') || s.includes('succ') || s.includes('success')) return 'bg-success';
-    if (s.includes('erreur') || s.includes('error') || s.includes('échec') || s.includes('echec')) return 'bg-danger';
+    if (s.includes('succÃ¨s') || s.includes('succ') || s.includes('success')) return 'bg-success';
+    if (s.includes('erreur') || s.includes('error') || s.includes('Ã©chec') || s.includes('echec')) return 'bg-danger';
     if (s.includes('attente') || s.includes('pending')) return 'bg-warning text-dark';
     return 'bg-secondary';
   }
@@ -130,7 +131,7 @@ export class NavbarComponent {
     this.auth.changePassword({ oldPassword: currentPassword, newPassword }).subscribe({
       next: (res) => {
         this.changeLoading = false;
-        this.changeSuccess = res?.message || 'Mot de passe modifié avec succès.';
+        this.changeSuccess = res?.message || 'Mot de passe modifiÃ© avec succÃ¨s.';
         setTimeout(() => this.modalRef?.close(), 700);
       },
       error: (err) => {
@@ -140,3 +141,4 @@ export class NavbarComponent {
     });
   }
 }
+

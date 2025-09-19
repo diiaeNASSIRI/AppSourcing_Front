@@ -2,8 +2,11 @@ import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/c
 import { FormControl } from '@angular/forms';
 import { FormBuilder, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { Subject, takeUntil } from 'rxjs';
-import { Proposition, PropositionRequest } from '../../models/proposition.model';
+import { Subject, takeUntil, forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { Proposition, PropositionRequest, extractCandidatId, extractBesoinId, formatCandidatName, formatBesoinLabel } from '../../models/proposition.model';
+import { Candidat } from '../../models/candidat.model';
+import { Besoin } from '../../models/besoin.model';
 import { PropositionServiceClient } from '../../my-service/proposition.service';
 import { CandidatServiceClient } from '../../my-service/candidat.service';
 import { BesoinServiceClient } from '../../my-service/besoin.service';
@@ -47,6 +50,9 @@ export class PropositionsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   @ViewChild('propForm') propFormTpl?: TemplateRef<any>;
+  @ViewChild('propDetail') propDetailTpl?: TemplateRef<any>;
+  @ViewChild('candidatInfo') candidatInfoTpl?: TemplateRef<any>;
+  @ViewChild('besoinInfo') besoinInfoTpl?: TemplateRef<any>;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -67,9 +73,9 @@ export class PropositionsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  canCreate(): boolean { return this.auth.hasAny('ADMIN','CAN_CREATE','CAN_EDIT'); }
-  canEdit(): boolean { return this.auth.hasAny('ADMIN','CAN_EDIT'); }
-  canDelete(): boolean { return this.auth.hasAny('ADMIN','CAN_DELETE'); }
+  canCreate(): boolean { return this.auth.hasAny('ADMIN','PROPOSITION_CREATE','PROPOSITION_EDIT','CAN_CREATE','CAN_EDIT'); }
+  canEdit(): boolean { return this.auth.hasAny('ADMIN','PROPOSITION_EDIT','CAN_EDIT'); }
+  canDelete(): boolean { return this.auth.hasAny('ADMIN','PROPOSITION_DELETE','CAN_DELETE'); }
 
   trackById(_: number, it: Proposition) { return it.id; }
 
@@ -81,8 +87,8 @@ export class PropositionsComponent implements OnInit, OnDestroy {
         // compute convenience fields for UI
         this.items = list.map((p) => ({
           ...p,
-          candidatName: this.labelForCandidat((p as any).candidat, (p as any).candidatName),
-          besoinLibelle: this.labelForBesoin((p as any).besoin, (p as any).besoinLibelle),
+          candidatName: this.labelForCandidat(p.candidat, p.candidatName),
+          besoinLibelle: this.labelForBesoin(p.besoin, p.besoinLibelle),
         }));
   // si la page courante dépasse après rafraîchissement, revenir à 1
   const total = this.filtered.length;
@@ -95,25 +101,12 @@ export class PropositionsComponent implements OnInit, OnDestroy {
   }
 
   // Helpers to build labels even when backend sends only IDs (Jackson @JsonIdentityInfo)
-  private labelForCandidat(candidat: any, fallback?: string | null): string | null {
-    if (candidat == null) return fallback ?? null;
-    // If backend sent just an id (number) or a minimal object
-    if (typeof candidat === 'number') return `Candidat #${candidat}`;
-    const first = (candidat.firstName ?? '').toString().trim();
-    const last = (candidat.lastName ?? '').toString().trim();
-    const full = `${first} ${last}`.trim();
-    if (full) return full;
-    if (candidat.id != null) return `Candidat #${candidat.id}`;
-    return fallback ?? null;
+  private labelForCandidat(candidat: Proposition['candidat'], fallback?: string | null): string | null {
+    return formatCandidatName(candidat, fallback);
   }
 
-  private labelForBesoin(besoin: any, fallback?: string | null): string | null {
-    if (besoin == null) return fallback ?? null;
-    if (typeof besoin === 'number') return `Besoin #${besoin}`;
-    const libelle = (besoin.libelle ?? '').toString().trim();
-    if (libelle) return libelle;
-    if (besoin.id != null) return `Besoin #${besoin.id}`;
-    return fallback ?? null;
+  private labelForBesoin(besoin: Proposition['besoin'], fallback?: string | null): string | null {
+    return formatBesoinLabel(besoin, fallback);
   }
 
   loadLookups() {
@@ -125,7 +118,7 @@ export class PropositionsComponent implements OnInit, OnDestroy {
     this.besoinsApi.getAll().pipe(takeUntil(this.destroy$)).subscribe(list => {
       this.besoins = (list || [])
         .filter(b => b && b.id != null)
-        .map(b => ({ id: b.id!, label: (b as any).libelle || `Besoin #${b.id}` }));
+        .map(b => ({ id: b.id!, label: b.libelle || `Besoin #${b.id}` }));
     });
   }
 
@@ -148,8 +141,8 @@ export class PropositionsComponent implements OnInit, OnDestroy {
   startEdit(p: Proposition) {
     this.editingId = p.id ?? null;
     this.form.patchValue({
-  candidatId: (p as any).candidatId ?? (p.candidat as any)?.id ?? null,
-  besoinId: (p as any).besoinId ?? (p.besoin as any)?.id ?? null,
+      candidatId: extractCandidatId(p.candidat),
+      besoinId: extractBesoinId(p.besoin),
       dateProposition: p.dateProposition ?? '',
       delaiReponse: p.delaiReponse ?? '',
       datePropale: p.datePropale ?? '',
@@ -169,6 +162,51 @@ export class PropositionsComponent implements OnInit, OnDestroy {
 
   cancelForm() {
     this.modalRef?.close();
+  }
+
+  // Detail modal
+  detailItem?: Proposition;
+  openDetail(p: Proposition) {
+    this.detailItem = p;
+    // also load full candidate/besoin details for side-by-side view
+    this.candidateDetail = undefined;
+    this.besoinDetail = undefined;
+    const candId = extractCandidatId(p.candidat);
+    const besId = extractBesoinId(p.besoin);
+
+    const candidate$ = candId
+      ? this.candidatsApi.getById(candId).pipe(catchError(() => of<Candidat | null>(null)))
+      : of<Candidat | null>(null);
+    const besoin$ = besId
+      ? this.besoinsApi.getById(besId).pipe(catchError(() => of<Besoin | null>(null)))
+      : of<Besoin | null>(null);
+
+    forkJoin([candidate$, besoin$]).pipe(takeUntil(this.destroy$)).subscribe(([c, b]) => {
+      this.candidateDetail = c || undefined;
+      this.besoinDetail = b || undefined;
+    });
+
+    if (!this.propDetailTpl) return;
+    this.modal.open(this.propDetailTpl, {
+      backdrop: 'static',
+      size: 'xl',
+      scrollable: true,
+      modalDialogClass: 'modal-xl modal-dialog-scrollable modal-fullscreen-md-down'
+    });
+  }
+
+  displayCandidat(p?: Proposition): string {
+    if (!p) {
+      return '-';
+    }
+    return p.candidatName ?? formatCandidatName(p.candidat, p.candidatName) ?? '-';
+  }
+
+  displayBesoin(p?: Proposition): string {
+    if (!p) {
+      return '-';
+    }
+    return p.besoinLibelle ?? formatBesoinLabel(p.besoin, p.besoinLibelle) ?? '-';
   }
 
   // Removed stepper/search logic; using simple dropdowns now
@@ -219,8 +257,8 @@ export class PropositionsComponent implements OnInit, OnDestroy {
     if (!q) return this.items;
     return this.items.filter(p => (
       (String(p.id ?? '')).includes(q) ||
-      (p as any).candidatName?.toLowerCase().includes(q) ||
-      (p as any).besoinLibelle?.toLowerCase().includes(q) ||
+      p.candidatName?.toLowerCase().includes(q) ||
+      p.besoinLibelle?.toLowerCase().includes(q) ||
       (p.dateProposition || '').toLowerCase().includes(q) ||
       (p.delaiReponse || '').toLowerCase().includes(q) ||
       (p.datePropale || '').toLowerCase().includes(q) ||
@@ -262,5 +300,34 @@ export class PropositionsComponent implements OnInit, OnDestroy {
       this.sortKey = key;
       this.sortDir = 'asc';
     }
+  }
+
+  // --- Show Candidat/Besoin info from the form selections ---
+  candidateDetail?: Candidat;
+  besoinDetail?: Besoin;
+
+  openCandidatInfo() {
+    const id = Number(this.form.value.candidatId);
+    if (!id) { this.form.get('candidatId')?.markAsTouched(); return; }
+    this.candidatsApi.getById(id).subscribe({
+      next: (c) => { this.candidateDetail = c; if (this.candidatInfoTpl) this.modal.open(this.candidatInfoTpl, { size: 'lg', backdrop: 'static', scrollable: true, modalDialogClass: 'modal-lg modal-dialog-scrollable modal-fullscreen-sm-down' }); },
+      error: () => { this.formError = 'Impossible de charger les informations du candidat'; }
+    });
+  }
+
+  openBesoinInfo() {
+    const id = Number(this.form.value.besoinId);
+    if (!id) { this.form.get('besoinId')?.markAsTouched(); return; }
+    this.besoinsApi.getById(id).subscribe({
+      next: (b) => { this.besoinDetail = b; if (this.besoinInfoTpl) this.modal.open(this.besoinInfoTpl, { size: 'lg', backdrop: 'static', scrollable: true, modalDialogClass: 'modal-lg modal-dialog-scrollable modal-fullscreen-sm-down' }); },
+      error: () => { this.formError = 'Impossible de charger les informations du besoin'; }
+    });
+  }
+
+  fullName(c?: Partial<Candidat> | null): string {
+    if (!c) return '-';
+    const f = (c.firstName || '').toString().trim();
+    const l = (c.lastName || '').toString().trim();
+    return (f || l) ? `${f} ${l}`.trim() : (c.id != null ? `Candidat #${c.id}` : '-');
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Candidat, CandidatRequest } from '../../models/candidat.model';
@@ -46,7 +46,7 @@ export class CandidatsComponent implements OnInit {
       lastName: ['', [Validators.required, Validators.maxLength(100)]],
       profil: ['', [Validators.required, Validators.maxLength(255)]],
       dateDisponibilite: [null],
-  experience: [null], // expérience libre (string)
+  experience: [null], // expÃ©rience libre (string)
       pru: [null, [Validators.min(0)]],
       links: this.fb.array([]),
     });
@@ -54,7 +54,7 @@ export class CandidatsComponent implements OnInit {
     if (this.canView()) {
       this.loadAll();
     } else {
-      this.error = 'Accès refusé (permission CAN_VIEW requise)';
+      this.error = 'AccÃ¨s refusÃ© (permission CAN_VIEW requise)';
     }
   }
 
@@ -83,7 +83,7 @@ export class CandidatsComponent implements OnInit {
       },
       error: (err) => {
         console.error('[Candidats] loadAll error', err);
-        this.error = err?.error?.message || 'Échec du chargement';
+        this.error = err?.error?.message || 'Ã‰chec du chargement';
         this.loading = false;
       }
     });
@@ -134,7 +134,7 @@ export class CandidatsComponent implements OnInit {
       },
       error: (err) => {
         console.error('[Candidats] submit error', err);
-        this.error = err?.error?.message || 'Opération échouée';
+        this.error = err?.error?.message || 'OpÃ©ration Ã©chouÃ©e';
         this.loading = false;
       }
     });
@@ -149,7 +149,7 @@ export class CandidatsComponent implements OnInit {
       next: () => this.loadAll(),
       error: (err) => {
         console.error('[Candidats] delete error', err);
-        this.error = 'Suppression échouée';
+        this.error = 'Suppression Ã©chouÃ©e';
         this.loading = false;
       }
     });
@@ -172,7 +172,7 @@ export class CandidatsComponent implements OnInit {
     const k = this.sortKey;
     const d = this.sortDir === 'asc' ? 1 : -1;
     arr.sort((a: any, b: any) => {
-  if (k === 'pru') { // experience n'est plus tri numérique
+  if (k === 'pru') { // experience n'est plus tri numÃ©rique
         const av = Number(a?.[k] ?? 0);
         const bv = Number(b?.[k] ?? 0);
         return (av - bv) * d;
@@ -220,3 +220,4 @@ export class CandidatsComponent implements OnInit {
   canDelete(): boolean { return this.auth.hasAuthority('CANDIDAT_DELETE') || this.auth.hasAuthority('CAN_DELETE'); }
   // CV upload/download removed
 }
+

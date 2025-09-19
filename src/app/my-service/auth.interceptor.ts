@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import {
   HttpEvent,
   HttpHandler,
@@ -31,7 +31,7 @@ export class AuthInterceptor implements HttpInterceptor {
           const status = err.status;
           const url = req.url || outbound.url || '';
           if (status === 401) {
-            // Token expiré/invalidé => déconnexion sauf si déjà sur login
+            // Token expirÃ©/invalidÃ© => dÃ©connexion sauf si dÃ©jÃ  sur login
             const isLogin = url.includes('/auth/login');
             if (!isLogin) {
               this.auth.logout();
@@ -40,9 +40,9 @@ export class AuthInterceptor implements HttpInterceptor {
             return throwError(() => err);
           }
           if (status === 403) {
-            // Droits insuffisants: on peut décider de rester si page change-password
+            // Droits insuffisants: on peut dÃ©cider de rester si page change-password
             const isChangePwd = url.includes('/auth/change-password');
-            if (!isChangePwd) {
+            if (false && !isChangePwd) {
               this.auth.logout();
               this.router.navigateByUrl('/');
             }
@@ -54,4 +54,5 @@ export class AuthInterceptor implements HttpInterceptor {
     );
   }
 }
+
 

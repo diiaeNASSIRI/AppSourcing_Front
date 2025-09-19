@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Candidat, CandidatRequest } from '../models/candidat.model';
@@ -33,3 +33,4 @@ export class CandidatServiceClient {
     return this.http.delete<void>(`${this.base}/${id}`);
   }
 }
+

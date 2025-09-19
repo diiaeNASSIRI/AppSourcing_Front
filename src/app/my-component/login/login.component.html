@@ -1,4 +1,4 @@
-<div class="login-page">
+﻿<div class="login-page">
   <div class="login-card" role="form" aria-labelledby="loginTitle">
     <div class="login-card__brand">
       <img src="assets/images/sii_services_maroc_logo.jpg" alt="Logo" class="login-card__logo" />
@@ -12,7 +12,7 @@
     <h5 class="modal-title">Modifier votre mot de passe</h5>
   </div>
   <div class="modal-body">
-    <p class="mb-2">Pour continuer, veuillez définir un nouveau mot de passe.</p>
+    <p class="mb-2">Pour continuer, veuillez dÃ©finir un nouveau mot de passe.</p>
     <form [formGroup]="changeForm" (ngSubmit)="submitChangePassword()">
       <div class="mb-3">
         <label class="form-label">Nouveau mot de passe</label>
@@ -62,7 +62,7 @@
             <i [class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
           </button>
         </div>
-        <small class="form-error" *ngIf="form.controls.password.touched && form.controls.password.invalid">Mot de passe requis (6+ caractères)</small>
+        <small class="form-error" *ngIf="form.controls.password.touched && form.controls.password.invalid">Mot de passe requis (6+ caractÃ¨res)</small>
       </div>
 
       <div class="login-meta d-flex justify-content-between align-items-center mt-2">
@@ -80,12 +80,13 @@
       </button>
 
       <p class="text-muted small text-center mt-3 mb-0">
-        Vous avez oublié votre mot de passe ? Veuillez contacter l’administrateur pour le réinitialiser.
+        Vous avez oubliÃ© votre mot de passe ? Veuillez contacter lâ€™administrateur pour le rÃ©initialiser.
       </p>
     </form>
 
     
 
-  <div class="copyright">© {{ currentYear }} SII Maroc</div>
+  <div class="copyright">Â© {{ currentYear }} SII Maroc</div>
   </div>
 </div>
+

@@ -118,3 +118,39 @@
 /* Link toggle section (candidats links) */
 .links-block { border-left: 3px solid var(--bs-primary); padding-left: .5rem; }
 
+/* Wider modal helper for candidate list in Besoins modal */
+.modal-dialog.modal-xxl { max-width: 96vw; }
+@media (min-width: 1200px) {
+  .modal-dialog.modal-xxl { max-width: 1280px; }
+}
+@media (min-width: 1400px) {
+  .modal-dialog.modal-xxl { max-width: 1360px; }
+}
+
+/* =====================================================
+   Layout shell: navbar + fixed sidebar + content
+   ----------------------------------------------------- */
+.app-shell { min-height: 100vh; }
+
+/* Content offset when sidebar visible on desktop */
+.app-content { margin-left: 260px; padding: 16px; }
+
+/* Mobile adjustments */
+@media (max-width: 991.98px) { /* < lg */
+  .app-content { margin-left: 0; padding: 12px; }
+  .app-shell.mobile .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 1034; }
+}
+
+/* Sidebar responsive behavior (complements component css) */
+@media (max-width: 991.98px) {
+  .sidebar-wrapper { transform: translateX(-100%); transition: transform .25s ease; }
+  .app-shell.sidebar-open .sidebar-wrapper { transform: translateX(0); box-shadow: 4px 0 16px rgba(0,0,0,.15); }
+}
+
+/* Make wide tables scroll on small screens */
+@media (max-width: 767.98px) { /* < md */
+  .table-responsive-sm { overflow-x: auto; }
+  .entity-table { font-size: .8rem; }
+  .entity-actions { width: 96px; }
+}
+

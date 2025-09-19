@@ -75,6 +75,9 @@
               <td>{{ p.dateDemarrage || '-' }}</td>
               <td>{{ p.statutQualif || '-' }}</td>
               <td *ngIf="canEdit() || canDelete()" class="entity-actions">
+                <button class="btn btn-sm btn-outline-secondary me-1" (click)="openDetail(p)" title="Détails">
+                  <i class="bi bi-eye"></i>
+                </button>
                 <button class="btn btn-sm btn-outline-primary me-1" (click)="startEdit(p)" [disabled]="!canEdit()" title="Modifier">
                   <i class="bi bi-pencil"></i>
                 </button>
@@ -96,31 +99,39 @@
     </div>
   </div>
 
-  <!-- Modal Form (simple selects: choisir Candidat et Besoin) -->
   <ng-template #propForm>
     <div class="modal-header">
-  <h5 class="modal-title">{{ editingId ? 'Modifier' : 'Créer' }} une proposition</h5>
+      <h5 class="modal-title">{{ editingId ? 'Modifier' : 'Créer' }} une proposition</h5>
       <button type="button" class="btn-close" aria-label="Fermer" (click)="cancelForm()"></button>
     </div>
     <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="modal-body">
         <div *ngIf="formError" class="alert alert-danger py-2">{{ formError }}</div>
         <div class="row g-3">
-          <!-- Simple selects -->
           <div class="col-md-6">
             <label class="form-label">Candidat</label>
-            <select class="form-select" formControlName="candidatId" required>
-              <option [ngValue]="null">-- choisir un candidat --</option>
-              <option *ngFor="let c of candidats" [ngValue]="c.id">{{ c.label }} ({{ c.id }})</option>
-            </select>
+            <div class="d-flex gap-2 align-items-center">
+              <select class="form-select" formControlName="candidatId" required>
+                <option [ngValue]="null">-- choisir un candidat --</option>
+                <option *ngFor="let c of candidats" [ngValue]="c.id">{{ c.label }} ({{ c.id }})</option>
+              </select>
+              <button type="button" class="btn btn-outline-secondary" (click)="openCandidatInfo()" [disabled]="!form.value.candidatId" title="Voir infos candidat">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
             <div class="text-danger small mt-1" *ngIf="form.get('candidatId')?.invalid && (form.get('candidatId')?.dirty || form.get('candidatId')?.touched)">Candidat requis</div>
           </div>
           <div class="col-md-6">
             <label class="form-label">Besoin</label>
-            <select class="form-select" formControlName="besoinId" required>
-              <option [ngValue]="null">-- choisir un besoin --</option>
-              <option *ngFor="let b of besoins" [ngValue]="b.id">{{ b.label }} ({{ b.id }})</option>
-            </select>
+            <div class="d-flex gap-2 align-items-center">
+              <select class="form-select" formControlName="besoinId" required>
+                <option [ngValue]="null">-- choisir un besoin --</option>
+                <option *ngFor="let b of besoins" [ngValue]="b.id">{{ b.label }} ({{ b.id }})</option>
+              </select>
+              <button type="button" class="btn btn-outline-secondary" (click)="openBesoinInfo()" [disabled]="!form.value.besoinId" title="Voir infos besoin">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
             <div class="text-danger small mt-1" *ngIf="form.get('besoinId')?.invalid && (form.get('besoinId')?.dirty || form.get('besoinId')?.touched)">Besoin requis</div>
           </div>
 
@@ -148,9 +159,195 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" (click)="cancelForm()">Annuler</button>
-  <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading">{{ editingId ? 'Enregistrer' : 'Créer' }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading">{{ editingId ? 'Enregistrer' : 'Créer' }}</button>
       </div>
     </form>
   </ng-template>
-</div>
 
+  <!-- Modal Détails proposition -->
+  <ng-template #propDetail let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">Détails de la proposition #{{ detailItem?.id }}</h5>
+      <button type="button" class="btn-close" aria-label="Fermer" (click)="modal.close()"></button>
+    </div>
+    <div class="modal-body">
+      <div class="row g-3">
+        <!-- Candidat (gauche) -->
+        <div class="col-lg-6">
+          <div class="mb-2 fw-semibold d-flex align-items-center justify-content-between">
+            <span>Candidat — {{ fullName(candidateDetail) }}</span>
+            <a *ngIf="candidateDetail?.id" class="small" [routerLink]="['/candidats']" [queryParams]="{ q: fullName(candidateDetail) }" title="Ouvrir dans Candidats">
+              <i class="bi bi-box-arrow-up-right"></i>
+            </a>
+          </div>
+          <div class="row g-2">
+            <div class="col-md-4">
+              <div class="small text-muted">ID</div>
+              <div>{{ candidateDetail?.id ?? '-' }}</div>
+            </div>
+            <div class="col-md-4">
+              <div class="small text-muted">Prénom</div>
+              <div>{{ candidateDetail?.firstName || '-' }}</div>
+            </div>
+            <div class="col-md-4">
+              <div class="small text-muted">Nom</div>
+              <div>{{ candidateDetail?.lastName || '-' }}</div>
+            </div>
+            <div class="col-md-12">
+              <div class="small text-muted">Profil</div>
+              <div>{{ candidateDetail?.profil || '-' }}</div>
+            </div>
+            <div class="col-md-6">
+              <div class="small text-muted">Expérience</div>
+              <div>{{ candidateDetail?.experience || '-' }}</div>
+            </div>
+            <div class="col-md-6">
+              <div class="small text-muted">Disponibilité</div>
+              <div>{{ candidateDetail?.dateDisponibilite || '-' }}</div>
+            </div>
+            <div class="col-md-6">
+              <div class="small text-muted">PRU</div>
+              <div>{{ candidateDetail?.pru != null ? (candidateDetail?.pru | number:'1.0-0') : '-' }}</div>
+            </div>
+            <div class="col-md-12">
+              <div class="small text-muted">Liens</div>
+              <div *ngIf="candidateDetail?.links?.length; else nocandlinks">
+                <div *ngFor="let l of candidateDetail?.links" class="mb-1">
+                  <i class="bi bi-box-arrow-up-right me-1 text-secondary"></i>
+                  <a [href]="l.path" target="_blank" rel="noopener noreferrer">{{ l.label || l.path }}</a>
+                </div>
+              </div>
+              <ng-template #nocandlinks>-</ng-template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Besoin (droite) -->
+        <div class="col-lg-6">
+          <div class="mb-2 fw-semibold">Besoin — {{ besoinDetail?.libelle || displayBesoin(detailItem) }}</div>
+          <div class="row g-2">
+            <div class="col-md-12">
+              <div class="small text-muted">Projet</div>
+              <div>{{ besoinDetail?.projet || '-' }}</div>
+            </div>
+            <div class="col-md-6">
+              <div class="small text-muted">Owner RM</div>
+              <div>{{ besoinDetail?.owner || '-' }}</div>
+            </div>
+            <div class="col-md-6">
+              <div class="small text-muted">Site</div>
+              <div>{{ besoinDetail?.site?.label || '-' }}</div>
+            </div>
+            <div class="col-md-12">
+              <div class="small text-muted">Précision</div>
+              <div>{{ besoinDetail?.precision || '-' }}</div>
+            </div>
+            <div class="col-md-4">
+              <div class="small text-muted">PRU (DH)</div>
+              <div>{{ besoinDetail?.pru != null ? (besoinDetail?.pru | number:'1.0-0') : '-' }}</div>
+            </div>
+            <div class="col-md-4">
+              <div class="small text-muted">Expérience</div>
+              <div>{{ besoinDetail?.nbrExperience || '-' }}</div>
+            </div>
+            <div class="col-md-4">
+              <div class="small text-muted">Création</div>
+              <div>{{ besoinDetail?.dateCreation || '-' }}</div>
+            </div>
+            <div class="col-md-6">
+              <div class="small text-muted">Statut</div>
+              <div>{{ besoinDetail?.statut?.label || '-' }}</div>
+            </div>
+            <div class="col-md-6">
+              <div class="small text-muted">Priorité</div>
+              <div>{{ besoinDetail?.priorite?.label || '-' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12"><hr class="my-2" /></div>
+
+        <!-- Champs de la proposition -->
+        <div class="col-md-3">
+          <div class="small text-muted">Date proposition</div>
+          <div>{{ detailItem?.dateProposition || '-' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="small text-muted">Délai réponse</div>
+          <div>{{ detailItem?.delaiReponse || '-' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="small text-muted">Date propale</div>
+          <div>{{ detailItem?.datePropale || '-' }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="small text-muted">Date démarrage</div>
+          <div>{{ detailItem?.dateDemarrage || '-' }}</div>
+        </div>
+        <div class="col-md-6">
+          <div class="small text-muted">Statut qualification</div>
+          <div>{{ detailItem?.statutQualif || '-' }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="modal.close()">Fermer</button>
+    </div>
+  </ng-template>
+
+  <!-- Modal Infos Candidat (depuis le formulaire) -->
+  <ng-template #candidatInfo let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">Candidat — {{ fullName(candidateDetail) }}</h5>
+      <button type="button" class="btn-close" aria-label="Fermer" (click)="modal.close()"></button>
+    </div>
+    <div class="modal-body">
+      <div class="row g-3">
+        <div class="col-md-3"><div class="small text-muted">ID</div><div class="fw-semibold">{{ candidateDetail?.id ?? '-' }}</div></div>
+        <div class="col-md-4"><div class="small text-muted">Prénom</div><div>{{ candidateDetail?.firstName || '-' }}</div></div>
+        <div class="col-md-5"><div class="small text-muted">Nom</div><div>{{ candidateDetail?.lastName || '-' }}</div></div>
+        <div class="col-md-12"><div class="small text-muted">Profil</div><div class="fw-semibold">{{ candidateDetail?.profil || '-' }}</div></div>
+        <div class="col-md-4"><div class="small text-muted">Expérience</div><div>{{ candidateDetail?.experience || '-' }}</div></div>
+        <div class="col-md-4"><div class="small text-muted">Disponibilité</div><div>{{ candidateDetail?.dateDisponibilite || '-' }}</div></div>
+        <div class="col-md-4"><div class="small text-muted">PRU</div><div>{{ candidateDetail?.pru != null ? (candidateDetail?.pru | number:'1.0-0') : '-' }}</div></div>
+        <div class="col-12">
+          <div class="small text-muted">Liens</div>
+          <div *ngIf="candidateDetail?.links?.length; else nolinksC">
+            <div *ngFor="let l of candidateDetail?.links" class="mb-1">
+              <i class="bi bi-box-arrow-up-right me-1 text-secondary"></i>
+              <a [href]="l.path" target="_blank" rel="noopener noreferrer">{{ l.label || l.path }}</a>
+            </div>
+          </div>
+          <ng-template #nolinksC>-</ng-template>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="modal.close()">Fermer</button>
+    </div>
+  </ng-template>
+
+  <!-- Modal Infos Besoin (depuis le formulaire) -->
+  <ng-template #besoinInfo let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">Besoin — {{ besoinDetail?.libelle || ('#' + (besoinDetail?.id || '?')) }}</h5>
+      <button type="button" class="btn-close" aria-label="Fermer" (click)="modal.close()"></button>
+    </div>
+    <div class="modal-body">
+      <div class="row g-3">
+        <div class="col-md-6"><div class="small text-muted">Projet</div><div class="fw-semibold">{{ besoinDetail?.projet || '-' }}</div></div>
+        <div class="col-md-6"><div class="small text-muted">Owner RM</div><div>{{ besoinDetail?.owner || '-' }}</div></div>
+        <div class="col-md-12"><div class="small text-muted">Précision</div><div>{{ besoinDetail?.precision || '-' }}</div></div>
+        <div class="col-md-3"><div class="small text-muted">PRU (DH)</div><div>{{ besoinDetail?.pru != null ? (besoinDetail?.pru | number:'1.0-0') : '-' }}</div></div>
+        <div class="col-md-3"><div class="small text-muted">Expérience</div><div>{{ besoinDetail?.nbrExperience || '-' }}</div></div>
+        <div class="col-md-3"><div class="small text-muted">Statut</div><div>{{ besoinDetail?.statut?.label || '-' }}</div></div>
+        <div class="col-md-3"><div class="small text-muted">Priorité</div><div>{{ besoinDetail?.priorite?.label || '-' }}</div></div>
+        <div class="col-md-3"><div class="small text-muted">Site</div><div>{{ besoinDetail?.site?.label || '-' }}</div></div>
+        <div class="col-md-3"><div class="small text-muted">Création</div><div>{{ besoinDetail?.dateCreation || '-' }}</div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="modal.close()">Fermer</button>
+    </div>
+  </ng-template>
+</div>

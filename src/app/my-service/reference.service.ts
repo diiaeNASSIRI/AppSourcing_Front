@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -35,4 +35,5 @@ export class ReferenceService {
     return this.http.delete<void>(`${this.base}/${type}/${id}`);
   }
 }
+
 

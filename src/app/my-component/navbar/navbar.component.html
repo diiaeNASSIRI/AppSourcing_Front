@@ -1,10 +1,13 @@
 <nav class="navbar navbar-expand navbar-light bg-light topbar mb-4 static-top shadow navbar-custom">
   <div class="container-fluid d-flex justify-content-between align-items-center">
     <div class="d-flex align-items-center">
+      <button class="btn btn-link d-inline d-lg-none me-2" (click)="menuToggle.emit()" aria-label="Ouvrir le menu">
+        <i class="bi bi-list fs-2"></i>
+      </button>
       <img src="assets/images/sii_services_maroc_logo.jpg" alt="SII Services Maroc" class="brand-logo me-2">
       <span class="brand-name d-none d-sm-inline text-primary fw-semibold">Appsourcing</span>
     </div>
-    <ul class="navbar-nav flex-row align-items-center">
+  <ul class="navbar-nav flex-row align-items-center">
       <li class="nav-item me-3 d-flex align-items-center">
         <button (click)="openNotifications()" class="btn btn-link btn-notif me-2">
           <i class="bi bi-bell fs-4"></i>
@@ -15,8 +18,8 @@
         <button type="button" class="btn btn-link me-2" (click)="openChangePasswordModal()" aria-label="Changer le mot de passe" title="Changer le mot de passe">
           <i class="bi bi-key fs-5"></i>
         </button>
-        <img class="img-profile rounded-circle shadow-sm" [src]="'https://ui-avatars.com/api/?name=' + (email || 'User')" alt="avatar">
-        <span class="ms-2 text-dark username">{{ email || 'Utilisateur' }}</span>
+    <img class="img-profile rounded-circle shadow-sm d-none d-sm-inline" [src]="'https://ui-avatars.com/api/?name=' + (email || 'User')" alt="avatar">
+    <span class="ms-2 text-dark username d-none d-md-inline">{{ email || 'Utilisateur' }}</span>
       </li>
       <li class="nav-item">
         <button class="btn btn-outline-primary btn-sm ms-2 px-3" (click)="logout()">

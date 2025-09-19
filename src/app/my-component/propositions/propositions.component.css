@@ -1,0 +1,26 @@
+/* Basic styling for the Propositions page to satisfy Angular styleUrls */
+.entity-page {
+  min-height: 60vh;
+}
+.entity-table th { cursor: pointer; }
+.entity-actions { white-space: nowrap; }
+
+/* Modal styling for Candidat/Besoin info */
+.modal-body .small.text-muted {
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  font-size: .72rem;
+  color: #6c757d;
+}
+.modal-body .small.text-muted + div {
+  background: #f8f9fa;
+  border: 1px solid #eee;
+  border-radius: .5rem;
+  padding: .45rem .6rem;
+}
+.modal-body a {
+  color: #0d6efd;
+}
+.modal-body a:hover {
+  color: #0a58ca;
+}
