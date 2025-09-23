@@ -10,6 +10,7 @@ import { ReferenceStyleService } from '../../my-service/reference-style.service'
 import { ReferenceService, ReferenceType } from '../../my-service/reference.service';
 import { Candidat } from '../../models/candidat.model';
 import { CandidatServiceClient } from '../../my-service/candidat.service';
+import { TranslationService } from '../../config/i18n/translation.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -74,7 +75,12 @@ export class BesoinsComponent implements OnInit {
     private readonly refs: ReferenceService,
     private readonly candidatsApi: CandidatServiceClient,
     private readonly style: ReferenceStyleService,
+    private readonly translation: TranslationService
   ) {}
+
+  private translate(key: string, params?: Record<string, unknown>): string {
+    return this.translation.instant(key, params);
+  }
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -94,8 +100,8 @@ export class BesoinsComponent implements OnInit {
       this.loadReferences();
       this.loadAll();
     } else {
-      console.warn('[Besoins] Accès refusé: permission CAN_VIEW manquante');
-      this.error = 'Accès refusé (permission CAN_VIEW requise)';
+      console.warn('[Besoins] access denied: CAN_VIEW required');
+      this.error = this.translate('besoins.errors.accessDenied');
     }
   }
 
@@ -211,11 +217,11 @@ export class BesoinsComponent implements OnInit {
       error: (err) => {
         console.error('[Besoins] loadAll error', err);
         if (err?.status === 403) {
-          this.error = 'Accès refusé (permissions insuffisantes)';
+          this.error = this.translate('besoins.errors.insufficientPermissions');
         } else if (err?.status === 401) {
-          this.error = 'Session expirée/invalidée. Veuillez vous reconnecter.';
+          this.error = this.translate('besoins.errors.sessionExpired');
         } else {
-          this.error = 'Échec de chargement des besoins';
+          this.error = this.translate('besoins.errors.load');
         }
         this.loading = false;
       }
@@ -295,7 +301,7 @@ export class BesoinsComponent implements OnInit {
       },
       error: (err) => {
         console.error('[Besoins] submit error', err);
-        this.error = err?.error?.message || 'Opération échouée';
+        this.error = err?.error?.message || this.translate('besoins.errors.operationFailed');
         this.loading = false;
       }
     });
@@ -304,7 +310,7 @@ export class BesoinsComponent implements OnInit {
   remove(b: Besoin): void {
     if (!this.canDelete()) return;
     if (!b.id) return;
-    const ok = confirm(`Supprimer le besoin "${b.libelle}" ?`);
+    const ok = confirm(this.translate('besoins.confirm.delete', { label: b.libelle ?? '' }));
     if (!ok) return;
     this.loading = true;
     this.error = null;
@@ -312,7 +318,7 @@ export class BesoinsComponent implements OnInit {
       next: () => this.loadAll(),
       error: (err) => {
         console.error('[Besoins] delete error', err);
-        this.error = 'Suppression échouée';
+        this.error = this.translate('besoins.errors.deleteFailed');
         this.loading = false;
       }
     });
@@ -346,7 +352,7 @@ export class BesoinsComponent implements OnInit {
       error: (err) => {
         console.error('[Besoins] openCandidats error', err);
         const status = err?.status;
-        const msg = err?.error?.message || err?.message || 'Échec de chargement des candidats';
+        const msg = err?.error?.message || err?.message || this.translate('besoins.errors.candidatLoad');
         this.error = status ? `${msg} (HTTP ${status})` : msg;
         this.loading = false;
       }
@@ -402,7 +408,7 @@ export class BesoinsComponent implements OnInit {
         this.candidateDetail = c;
         this.modal.open(this.candidatInfoTpl, { size: 'lg', backdrop: 'static', scrollable: true, modalDialogClass: 'modal-lg modal-dialog-scrollable modal-fullscreen-sm-down' });
       },
-      error: () => { this.error = 'Impossible de charger les informations du candidat'; }
+      error: () => { this.error = this.translate('besoins.errors.candidatInfo'); }
     });
   }
 
@@ -411,7 +417,7 @@ export class BesoinsComponent implements OnInit {
     if (!id) return;
     this.besoinApi.getById(id).subscribe({
       next: (b) => { this.besoinDetail = b; this.modal.open(this.besoinInfoTpl, { size: 'lg', backdrop: 'static', scrollable: true, modalDialogClass: 'modal-lg modal-dialog-scrollable modal-fullscreen-sm-down' }); },
-      error: () => { this.error = 'Impossible de charger les informations du besoin'; }
+      error: () => { this.error = this.translate('besoins.errors.besoinInfo'); }
     });
   }
 
@@ -443,7 +449,7 @@ export class BesoinsComponent implements OnInit {
       },
       error: (err) => {
         console.error('[Besoins] updatePropositionStatus error', err);
-        this.error = err?.error?.message || 'Échec de mise à jour du statut';
+        this.error = err?.error?.message || this.translate('besoins.errors.statusUpdate');
         p.statutQualif = previousStatus;
         this.propositionsPourBesoin = [...this.propositionsPourBesoin];
         delete this.savingStatus[propId];
@@ -462,4 +468,14 @@ export class BesoinsComponent implements OnInit {
   colorClassFor(v?: number | null): string { return this.style.colorClassFor(v); }
   colorLabelFor(v?: number | null): string { return this.style.colorLabelFor(v); }
 }
+
+
+
+
+
+
+
+
+
+
 

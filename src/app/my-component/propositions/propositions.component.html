@@ -2,30 +2,30 @@
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h2 class="page-title m-0">
       <i class="bi bi-card-checklist me-2 text-primary"></i>
-      Propositions
+      {{ 'propositions.header.title' | translate }}
       <span class="badge bg-primary-subtle text-primary ms-2 align-middle">{{ items.length || 0 }}</span>
     </h2>
     <div>
       <button class="btn btn-primary" (click)="startCreate()" [disabled]="!canCreate()">
-        <i class="bi bi-plus-lg me-1"></i> Nouvelle proposition
+        <i class="bi bi-plus-lg me-1"></i> {{ 'propositions.actions.new' | translate }}
       </button>
     </div>
   </div>
 
   <div class="mb-2">
-    <div *ngIf="loading" class="text-muted">Chargement...</div>
+    <div *ngIf="loading" class="text-muted">{{ 'common.loading' | translate }}</div>
     <div *ngIf="error" class="alert alert-danger mb-0">{{ error }}</div>
   </div>
 
   <div class="card entity-card shadow mb-4">
     <div class="card-header py-3 d-flex align-items-center justify-content-between">
-      <h6 class="m-0 text-primary">Propositions</h6>
+      <h6 class="m-0 text-primary">{{ 'propositions.table.title' | translate }}</h6>
       <div class="d-flex gap-2">
         <button class="btn btn-outline-danger btn-sm" (click)="removeAll()" *ngIf="canDelete() && totalItems">
-          <i class="bi bi-trash me-1"></i> Tout supprimer
+          <i class="bi bi-trash me-1"></i> {{ 'propositions.actions.deleteAll' | translate }}
         </button>
         <button class="btn btn-outline-secondary btn-sm" (click)="loadAll()">
-          <i class="bi bi-arrow-repeat me-1"></i> Rafraîchir
+          <i class="bi bi-arrow-repeat me-1"></i> {{ 'common.actions.refresh' | translate }}
         </button>
       </div>
     </div>
@@ -34,12 +34,12 @@
         <div class="col-6 col-sm-5 col-md-4">
           <div class="input-group input-group-sm">
             <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input type="text" class="form-control" placeholder="Rechercher (ID, Candidat, Besoin, Statut...)" [(ngModel)]="search" />
+            <input type="text" class="form-control" [placeholder]="'propositions.filters.search' | translate" [(ngModel)]="search" />
           </div>
         </div>
         <div class="col-6 col-sm-4 col-md-3 ms-sm-auto text-sm-end">
           <div class="d-inline-flex align-items-center">
-            <span class="me-2 small text-muted text-nowrap">Lignes par page</span>
+            <span class="me-2 small text-muted text-nowrap">{{ 'common.table.rowsPerPage' | translate }}</span>
             <select class="form-select form-select-sm" (change)="pageSize = +$any($event.target).value; page = 1">
               <option [selected]="pageSize===5" value="5">5</option>
               <option [selected]="pageSize===10" value="10">10</option>
@@ -53,15 +53,15 @@
         <table class="table entity-table table-bordered table-hover align-middle" *ngIf="totalItems > 0; else empty">
           <thead class="table-light align-middle">
             <tr>
-              <th (click)="setSort('id')" role="button"><i class="bi bi-hash me-1 text-secondary"></i>ID</th>
-              <th (click)="setSort('candidatName')" role="button"><i class="bi bi-person-badge me-1 text-secondary"></i>Candidat</th>
-              <th (click)="setSort('besoinLibelle')" role="button"><i class="bi bi-briefcase-fill me-1 text-secondary"></i>Besoin</th>
-              <th (click)="setSort('dateProposition')" role="button"><i class="bi bi-calendar-event me-1 text-secondary"></i>Date Proposition</th>
-              <th (click)="setSort('delaiReponse')" role="button"><i class="bi bi-hourglass-split me-1 text-secondary"></i>Délai Réponse</th>
-              <th (click)="setSort('datePropale')" role="button"><i class="bi bi-calendar-check me-1 text-secondary"></i>Date Propale</th>
-              <th (click)="setSort('dateDemarrage')" role="button"><i class="bi bi-play-fill me-1 text-secondary"></i>Date Démarrage</th>
-              <th (click)="setSort('statutQualif')" role="button"><i class="bi bi-flag-fill me-1 text-secondary"></i>Statut</th>
-              <th *ngIf="canEdit() || canDelete()" class="entity-actions"><i class="bi bi-tools me-1 text-secondary"></i>Actions</th>
+              <th (click)="setSort('id')" role="button"><i class="bi bi-hash me-1 text-secondary"></i>{{ 'propositions.table.columns.id' | translate }}</th>
+              <th (click)="setSort('candidatName')" role="button"><i class="bi bi-person-badge me-1 text-secondary"></i>{{ 'propositions.table.columns.candidate' | translate }}</th>
+              <th (click)="setSort('besoinLibelle')" role="button"><i class="bi bi-briefcase-fill me-1 text-secondary"></i>{{ 'propositions.table.columns.need' | translate }}</th>
+              <th (click)="setSort('dateProposition')" role="button"><i class="bi bi-calendar-event me-1 text-secondary"></i>{{ 'propositions.table.columns.dateProposition' | translate }}</th>
+              <th (click)="setSort('delaiReponse')" role="button"><i class="bi bi-hourglass-split me-1 text-secondary"></i>{{ 'propositions.table.columns.responseDelay' | translate }}</th>
+              <th (click)="setSort('datePropale')" role="button"><i class="bi bi-calendar-check me-1 text-secondary"></i>{{ 'propositions.table.columns.dateOffer' | translate }}</th>
+              <th (click)="setSort('dateDemarrage')" role="button"><i class="bi bi-play-fill me-1 text-secondary"></i>{{ 'propositions.table.columns.dateStart' | translate }}</th>
+              <th (click)="setSort('statutQualif')" role="button"><i class="bi bi-flag-fill me-1 text-secondary"></i>{{ 'propositions.table.columns.status' | translate }}</th>
+              <th *ngIf="canEdit() || canDelete()" class="entity-actions"><i class="bi bi-tools me-1 text-secondary"></i>{{ 'common.table.columns.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -75,13 +75,13 @@
               <td>{{ p.dateDemarrage || '-' }}</td>
               <td>{{ p.statutQualif || '-' }}</td>
               <td *ngIf="canEdit() || canDelete()" class="entity-actions">
-                <button class="btn btn-sm btn-outline-secondary me-1" (click)="openDetail(p)" title="Détails">
+                <button class="btn btn-sm btn-outline-secondary me-1" (click)="openDetail(p)" [attr.title]="'propositions.table.actions.detail' | translate">
                   <i class="bi bi-eye"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-primary me-1" (click)="startEdit(p)" [disabled]="!canEdit()" title="Modifier">
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="startEdit(p)" [disabled]="!canEdit()" [attr.title]="'common.actions.edit' | translate">
                   <i class="bi bi-pencil"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-danger" (click)="remove(p)" [disabled]="!canDelete()" title="Supprimer">
+                <button class="btn btn-sm btn-outline-danger" (click)="remove(p)" [disabled]="!canDelete()" [attr.title]="'common.actions.delete' | translate">
                   <i class="bi bi-trash"></i>
                 </button>
               </td>
@@ -89,11 +89,11 @@
           </tbody>
         </table>
         <ng-template #empty>
-          <div class="empty-state">Aucune proposition trouvée.</div>
+          <div class="empty-state">{{ 'propositions.table.empty' | translate }}</div>
         </ng-template>
       </div>
       <div class="d-flex justify-content-between align-items-center entity-footer">
-        <div class="small text-muted">Total: {{ totalItems }}</div>
+        <div class="small text-muted">{{ 'common.total' | translate }} {{ totalItems }}</div>
         <ngb-pagination [collectionSize]="totalItems" [(page)]="page" [pageSize]="pageSize" [maxSize]="5" [ellipses]="true" [boundaryLinks]="true" size="sm"></ngb-pagination>
       </div>
     </div>
@@ -101,65 +101,65 @@
 
   <ng-template #propForm>
     <div class="modal-header">
-      <h5 class="modal-title">{{ editingId ? 'Modifier' : 'Créer' }} une proposition</h5>
-      <button type="button" class="btn-close" aria-label="Fermer" (click)="cancelForm()"></button>
+      <h5 class="modal-title">{{ (editingId ? 'propositions.modal.form.editTitle' : 'propositions.modal.form.createTitle') | translate }}</h5>
+      <button type="button" class="btn-close" [attr.aria-label]="'common.close' | translate" (click)="cancelForm()"></button>
     </div>
     <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="modal-body">
         <div *ngIf="formError" class="alert alert-danger py-2">{{ formError }}</div>
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label">Candidat</label>
+            <label class="form-label">{{ 'propositions.form.candidate' | translate }}</label>
             <div class="d-flex gap-2 align-items-center">
               <select class="form-select" formControlName="candidatId" required>
-                <option [ngValue]="null">-- choisir un candidat --</option>
+                <option [ngValue]="null">{{ 'propositions.form.selectCandidate' | translate }}</option>
                 <option *ngFor="let c of candidats" [ngValue]="c.id">{{ c.label }} ({{ c.id }})</option>
               </select>
-              <button type="button" class="btn btn-outline-secondary" (click)="openCandidatInfo()" [disabled]="!form.value.candidatId" title="Voir infos candidat">
+              <button type="button" class="btn btn-outline-secondary" (click)="openCandidatInfo()" [disabled]="!form.value.candidatId" [attr.title]="'propositions.form.actions.viewCandidate' | translate">
                 <i class="bi bi-eye"></i>
               </button>
             </div>
-            <div class="text-danger small mt-1" *ngIf="form.get('candidatId')?.invalid && (form.get('candidatId')?.dirty || form.get('candidatId')?.touched)">Candidat requis</div>
+            <div class="text-danger small mt-1" *ngIf="form.get('candidatId')?.invalid && (form.get('candidatId')?.dirty || form.get('candidatId')?.touched)">{{ 'propositions.form.errors.candidateRequired' | translate }}</div>
           </div>
           <div class="col-md-6">
-            <label class="form-label">Besoin</label>
+            <label class="form-label">{{ 'propositions.form.need' | translate }}</label>
             <div class="d-flex gap-2 align-items-center">
               <select class="form-select" formControlName="besoinId" required>
-                <option [ngValue]="null">-- choisir un besoin --</option>
+                <option [ngValue]="null">{{ 'propositions.form.selectNeed' | translate }}</option>
                 <option *ngFor="let b of besoins" [ngValue]="b.id">{{ b.label }} ({{ b.id }})</option>
               </select>
-              <button type="button" class="btn btn-outline-secondary" (click)="openBesoinInfo()" [disabled]="!form.value.besoinId" title="Voir infos besoin">
+              <button type="button" class="btn btn-outline-secondary" (click)="openBesoinInfo()" [disabled]="!form.value.besoinId" [attr.title]="'propositions.form.actions.viewNeed' | translate">
                 <i class="bi bi-eye"></i>
               </button>
             </div>
-            <div class="text-danger small mt-1" *ngIf="form.get('besoinId')?.invalid && (form.get('besoinId')?.dirty || form.get('besoinId')?.touched)">Besoin requis</div>
+            <div class="text-danger small mt-1" *ngIf="form.get('besoinId')?.invalid && (form.get('besoinId')?.dirty || form.get('besoinId')?.touched)">{{ 'propositions.form.errors.needRequired' | translate }}</div>
           </div>
 
           <div class="col-md-6">
-            <label class="form-label">Date proposition</label>
+            <label class="form-label">{{ 'propositions.form.dateProposition' | translate }}</label>
             <input type="date" class="form-control" formControlName="dateProposition" />
           </div>
           <div class="col-md-6">
-            <label class="form-label">Délai réponse</label>
+            <label class="form-label">{{ 'propositions.form.responseDelay' | translate }}</label>
             <input type="text" class="form-control" formControlName="delaiReponse" />
           </div>
           <div class="col-md-6">
-            <label class="form-label">Date propale</label>
+            <label class="form-label">{{ 'propositions.form.dateOffer' | translate }}</label>
             <input type="date" class="form-control" formControlName="datePropale" />
           </div>
           <div class="col-md-6">
-            <label class="form-label">Date démarrage</label>
+            <label class="form-label">{{ 'propositions.form.dateStart' | translate }}</label>
             <input type="date" class="form-control" formControlName="dateDemarrage" />
           </div>
           <div class="col-md-12">
-            <label class="form-label">Statut qualification</label>
+            <label class="form-label">{{ 'propositions.form.status' | translate }}</label>
             <input type="text" class="form-control" formControlName="statutQualif" />
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" (click)="cancelForm()">Annuler</button>
-        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading">{{ editingId ? 'Enregistrer' : 'Créer' }}</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="cancelForm()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading">{{ (editingId ? 'common.save' : 'common.create') | translate }}</button>
       </div>
     </form>
   </ng-template>
@@ -167,8 +167,8 @@
   <!-- Modal Détails proposition -->
   <ng-template #propDetail let-modal>
     <div class="modal-header">
-      <h5 class="modal-title">Détails de la proposition #{{ detailItem?.id }}</h5>
-      <button type="button" class="btn-close" aria-label="Fermer" (click)="modal.close()"></button>
+      <h5 class="modal-title">{{ 'propositions.detail.title' | translate:{ id: detailItem?.id } }}</h5>
+      <button type="button" class="btn-close" [attr.aria-label]="'common.close' | translate" (click)="modal.close()"></button>
     </div>
     <div class="modal-body">
       <div class="row g-3">
@@ -176,41 +176,41 @@
         <div class="col-lg-6">
           <div class="mb-2 fw-semibold d-flex align-items-center justify-content-between">
             <span>Candidat — {{ fullName(candidateDetail) }}</span>
-            <a *ngIf="candidateDetail?.id" class="small" [routerLink]="['/candidats']" [queryParams]="{ q: fullName(candidateDetail) }" title="Ouvrir dans Candidats">
+            <a *ngIf="candidateDetail?.id" class="small" [routerLink]="['/candidats']" [queryParams]="{ q: fullName(candidateDetail) }" [attr.title]="'propositions.detail.actions.openInCandidates' | translate">
               <i class="bi bi-box-arrow-up-right"></i>
             </a>
           </div>
           <div class="row g-2">
             <div class="col-md-4">
-              <div class="small text-muted">ID</div>
+              <div class="small text-muted">{{ 'propositions.table.columns.id' | translate }}</div>
               <div>{{ candidateDetail?.id ?? '-' }}</div>
             </div>
             <div class="col-md-4">
-              <div class="small text-muted">Prénom</div>
+              <div class="small text-muted">{{ 'candidats.details.firstName' | translate }}</div>
               <div>{{ candidateDetail?.firstName || '-' }}</div>
             </div>
             <div class="col-md-4">
-              <div class="small text-muted">Nom</div>
+              <div class="small text-muted">{{ 'candidats.details.lastName' | translate }}</div>
               <div>{{ candidateDetail?.lastName || '-' }}</div>
             </div>
             <div class="col-md-12">
-              <div class="small text-muted">Profil</div>
+              <div class="small text-muted">{{ 'candidats.details.profile' | translate }}</div>
               <div>{{ candidateDetail?.profil || '-' }}</div>
             </div>
             <div class="col-md-6">
-              <div class="small text-muted">Expérience</div>
+              <div class="small text-muted">{{ 'besoins.details.experience' | translate }}</div>
               <div>{{ candidateDetail?.experience || '-' }}</div>
             </div>
             <div class="col-md-6">
-              <div class="small text-muted">Disponibilité</div>
+              <div class="small text-muted">{{ 'candidats.details.availability' | translate }}</div>
               <div>{{ candidateDetail?.dateDisponibilite || '-' }}</div>
             </div>
             <div class="col-md-6">
-              <div class="small text-muted">PRU</div>
+              <div class="small text-muted">{{ 'candidats.details.pru' | translate }}</div>
               <div>{{ candidateDetail?.pru != null ? (candidateDetail?.pru | number:'1.0-0') : '-' }}</div>
             </div>
             <div class="col-md-12">
-              <div class="small text-muted">Liens</div>
+              <div class="small text-muted">{{ 'common.links' | translate }}</div>
               <div *ngIf="candidateDetail?.links?.length; else nocandlinks">
                 <div *ngFor="let l of candidateDetail?.links" class="mb-1">
                   <i class="bi bi-box-arrow-up-right me-1 text-secondary"></i>
@@ -227,39 +227,39 @@
           <div class="mb-2 fw-semibold">Besoin — {{ besoinDetail?.libelle || displayBesoin(detailItem) }}</div>
           <div class="row g-2">
             <div class="col-md-12">
-              <div class="small text-muted">Projet</div>
+              <div class="small text-muted">{{ 'besoins.details.project' | translate }}</div>
               <div>{{ besoinDetail?.projet || '-' }}</div>
             </div>
             <div class="col-md-6">
-              <div class="small text-muted">Owner RM</div>
+              <div class="small text-muted">{{ 'besoins.table.columns.owner' | translate }}</div>
               <div>{{ besoinDetail?.owner || '-' }}</div>
             </div>
             <div class="col-md-6">
-              <div class="small text-muted">Site</div>
+              <div class="small text-muted">{{ 'besoins.table.columns.site' | translate }}</div>
               <div>{{ besoinDetail?.site?.label || '-' }}</div>
             </div>
             <div class="col-md-12">
-              <div class="small text-muted">Précision</div>
+              <div class="small text-muted">{{ 'besoins.details.precision' | translate }}</div>
               <div>{{ besoinDetail?.precision || '-' }}</div>
             </div>
             <div class="col-md-4">
-              <div class="small text-muted">PRU (DH)</div>
+              <div class="small text-muted">{{ 'besoins.details.pruDh' | translate }}</div>
               <div>{{ besoinDetail?.pru != null ? (besoinDetail?.pru | number:'1.0-0') : '-' }}</div>
             </div>
             <div class="col-md-4">
-              <div class="small text-muted">Expérience</div>
+              <div class="small text-muted">{{ 'besoins.details.experience' | translate }}</div>
               <div>{{ besoinDetail?.nbrExperience || '-' }}</div>
             </div>
             <div class="col-md-4">
-              <div class="small text-muted">Création</div>
+              <div class="small text-muted">{{ 'besoins.details.creationDate' | translate }}</div>
               <div>{{ besoinDetail?.dateCreation || '-' }}</div>
             </div>
             <div class="col-md-6">
-              <div class="small text-muted">Statut</div>
+              <div class="small text-muted">{{ 'besoins.details.status' | translate }}</div>
               <div>{{ besoinDetail?.statut?.label || '-' }}</div>
             </div>
             <div class="col-md-6">
-              <div class="small text-muted">Priorité</div>
+              <div class="small text-muted">{{ 'besoins.details.priority' | translate }}</div>
               <div>{{ besoinDetail?.priorite?.label || '-' }}</div>
             </div>
           </div>
@@ -269,29 +269,29 @@
 
         <!-- Champs de la proposition -->
         <div class="col-md-3">
-          <div class="small text-muted">Date proposition</div>
+          <div class="small text-muted">{{ 'propositions.detail.dateProposition' | translate }}</div>
           <div>{{ detailItem?.dateProposition || '-' }}</div>
         </div>
         <div class="col-md-3">
-          <div class="small text-muted">Délai réponse</div>
+          <div class="small text-muted">{{ 'propositions.detail.responseDelay' | translate }}</div>
           <div>{{ detailItem?.delaiReponse || '-' }}</div>
         </div>
         <div class="col-md-3">
-          <div class="small text-muted">Date propale</div>
+          <div class="small text-muted">{{ 'propositions.detail.dateOffer' | translate }}</div>
           <div>{{ detailItem?.datePropale || '-' }}</div>
         </div>
         <div class="col-md-3">
-          <div class="small text-muted">Date démarrage</div>
+          <div class="small text-muted">{{ 'propositions.detail.dateStart' | translate }}</div>
           <div>{{ detailItem?.dateDemarrage || '-' }}</div>
         </div>
         <div class="col-md-6">
-          <div class="small text-muted">Statut qualification</div>
+          <div class="small text-muted">{{ 'propositions.detail.status' | translate }}</div>
           <div>{{ detailItem?.statutQualif || '-' }}</div>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-outline-secondary" (click)="modal.close()">Fermer</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="modal.close()">{{ 'common.close' | translate }}</button>
     </div>
   </ng-template>
 
@@ -299,19 +299,19 @@
   <ng-template #candidatInfo let-modal>
     <div class="modal-header">
       <h5 class="modal-title">Candidat — {{ fullName(candidateDetail) }}</h5>
-      <button type="button" class="btn-close" aria-label="Fermer" (click)="modal.close()"></button>
+      <button type="button" class="btn-close" [attr.aria-label]="'common.close' | translate" (click)="modal.close()"></button>
     </div>
     <div class="modal-body">
       <div class="row g-3">
-        <div class="col-md-3"><div class="small text-muted">ID</div><div class="fw-semibold">{{ candidateDetail?.id ?? '-' }}</div></div>
-        <div class="col-md-4"><div class="small text-muted">Prénom</div><div>{{ candidateDetail?.firstName || '-' }}</div></div>
-        <div class="col-md-5"><div class="small text-muted">Nom</div><div>{{ candidateDetail?.lastName || '-' }}</div></div>
-        <div class="col-md-12"><div class="small text-muted">Profil</div><div class="fw-semibold">{{ candidateDetail?.profil || '-' }}</div></div>
-        <div class="col-md-4"><div class="small text-muted">Expérience</div><div>{{ candidateDetail?.experience || '-' }}</div></div>
-        <div class="col-md-4"><div class="small text-muted">Disponibilité</div><div>{{ candidateDetail?.dateDisponibilite || '-' }}</div></div>
-        <div class="col-md-4"><div class="small text-muted">PRU</div><div>{{ candidateDetail?.pru != null ? (candidateDetail?.pru | number:'1.0-0') : '-' }}</div></div>
+        <div class="col-md-3"><div class="small text-muted">{{ 'propositions.table.columns.id' | translate }}</div><div class="fw-semibold">{{ candidateDetail?.id ?? '-' }}</div></div>
+        <div class="col-md-4"><div class="small text-muted">{{ 'candidats.details.firstName' | translate }}</div><div>{{ candidateDetail?.firstName || '-' }}</div></div>
+        <div class="col-md-5"><div class="small text-muted">{{ 'candidats.details.lastName' | translate }}</div><div>{{ candidateDetail?.lastName || '-' }}</div></div>
+        <div class="col-md-12"><div class="small text-muted">{{ 'candidats.details.profile' | translate }}</div><div class="fw-semibold">{{ candidateDetail?.profil || '-' }}</div></div>
+        <div class="col-md-4"><div class="small text-muted">{{ 'besoins.details.experience' | translate }}</div><div>{{ candidateDetail?.experience || '-' }}</div></div>
+        <div class="col-md-4"><div class="small text-muted">{{ 'candidats.details.availability' | translate }}</div><div>{{ candidateDetail?.dateDisponibilite || '-' }}</div></div>
+        <div class="col-md-4"><div class="small text-muted">{{ 'candidats.details.pru' | translate }}</div><div>{{ candidateDetail?.pru != null ? (candidateDetail?.pru | number:'1.0-0') : '-' }}</div></div>
         <div class="col-12">
-          <div class="small text-muted">Liens</div>
+          <div class="small text-muted">{{ 'common.links' | translate }}</div>
           <div *ngIf="candidateDetail?.links?.length; else nolinksC">
             <div *ngFor="let l of candidateDetail?.links" class="mb-1">
               <i class="bi bi-box-arrow-up-right me-1 text-secondary"></i>
@@ -323,7 +323,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-outline-secondary" (click)="modal.close()">Fermer</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="modal.close()">{{ 'common.close' | translate }}</button>
     </div>
   </ng-template>
 
@@ -331,23 +331,23 @@
   <ng-template #besoinInfo let-modal>
     <div class="modal-header">
       <h5 class="modal-title">Besoin — {{ besoinDetail?.libelle || ('#' + (besoinDetail?.id || '?')) }}</h5>
-      <button type="button" class="btn-close" aria-label="Fermer" (click)="modal.close()"></button>
+      <button type="button" class="btn-close" [attr.aria-label]="'common.close' | translate" (click)="modal.close()"></button>
     </div>
     <div class="modal-body">
       <div class="row g-3">
-        <div class="col-md-6"><div class="small text-muted">Projet</div><div class="fw-semibold">{{ besoinDetail?.projet || '-' }}</div></div>
-        <div class="col-md-6"><div class="small text-muted">Owner RM</div><div>{{ besoinDetail?.owner || '-' }}</div></div>
-        <div class="col-md-12"><div class="small text-muted">Précision</div><div>{{ besoinDetail?.precision || '-' }}</div></div>
-        <div class="col-md-3"><div class="small text-muted">PRU (DH)</div><div>{{ besoinDetail?.pru != null ? (besoinDetail?.pru | number:'1.0-0') : '-' }}</div></div>
-        <div class="col-md-3"><div class="small text-muted">Expérience</div><div>{{ besoinDetail?.nbrExperience || '-' }}</div></div>
-        <div class="col-md-3"><div class="small text-muted">Statut</div><div>{{ besoinDetail?.statut?.label || '-' }}</div></div>
-        <div class="col-md-3"><div class="small text-muted">Priorité</div><div>{{ besoinDetail?.priorite?.label || '-' }}</div></div>
-        <div class="col-md-3"><div class="small text-muted">Site</div><div>{{ besoinDetail?.site?.label || '-' }}</div></div>
-        <div class="col-md-3"><div class="small text-muted">Création</div><div>{{ besoinDetail?.dateCreation || '-' }}</div></div>
+        <div class="col-md-6"><div class="small text-muted">{{ 'besoins.details.project' | translate }}</div><div class="fw-semibold">{{ besoinDetail?.projet || '-' }}</div></div>
+        <div class="col-md-6"><div class="small text-muted">{{ 'besoins.table.columns.owner' | translate }}</div><div>{{ besoinDetail?.owner || '-' }}</div></div>
+        <div class="col-md-12"><div class="small text-muted">{{ 'besoins.details.precision' | translate }}</div><div>{{ besoinDetail?.precision || '-' }}</div></div>
+        <div class="col-md-3"><div class="small text-muted">{{ 'besoins.details.pruDh' | translate }}</div><div>{{ besoinDetail?.pru != null ? (besoinDetail?.pru | number:'1.0-0') : '-' }}</div></div>
+        <div class="col-md-3"><div class="small text-muted">{{ 'besoins.details.experience' | translate }}</div><div>{{ besoinDetail?.nbrExperience || '-' }}</div></div>
+        <div class="col-md-3"><div class="small text-muted">{{ 'besoins.details.status' | translate }}</div><div>{{ besoinDetail?.statut?.label || '-' }}</div></div>
+        <div class="col-md-3"><div class="small text-muted">{{ 'besoins.details.priority' | translate }}</div><div>{{ besoinDetail?.priorite?.label || '-' }}</div></div>
+        <div class="col-md-3"><div class="small text-muted">{{ 'besoins.table.columns.site' | translate }}</div><div>{{ besoinDetail?.site?.label || '-' }}</div></div>
+        <div class="col-md-3"><div class="small text-muted">{{ 'besoins.details.creationDate' | translate }}</div><div>{{ besoinDetail?.dateCreation || '-' }}</div></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-outline-secondary" (click)="modal.close()">Fermer</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="modal.close()">{{ 'common.close' | translate }}</button>
     </div>
   </ng-template>
 </div>

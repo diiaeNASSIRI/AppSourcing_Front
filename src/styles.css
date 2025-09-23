@@ -154,3 +154,12 @@
   .entity-actions { width: 96px; }
 }
 
+/* Ensure Bootstrap Icons load from bundled assets (fix dev 404 on /fonts) */
+@font-face {
+  font-family: "bootstrap-icons";
+  src: url("/assets/bootstrap-icons/bootstrap-icons.woff2") format("woff2"),
+       url("/assets/bootstrap-icons/bootstrap-icons.woff") format("woff");
+  font-display: swap;
+}
+
+

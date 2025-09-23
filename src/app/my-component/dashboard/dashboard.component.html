@@ -1,5 +1,5 @@
-<div class="dashboard">
-  <h2>Bienvenue</h2>
-  <p *ngIf="me as user">Connecté en tant que {{ user.fullName }} ({{ user.email }})</p>
-  <p *ngIf="!me">Chargement des informations…</p>
+ï»¿<div class="dashboard">
+  <h2>{{ 'dashboard.title' | translate }}</h2>
+  <p *ngIf="me as user">{{ 'dashboard.loggedInAs' | translate: { name: user.fullName, email: user.email } }}</p>
+  <p *ngIf="!me">{{ 'dashboard.loading' | translate }}</p>
 </div>

@@ -1,6 +1,9 @@
 ﻿import { Component, EventEmitter, Input, Output, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+
+import { TranslationService } from '../../config/i18n/translation.service';
+import { LanguageCode } from '../../config/i18n/translations';
 import { AuthService } from '../../my-service/auth.service';
 
 interface NotificationItem {
@@ -11,6 +14,8 @@ interface NotificationItem {
   type?: string;
   _localRead?: boolean;
 }
+
+type NotificationStatus = 'success' | 'error' | 'pending' | 'info';
 
 @Component({
   selector: 'app-navbar',
@@ -45,9 +50,41 @@ export class NavbarComponent {
     confirmPassword: ['', [Validators.required, Validators.minLength(8)]],
   });
 
+  constructor(
+    private fb: FormBuilder,
+    private modal: NgbModal,
+    private auth: AuthService,
+    private translation: TranslationService
+  ) {}
+
+  get languageCode(): string {
+    return this.translation.language.toUpperCase();
+  }
+
+  get nextLanguage(): LanguageCode {
+    return this.translation.language === 'fr' ? 'en' : 'fr';
+  }
+
+  get nextLanguageName(): string {
+    return this.translateKey('navbar.language.name.' + this.nextLanguage);
+  }
+
+  switchLanguage(): void {
+    const target = this.nextLanguage;
+    this.translation.setLanguage(target);
+  }
+
   get unreadNotifications(): NotificationItem[] {
     // Fallback to provided notifications list. In a real app, filter by read flag.
     return this.notifications;
+  }
+
+  get avatarName(): string {
+    return this.email || this.translateKey('navbar.userFallback');
+  }
+
+  get avatarUrl(): string {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(this.avatarName)}`;
   }
 
   openNotifications(): void {
@@ -63,7 +100,7 @@ export class NavbarComponent {
   }
 
   markAllLocalRead(): void {
-    this.notifications = this.notifications.map(n => ({ ...n, _localRead: true }));
+    this.notifications = this.notifications.map((notification) => ({ ...notification, _localRead: true }));
   }
 
   gotoAllNotifications(): void {
@@ -84,23 +121,42 @@ export class NavbarComponent {
     }
   }
 
-  parseStatus(message: string): string {
-    const msg = (message || '').toLowerCase();
-    if (msg.includes('succÃ¨s') || msg.includes('success')) return 'SuccÃ¨s';
-    if (msg.includes('erreur') || msg.includes('Ã©chec') || msg.includes('echec') || msg.includes('error')) return 'Erreur';
-    if (msg.includes('attente') || msg.includes('pending')) return 'En attente';
-    return 'Info';
+  parseStatusCode(message: string): NotificationStatus {
+    const raw = (message || '').toLowerCase();
+    const normalized = this.normalize(raw);
+
+    if (normalized.includes('succes') || normalized.includes('success')) {
+      return 'success';
+    }
+
+    if (
+      normalized.includes('erreur') ||
+      normalized.includes('echec') ||
+      normalized.includes('fail') ||
+      normalized.includes('error')
+    ) {
+      return 'error';
+    }
+
+    if (normalized.includes('attente') || normalized.includes('pending') || normalized.includes('en cours')) {
+      return 'pending';
+    }
+
+    return 'info';
   }
 
-  statusBadgeClass(status: string): string {
-    const s = status.toLowerCase();
-    if (s.includes('succÃ¨s') || s.includes('succ') || s.includes('success')) return 'bg-success';
-    if (s.includes('erreur') || s.includes('error') || s.includes('Ã©chec') || s.includes('echec')) return 'bg-danger';
-    if (s.includes('attente') || s.includes('pending')) return 'bg-warning text-dark';
-    return 'bg-secondary';
+  statusBadgeClass(status: NotificationStatus): string {
+    switch (status) {
+      case 'success':
+        return 'bg-success';
+      case 'error':
+        return 'bg-danger';
+      case 'pending':
+        return 'bg-warning text-dark';
+      default:
+        return 'bg-secondary';
+    }
   }
-
-  constructor(private fb: FormBuilder, private modal: NgbModal, private auth: AuthService) {}
 
   logout(): void {
     this.logoutClick.emit();
@@ -117,28 +173,49 @@ export class NavbarComponent {
   submitChangePassword(): void {
     this.changeError = null;
     this.changeSuccess = null;
-    const { currentPassword, newPassword, confirmPassword } = this.changeForm.getRawValue() as any;
+    const { currentPassword, newPassword, confirmPassword } = this.changeForm.getRawValue() as {
+      currentPassword: string;
+      newPassword: string;
+      confirmPassword: string;
+    };
+
     if (!currentPassword || !newPassword || !confirmPassword) {
-      this.changeError = 'Veuillez remplir tous les champs.';
+      this.changeError = this.translateKey('navbar.changePassword.errors.missingFields');
       this.changeForm.markAllAsTouched();
       return;
     }
+
     if (newPassword !== confirmPassword) {
-      this.changeError = 'Les mots de passe ne correspondent pas.';
+      this.changeError = this.translateKey('navbar.changePassword.errors.mismatch');
       return;
     }
+
     this.changeLoading = true;
     this.auth.changePassword({ oldPassword: currentPassword, newPassword }).subscribe({
-      next: (res) => {
+      next: (response) => {
         this.changeLoading = false;
-        this.changeSuccess = res?.message || 'Mot de passe modifiÃ© avec succÃ¨s.';
+        this.changeSuccess = response?.message || this.translateKey('navbar.changePassword.success');
         setTimeout(() => this.modalRef?.close(), 700);
       },
-      error: (err) => {
+      error: (errorResponse) => {
         this.changeLoading = false;
-        this.changeError = err?.error?.message || err?.message || 'Echec de la modification du mot de passe';
+        this.changeError =
+          errorResponse?.error?.message ||
+          errorResponse?.message ||
+          this.translateKey('navbar.changePassword.errors.generic');
       }
     });
   }
-}
 
+  private translateKey(key: string, params?: Record<string, unknown>): string {
+    return this.translation.instant(key, params);
+  }
+
+  private normalize(value: string): string {
+    if (typeof value.normalize === 'function') {
+      return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    return value;
+  }
+}

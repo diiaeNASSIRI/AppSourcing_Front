@@ -1,8 +1,10 @@
 ﻿import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../my-service/auth.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+
+import { TranslationService } from '../../config/i18n/translation.service';
+import { AuthService } from '../../my-service/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -34,7 +36,13 @@ export class LoginComponent implements OnInit {
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router, private modal: NgbModal) {}
+  constructor(
+    private fb: FormBuilder,
+    private auth: AuthService,
+    private router: Router,
+    private modal: NgbModal,
+    private translation: TranslationService
+  ) {}
 
   ngOnInit(): void {
     if (this.auth.getToken()) {
@@ -64,7 +72,7 @@ export class LoginComponent implements OnInit {
         this.loading = false;
         console.error('[LoginComponent] Auth failed', err);
         const backendMsg = err?.error?.message || err?.message;
-        this.error = backendMsg || 'Echec de la connexion';
+        this.error = backendMsg || this.translateKey('login.errors.authentication');
       },
     });
   }
@@ -81,17 +89,17 @@ export class LoginComponent implements OnInit {
     this.changeSuccess = null;
     const { newPassword, confirmPassword } = this.changeForm.getRawValue() as { newPassword: string; confirmPassword: string };
     if (!newPassword || !confirmPassword) {
-      this.changeError = 'Veuillez saisir le nouveau mot de passe.';
+      this.changeError = this.translateKey('login.changePassword.errors.missing');
       return;
     }
     if (newPassword !== confirmPassword) {
-      this.changeError = 'Les mots de passe ne correspondent pas.';
+      this.changeError = this.translateKey('login.changePassword.errors.mismatch');
       return;
     }
     this.auth.changePassword({ oldPassword: this.lastLoginPassword, newPassword }).subscribe({
       next: () => {
         // Keep session and go directly to dashboard
-        this.changeSuccess = 'Mot de passe modifie avec succes. Redirection...';
+        this.changeSuccess = this.translateKey('login.changePassword.success');
         setTimeout(() => {
           this.modalRef?.close();
           this.router.navigate(['/dashboard']);
@@ -100,7 +108,7 @@ export class LoginComponent implements OnInit {
       error: (err) => {
         console.error('[LoginComponent] Change password failed', err);
         const backendMsg = err?.error?.message || err?.message;
-        this.changeError = backendMsg || 'Echec de la modification du mot de passe';
+        this.changeError = backendMsg || this.translateKey('login.changePassword.errors.generic');
       }
     });
   }
@@ -117,9 +125,19 @@ export class LoginComponent implements OnInit {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
+  visibilityText(isVisible: boolean): string {
+    return this.translateKey(isVisible ? 'common.actions.hide' : 'common.actions.show');
+  }
+
+  visibilityAriaLabel(isVisible: boolean): string {
+    return this.translateKey(isVisible ? 'common.actions.hidePassword' : 'common.actions.showPassword');
+  }
+
   get currentYear(): number {
     return new Date().getFullYear();
   }
+
+  private translateKey(key: string, params?: Record<string, unknown>): string {
+    return this.translation.instant(key, params);
+  }
 }
-
-

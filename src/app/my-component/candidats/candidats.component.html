@@ -2,26 +2,26 @@
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h2 class="page-title m-0">
       <i class="bi bi-people me-2 text-primary"></i>
-      Candidats
+      {{ 'candidats.header.title' | translate }}
       <span class="badge bg-primary-subtle text-primary ms-2 align-middle">{{ candidats.length || 0 }}</span>
     </h2>
     <div>
       <button class="btn btn-primary" (click)="startCreate()" [disabled]="!canCreate()">
-        <i class="bi bi-plus-lg me-1"></i> Nouveau candidat
+        <i class="bi bi-plus-lg me-1"></i> {{ 'candidats.actions.new' | translate }}
       </button>
     </div>
   </div>
 
   <div class="mb-2">
-    <div *ngIf="loading" class="text-muted">Chargement...</div>
+    <div *ngIf="loading" class="text-muted">{{ 'common.loading' | translate }}</div>
     <div *ngIf="error" class="alert alert-danger mb-0">{{ error }}</div>
   </div>
 
   <div class="card entity-card shadow mb-4">
     <div class="card-header py-3 d-flex align-items-center justify-content-between">
-      <h6 class="m-0 text-primary">Candidats</h6>
+      <h6 class="m-0 text-primary">{{ 'candidats.table.title' | translate }}</h6>
       <button class="btn btn-outline-secondary btn-sm" (click)="loadAll()">
-        <i class="bi bi-arrow-repeat me-1"></i> Rafra&icirc;chir
+        <i class="bi bi-arrow-repeat me-1"></i> {{ 'common.actions.refresh' | translate }}
       </button>
     </div>
     <div class="card-body">
@@ -29,12 +29,12 @@
         <div class="col-6 col-sm-5 col-md-4">
           <div class="input-group input-group-sm">
             <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input type="text" class="form-control" placeholder="Rechercher (Nom, Pr&eacute;nom, Profil)" [(ngModel)]="search" />
+            <input type="text" class="form-control" [placeholder]="'candidats.filters.search' | translate" [(ngModel)]="search" />
           </div>
         </div>
         <div class="col-6 col-sm-4 col-md-3 ms-sm-auto text-sm-end">
           <div class="d-inline-flex align-items-center">
-            <span class="me-2 small text-muted text-nowrap">Lignes par page</span>
+            <span class="me-2 small text-muted text-nowrap">{{ 'common.table.rowsPerPage' | translate }}</span>
             <select class="form-select form-select-sm" (change)="pageSize = +$any($event.target).value; page = 1">
               <option [selected]="pageSize===5" value="5">5</option>
               <option [selected]="pageSize===10" value="10">10</option>
@@ -48,16 +48,16 @@
   <table class="table entity-table table-bordered table-hover align-middle" *ngIf="sorted.length > 0; else empty">
         <thead class="table-light align-middle">
           <tr>
-            <th (click)="setSort('lastName')" role="button"><i class="bi bi-person me-1 text-secondary"></i> Nom</th>
-            <th (click)="setSort('firstName')" role="button"><i class="bi bi-person me-1 text-secondary"></i> Pr&eacute;nom</th>
-            <th (click)="setSort('profil')" role="button"><i class="bi bi-briefcase me-1 text-secondary"></i> Profil</th>
-            <th (click)="setSort('experience')" role="button"><i class="bi bi-hourglass-split me-1 text-secondary"></i> Exp&eacute;rience</th>
-            <th (click)="setSort('dateDisponibilite')" role="button"><i class="bi bi-calendar-event me-1 text-secondary"></i> Disponibilit&eacute;</th>
-            <th (click)="setSort('pru')" role="button"><i class="bi bi-cash-coin me-1 text-secondary"></i> PRU</th>
-            <th><i class="bi bi-link-45deg me-1 text-secondary"></i> Liens</th>
+            <th (click)="setSort('lastName')" role="button"><i class="bi bi-person me-1 text-secondary"></i>{{ 'candidats.table.columns.lastName' | translate }}</th>
+            <th (click)="setSort('firstName')" role="button"><i class="bi bi-person me-1 text-secondary"></i>{{ 'candidats.table.columns.firstName' | translate }}</th>
+            <th (click)="setSort('profil')" role="button"><i class="bi bi-briefcase me-1 text-secondary"></i>{{ 'candidats.table.columns.profile' | translate }}</th>
+            <th (click)="setSort('experience')" role="button"><i class="bi bi-hourglass-split me-1 text-secondary"></i>{{ 'candidats.table.columns.experience' | translate }}</th>
+            <th (click)="setSort('dateDisponibilite')" role="button"><i class="bi bi-calendar-event me-1 text-secondary"></i>{{ 'candidats.table.columns.availability' | translate }}</th>
+            <th (click)="setSort('pru')" role="button"><i class="bi bi-cash-coin me-1 text-secondary"></i>{{ 'candidats.table.columns.pru' | translate }}</th>
+            <th><i class="bi bi-link-45deg me-1 text-secondary"></i>{{ 'candidats.table.columns.links' | translate }}</th>
             
             
-            <th *ngIf="canEdit() || canDelete()" class="entity-actions"><i class="bi bi-sliders me-1 text-secondary"></i> Actions</th>
+            <th *ngIf="canEdit() || canDelete()" class="entity-actions"><i class="bi bi-sliders me-1 text-secondary"></i>{{ 'common.table.columns.actions' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -70,9 +70,9 @@
             <td>{{ c.pru != null ? (c.pru | number:'1.0-0') : '-' }}</td>
             <td>
               <ng-container *ngIf="c.links?.length; else nolinks">
-                <button class="btn btn-sm btn-outline-secondary" (click)="toggleLinks(c)" title="Afficher les liens">
+                <button class="btn btn-sm btn-outline-secondary" (click)="toggleLinks(c)" [attr.title]="'candidats.table.actions.toggleLinks' | translate">
                   <i class="bi bi-link-45deg me-1"></i>
-                  Liens ({{ c.links?.length || 0 }})
+                  {{ 'candidats.table.linksCount' | translate:{ count: c.links?.length || 0 } }}
                   <i class="bi" [ngClass]="{ 'bi-caret-down-fill': !isLinksOpen(c), 'bi-caret-up-fill': isLinksOpen(c) }"></i>
                 </button>
                 <div *ngIf="isLinksOpen(c)" class="mt-2 small links-block">
@@ -87,10 +87,10 @@
             
             
     <td *ngIf="canEdit() || canDelete()" class="entity-actions">
-              <button class="btn btn-sm btn-outline-primary me-1" (click)="startEdit(c)" [disabled]="!canEdit()" title="Modifier">
+              <button class="btn btn-sm btn-outline-primary me-1" (click)="startEdit(c)" [disabled]="!canEdit()" [attr.title]="'common.actions.edit' | translate">
                 <i class="bi bi-pencil"></i>
               </button>
-              <button class="btn btn-sm btn-outline-danger" (click)="remove(c)" [disabled]="!canDelete()" title="Supprimer">
+              <button class="btn btn-sm btn-outline-danger" (click)="remove(c)" [disabled]="!canDelete()" [attr.title]="'common.actions.delete' | translate">
                 <i class="bi bi-trash"></i>
               </button>
             </td>
@@ -100,85 +100,85 @@
       </div>
 
   <div class="d-flex justify-content-between align-items-center entity-footer">
-        <div class="small text-muted">Total: {{ sorted.length }}</div>
+        <div class="small text-muted">{{ 'common.table.total' | translate }} {{ sorted.length }}</div>
         <ngb-pagination [collectionSize]="sorted.length" [(page)]="page" [pageSize]="pageSize" [maxSize]="5" [ellipses]="true" [boundaryLinks]="true" size="sm"></ngb-pagination>
       </div>
     </div>
   </div>
 
   <ng-template #empty>
-    <div class="p-3 text-muted">Aucun candidat trouv&eacute;.</div>
+    <div class="p-3 text-muted">{{ 'candidats.empty' | translate }}</div>
   </ng-template>
 
   <!-- Modal: Candidat form -->
   <ng-template #candidatForm let-modal>
     <div class="modal-header">
-      <h5 class="modal-title">{{ editingId ? 'Modifier' : 'Cr&eacute;er' }} un candidat</h5>
-      <button type="button" class="btn-close" aria-label="Fermer" (click)="cancelForm()"></button>
+      <h5 class="modal-title">{{ (editingId ? 'candidats.modal.form.editTitle' : 'candidats.modal.form.createTitle') | translate }}</h5>
+      <button type="button" class="btn-close" [attr.aria-label]="'common.close' | translate" (click)="cancelForm()"></button>
     </div>
     <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="modal-body">
         <div class="row g-3">
           <!-- Ligne 1: IdentitÃ© & Profil -->
           <div class="col-md-4">
-            <label class="form-label">Pr&eacute;nom<span class="text-danger">*</span></label>
+            <label class="form-label">{{ 'candidats.form.firstName' | translate }}<span class="text-danger">*</span></label>
             <input class="form-control" formControlName="firstName" placeholder="Ex: Sara" />
           </div>
           <div class="col-md-4">
-            <label class="form-label">Nom<span class="text-danger">*</span></label>
+            <label class="form-label">{{ 'candidats.form.lastName' | translate }}<span class="text-danger">*</span></label>
             <input class="form-control" formControlName="lastName" placeholder="Ex: El Amrani" />
           </div>
             <div class="col-md-4">
-              <label class="form-label">Profil<span class="text-danger">*</span></label>
+              <label class="form-label">{{ 'candidats.form.profile' | translate }}<span class="text-danger">*</span></label>
               <input class="form-control" formControlName="profil" placeholder="Ex: Fullstack Angular / Java" />
             </div>
 
           <!-- Ligne 2: DisponibilitÃ© / ExpÃ©rience / PRU -->
           <div class="col-md-4">
-            <label class="form-label">Disponibilit&eacute;</label>
+            <label class="form-label">{{ 'candidats.form.availability' | translate }}</label>
             <input class="form-control" type="text" formControlName="dateDisponibilite" placeholder="Ex: ImmÃ©diate / 2 semaines / ASAP" />
           </div>
           <div class="col-md-4">
-            <label class="form-label">Exp&eacute;rience</label>
+            <label class="form-label">{{ 'candidats.form.experience' | translate }}</label>
             <input class="form-control" type="text" formControlName="experience" placeholder="Ex: 5 ans / Senior / Junior" />
           </div>
           <div class="col-md-4">
-            <label class="form-label">PRU</label>
+            <label class="form-label">{{ 'candidats.form.pru' | translate }}</label>
             <div class="input-group">
               <input class="form-control" type="number" formControlName="pru" placeholder="Ex: 450" />
-              <span class="input-group-text">DH</span>
+              <span class="input-group-text">{{ 'candidats.form.pruUnit' | translate }}</span>
             </div>
           </div>
         </div>
 
         <hr class="my-3" />
         <div class="d-flex align-items-center justify-content-between">
-          <h6 class="m-0">Liens</h6>
-          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="addLinkRow()"><i class="bi bi-plus"></i> Ajouter un lien</button>
+          <h6 class="m-0">{{ 'candidats.form.links.title' | translate }}</h6>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="addLinkRow()"><i class="bi bi-plus"></i> {{ 'candidats.form.links.add' | translate }}</button>
         </div>
 
         <div class="mt-2" formArrayName="links" *ngIf="linksFa.controls.length > 0">
           <div class="row g-2 align-items-end" *ngFor="let group of linksFa.controls; let i = index" [formGroupName]="i">
             <div class="col-md-4">
-              <label class="form-label">Label</label>
+              <label class="form-label">{{ 'candidats.form.links.label' | translate }}</label>
               <input class="form-control" formControlName="label" />
             </div>
             <div class="col-md-7">
-              <label class="form-label">URL</label>
+              <label class="form-label">{{ 'candidats.form.links.url' | translate }}</label>
               <input class="form-control" formControlName="path" />
             </div>
             <div class="col-md-1">
-              <button type="button" class="btn btn-outline-danger w-100" (click)="removeLinkRow(i)" title="Supprimer">
+              <button type="button" class="btn btn-outline-danger w-100" (click)="removeLinkRow(i)" [attr.title]="'common.actions.delete' | translate">
                 <i class="bi bi-x"></i>
               </button>
             </div>
           </div>
         </div>
-  <div class="text-muted small" *ngIf="linksFa.controls.length === 0">Aucun lien. Cliquez sur "Ajouter un lien" pour commencer.</div>
+  <div class="text-muted small" *ngIf="linksFa.controls.length === 0">{{ 'candidats.links.empty' | translate }}</div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" (click)="cancelForm()">Annuler</button>
-        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading">{{ editingId ? 'Enregistrer' : 'Cr&eacute;er' }}</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="cancelForm()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading">{{ (editingId ? 'common.save' : 'common.create') | translate }}</button>
       </div>
     </form>
   </ng-template>

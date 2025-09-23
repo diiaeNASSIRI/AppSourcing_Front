@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+﻿import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { FormBuilder, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -11,6 +11,7 @@ import { PropositionServiceClient } from '../../my-service/proposition.service';
 import { CandidatServiceClient } from '../../my-service/candidat.service';
 import { BesoinServiceClient } from '../../my-service/besoin.service';
 import { AuthService } from '../../my-service/auth.service';
+import { TranslationService } from '../../config/i18n/translation.service';
 
 @Component({
   selector: 'app-propositions',
@@ -34,13 +35,13 @@ export class PropositionsComponent implements OnInit, OnDestroy {
     candidatId: [null as number | null, [Validators.required]],
     besoinId: [null as number | null, [Validators.required]],
     dateProposition: [''],
-  delaiReponse: [''],
+    delaiReponse: [''],
     datePropale: [''],
     dateDemarrage: [''],
-  statutQualif: [''],
+    statutQualif: [''],
   });
 
-  // Table UI state (aligné sur besoins/candidats)
+  // Table UI state (alignÃ© sur besoins/candidats)
   page = 1;
   pageSize = 20;
   search = '';
@@ -60,12 +61,17 @@ export class PropositionsComponent implements OnInit, OnDestroy {
     private readonly api: PropositionServiceClient,
     private readonly candidatsApi: CandidatServiceClient,
     private readonly besoinsApi: BesoinServiceClient,
-    private readonly auth: AuthService
+    private readonly auth: AuthService,
+    private readonly translation: TranslationService
   ) {}
+
+  private translate(key: string, params?: Record<string, unknown>): string {
+    return this.translation.instant(key, params);
+  }
 
   ngOnInit(): void {
     this.loadAll();
-  this.loadLookups();
+    this.loadLookups();
   }
 
   ngOnDestroy(): void {
@@ -90,12 +96,12 @@ export class PropositionsComponent implements OnInit, OnDestroy {
           candidatName: this.labelForCandidat(p.candidat, p.candidatName),
           besoinLibelle: this.labelForBesoin(p.besoin, p.besoinLibelle),
         }));
-  // si la page courante dépasse après rafraîchissement, revenir à 1
+  // si la page courante dÃ©passe aprÃ¨s rafraÃ®chissement, revenir Ã  1
   const total = this.filtered.length;
   const maxPage = Math.max(1, Math.ceil(total / this.pageSize));
   if (this.page > maxPage) this.page = 1;
       },
-      error: (err) => { this.error = err?.error?.message || 'Erreur de chargement'; },
+      error: (err) => { this.error = err?.error?.message || this.translate('propositions.errors.load'); },
       complete: () => { this.loading = false; }
     });
   }
@@ -134,7 +140,7 @@ export class PropositionsComponent implements OnInit, OnDestroy {
       statutQualif: ''
     });
   this.formError = null;
-    this.loadLookups();
+      this.loadLookups();
     this.openForm();
   }
 
@@ -150,7 +156,7 @@ export class PropositionsComponent implements OnInit, OnDestroy {
       statutQualif: p.statutQualif ?? ''
     });
   this.formError = null;
-    this.loadLookups();
+      this.loadLookups();
     this.openForm();
   }
 
@@ -213,12 +219,12 @@ export class PropositionsComponent implements OnInit, OnDestroy {
 
   remove(p: Proposition) {
     if (!p.id) return;
-    if (!confirm('Supprimer cette proposition ?')) return;
+    if (!confirm(this.translate('propositions.confirm.deleteOne'))) return;
     this.api.delete(p.id).subscribe({ next: () => this.loadAll() });
   }
 
   removeAll() {
-    if (!confirm('Supprimer toutes les propositions ?')) return;
+    if (!confirm(this.translate('propositions.confirm.deleteAll'))) return;
     this.api.deleteAll().subscribe({ next: () => this.loadAll() });
   }
 
@@ -227,7 +233,7 @@ export class PropositionsComponent implements OnInit, OnDestroy {
 
     const candidatId = Number(this.form.value.candidatId);
     const besoinId = Number(this.form.value.besoinId);
-    if (!candidatId || !besoinId) { this.formError = 'Veuillez sélectionner un candidat et un besoin.'; return; }
+    if (!candidatId || !besoinId) { this.formError = 'Veuillez sÃ©lectionner un candidat et un besoin.'; return; }
 
     const payload: PropositionRequest = {
       candidatId,
@@ -245,7 +251,7 @@ export class PropositionsComponent implements OnInit, OnDestroy {
 
     req$.subscribe({
   next: () => { this.modalRef?.close(); this.loadAll(); },
-  error: (err) => { this.formError = err?.error?.message || 'Erreur lors de la sauvegarde'; }
+  error: (err) => { this.formError = err?.error?.message || this.translate('propositions.errors.save'); }
     });
   }
 
@@ -311,7 +317,7 @@ export class PropositionsComponent implements OnInit, OnDestroy {
     if (!id) { this.form.get('candidatId')?.markAsTouched(); return; }
     this.candidatsApi.getById(id).subscribe({
       next: (c) => { this.candidateDetail = c; if (this.candidatInfoTpl) this.modal.open(this.candidatInfoTpl, { size: 'lg', backdrop: 'static', scrollable: true, modalDialogClass: 'modal-lg modal-dialog-scrollable modal-fullscreen-sm-down' }); },
-      error: () => { this.formError = 'Impossible de charger les informations du candidat'; }
+      error: () => { this.formError = this.translate('propositions.errors.candidatInfo'); }
     });
   }
 
@@ -320,7 +326,7 @@ export class PropositionsComponent implements OnInit, OnDestroy {
     if (!id) { this.form.get('besoinId')?.markAsTouched(); return; }
     this.besoinsApi.getById(id).subscribe({
       next: (b) => { this.besoinDetail = b; if (this.besoinInfoTpl) this.modal.open(this.besoinInfoTpl, { size: 'lg', backdrop: 'static', scrollable: true, modalDialogClass: 'modal-lg modal-dialog-scrollable modal-fullscreen-sm-down' }); },
-      error: () => { this.formError = 'Impossible de charger les informations du besoin'; }
+      error: () => { this.formError = this.translate('propositions.errors.besoinInfo'); }
     });
   }
 
@@ -331,3 +337,5 @@ export class PropositionsComponent implements OnInit, OnDestroy {
     return (f || l) ? `${f} ${l}`.trim() : (c.id != null ? `Candidat #${c.id}` : '-');
   }
 }
+
+

@@ -4,6 +4,7 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Candidat, CandidatRequest } from '../../models/candidat.model';
 import { CandidatServiceClient } from '../../my-service/candidat.service';
 import { AuthService } from '../../my-service/auth.service';
+import { TranslationService } from '../../config/i18n/translation.service';
 
 @Component({
   selector: 'app-candidats',
@@ -36,9 +37,14 @@ export class CandidatsComponent implements OnInit {
   constructor(
     private readonly fb: FormBuilder,
     private readonly modal: NgbModal,
-  private readonly api: CandidatServiceClient,
+    private readonly api: CandidatServiceClient,
     public readonly auth: AuthService,
+    private readonly translation: TranslationService
   ) {}
+
+  private translate(key: string, params?: Record<string, unknown>): string {
+    return this.translation.instant(key, params);
+  }
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -134,7 +140,7 @@ export class CandidatsComponent implements OnInit {
       },
       error: (err) => {
         console.error('[Candidats] submit error', err);
-        this.error = err?.error?.message || 'OpÃ©ration Ã©chouÃ©e';
+        this.error = err?.error?.message || this.translate('candidats.errors.save');
         this.loading = false;
       }
     });
@@ -142,17 +148,27 @@ export class CandidatsComponent implements OnInit {
 
   remove(c: Candidat): void {
     if (!this.canDelete() || !c.id) return;
-    const ok = confirm(`Supprimer le candidat "${c.firstName} ${c.lastName}" ?`);
+    const ok = confirm(this.translate('candidats.confirm.delete', { name: this.fullName(c) }));
     if (!ok) return;
     this.loading = true;
     this.api.delete(c.id).subscribe({
       next: () => this.loadAll(),
       error: (err) => {
         console.error('[Candidats] delete error', err);
-        this.error = 'Suppression Ã©chouÃ©e';
+        this.error = this.translate('candidats.errors.deleteFailed');
         this.loading = false;
       }
     });
+  }
+
+  private fullName(c: Candidat): string {
+    const first = (c.firstName || '').trim();
+    const last = (c.lastName || '').trim();
+    const parts = [first, last].filter(Boolean);
+    if (parts.length > 0) {
+      return parts.join(' ');
+    }
+    return (c.profil || '').trim();
   }
 
   // List helpers

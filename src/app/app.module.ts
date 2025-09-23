@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppRoutingModule } from './app-routing.module';
+import { TranslatePipe } from './config/i18n/translate.pipe';
 import { AppComponent } from './app.component';
 import { AuthInterceptor } from './my-service/auth.interceptor';
 import { DashboardComponent } from './my-component/dashboard/dashboard.component';
@@ -30,7 +31,8 @@ import { PropositionsComponent } from './my-component/propositions/propositions.
     CandidatsComponent,
     PropositionsComponent,
     AdminRolesComponent,
-    AdminReferencesComponent
+    AdminReferencesComponent,
+    TranslatePipe
   ],
   imports: [
     BrowserModule,

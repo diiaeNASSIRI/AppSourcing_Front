@@ -66,7 +66,7 @@ export class AdminRolesComponent implements OnInit {
     if (this.createForm.invalid) { this.createForm.markAllAsTouched(); return; }
     const { name } = this.createForm.getRawValue() as any;
     this.admin.createRole(name).subscribe({
-  next: () => { this.success = 'Role created'; this.createForm.reset(); this.refresh(); },
+      next: () => { this.success = 'Role created'; this.createForm.reset(); this.refresh(); },
       error: (err) => { this.error = err?.error?.message || 'Create failed'; }
     });
   }
@@ -76,7 +76,7 @@ export class AdminRolesComponent implements OnInit {
     if (this.renameForm.invalid) { this.renameForm.markAllAsTouched(); return; }
     const { newName } = this.renameForm.getRawValue() as any;
     this.admin.renameRole(this.selectedRole.name, newName).subscribe({
-  next: () => { this.success = 'Role renamed'; this.refresh(); },
+      next: () => { this.success = 'Role renamed'; this.refresh(); },
       error: (err) => { this.error = err?.error?.message || 'Rename failed'; }
     });
   }
@@ -108,8 +108,7 @@ export class AdminRolesComponent implements OnInit {
 
   savePermissions(): void {
     if (!this.selectedRole) return;
-    const perms = Array.from(this.selectedPerms)
-      .map((p) => this.normalizePermission(p))
+    const perms = Array.from(new Set(Array.from(this.selectedPerms).map((p) => this.normalizePermission(p))))
       .filter(p => p !== 'ADMIN_PANEL');
     this.admin.setRolePermissions(this.selectedRole.name, perms).subscribe({
       next: (res) => {
@@ -142,8 +141,8 @@ export class AdminRolesComponent implements OnInit {
 
   setGroup(prefix: string, checked: boolean): void {
     const list = this.groupByPrefix(prefix);
-    if (checked) list.forEach(p => this.selectedPerms.add(p));
-    else list.forEach(p => this.selectedPerms.delete(p));
+    if (checked) list.forEach(p => this.selectedPerms.add(this.normalizePermission(p)));
+    else list.forEach(p => this.selectedPerms.delete(this.normalizePermission(p)));
   }
 
   setPropositionGroup(checked: boolean): void {
@@ -209,4 +208,3 @@ export class AdminRolesComponent implements OnInit {
     }
   }
 }
-

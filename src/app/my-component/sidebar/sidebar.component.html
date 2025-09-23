@@ -1,6 +1,6 @@
-<ul class="navbar-nav sidebar sidebar-light accordion shadow-lg sidebar-wrapper" id="accordionSidebar">
+﻿<ul class="navbar-nav sidebar sidebar-light accordion shadow-lg sidebar-wrapper" id="accordionSidebar">
   <div class="sidebar-brand d-flex align-items-center justify-content-center py-2 mb-2">
-    <img src="assets/images/sii_services_maroc_logo.jpg" alt="Logo SII">
+    <img src="assets/images/sii_services_maroc_logo.jpg" [alt]="'sidebar.logo.alt' | translate">
   </div>
   <hr class="sidebar-divider my-0">
 
@@ -10,49 +10,48 @@
         <circle cx="12" cy="8" r="4" fill="currentColor"/>
         <path d="M4 20c0-4 4-6 8-6s8 2 8 6H4z" fill="currentColor" opacity="0.85"/>
       </svg>
-      <span>Gestion Utilisateurs</span>
+      <span>{{ 'sidebar.links.adminUsers' | translate }}</span>
     </a>
   </li>
 
   <li class="nav-item my-3" *ngIf="canSeeAdminRoles">
     <a class="nav-link d-flex align-items-center nav-link-block" [routerLink]="['/admin-roles']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       <i class="bi bi-shield-lock me-2"></i>
-      <span>Gestion Rôles</span>
+      <span>{{ 'sidebar.links.adminRoles' | translate }}</span>
     </a>
   </li>
 
   <li class="nav-item my-3" *ngIf="canSeeReferences">
     <a class="nav-link d-flex align-items-center nav-link-block" [routerLink]="['/admin-references']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       <i class="bi bi-gear me-2"></i>
-      <span>Références</span>
+      <span>{{ 'sidebar.links.references' | translate }}</span>
     </a>
   </li>
 
   <li class="nav-item my-3" *ngIf="canSeeBesoins">
     <a class="nav-link d-flex align-items-center nav-link-block" [routerLink]="['/besoins']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       <i class="bi bi-list-task me-2"></i>
-      <span>Besoins</span>
+      <span>{{ 'sidebar.links.besoins' | translate }}</span>
     </a>
   </li>
 
   <li class="nav-item my-3" *ngIf="canSeeCandidats">
     <a class="nav-link d-flex align-items-center nav-link-block" [routerLink]="['/candidats']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       <i class="bi bi-people me-2"></i>
-      <span>Candidats</span>
+      <span>{{ 'sidebar.links.candidats' | translate }}</span>
     </a>
   </li>
 
   <li class="nav-item my-3" *ngIf="canSeePropositions">
     <a class="nav-link d-flex align-items-center nav-link-block" [routerLink]="['/propositions']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       <i class="bi bi-card-checklist me-2"></i>
-      <span>Propositions</span>
+      <span>{{ 'sidebar.links.propositions' | translate }}</span>
     </a>
   </li>
 
   <hr class="sidebar-divider d-none d-md-block">
   <div class="text-center mt-4 mb-2 footer-msg">
-    <img src="https://img.icons8.com/color/48/000000/todo-list--v2.png" alt="Checklist" class="footer-img">
-    <div class="footer-text">Organise ta journée !</div>
+    <img src="https://img.icons8.com/color/48/000000/todo-list--v2.png" [alt]="'sidebar.footer.imageAlt' | translate" class="footer-img">
+    <div class="footer-text">{{ 'sidebar.footer.text' | translate }}</div>
   </div>
 </ul>
-
