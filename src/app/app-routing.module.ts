@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+﻿import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './my-component/login/login.component';
 import { DashboardComponent } from './my-component/dashboard/dashboard.component';
@@ -8,6 +8,7 @@ import { BesoinsComponent } from './my-component/besoins/besoins.component';
 import { AdminRolesComponent } from './my-component/admin-roles/admin-roles.component';
 import { CandidatsComponent } from './my-component/candidats/candidats.component';
 import { AdminReferencesComponent } from './my-component/admin-references/admin-references.component';
+import { PropositionsComponent } from './my-component/propositions/propositions.component';
 import { PermissionGuard } from './my-service/permission.guard';
 
 const routes: Routes = [
@@ -17,6 +18,12 @@ const routes: Routes = [
   { path: 'admin-roles', component: AdminRolesComponent, canActivate: [AuthGuard] },
   { path: 'besoins', component: BesoinsComponent, canActivate: [AuthGuard, PermissionGuard], data: { perms: ['ADMIN','BESOIN_READ'] } },
   { path: 'candidats', component: CandidatsComponent, canActivate: [AuthGuard] },
+  {
+    path: 'propositions',
+    component: PropositionsComponent,
+    canActivate: [AuthGuard, PermissionGuard],
+    data: { perms: ['ADMIN','PROPOSITION_READ','CAN_VIEW'] }
+  },
   {
     path: 'admin-references',
     component: AdminReferencesComponent,
@@ -39,3 +46,4 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
+

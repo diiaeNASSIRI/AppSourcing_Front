@@ -9,3 +9,52 @@ thead .bi { opacity: .7; }
 label { display: flex; flex-direction: column; gap: .25rem; font-size: .9rem; }
 input { padding: .4rem; border: 1px solid #ccc; border-radius: 4px; }
 .actions { margin-top: .75rem; display: flex; gap: .5rem; }
+
+/* Modal styling for Besoins popups */
+.modal-body .small.text-muted {
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  font-size: .72rem;
+  color: #6c757d;
+}
+.modal-body .small.text-muted + div {
+  background: #f8f9fa;
+  border: 1px solid #eee;
+  border-radius: .5rem;
+  padding: .45rem .6rem;
+}
+.modal-body .table {
+  margin-bottom: 0;
+}
+.modal-body .table thead th {
+  position: sticky;
+  top: 0;
+  background: #f8f9fa;
+  box-shadow: 0 2px 0 rgba(0,0,0,.03);
+  z-index: 1;
+}
+.modal-body .table td, .modal-body .table th {
+  padding: .55rem .6rem;
+}
+.table-candidats-besoin {
+  font-size: .9rem;
+}
+.table-candidats-besoin tbody tr:hover {
+  background-color: #f6f8fb;
+}
+.status-select.form-select.form-select-sm {
+  width: auto;
+  min-width: 9rem;
+}
+.modal-header.bg-light {
+  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+}
+.modal-header .btn.btn-link {
+  text-decoration: none;
+}
+.modal-body a {
+  color: #0d6efd;
+}
+.modal-body a:hover {
+  color: #0a58ca;
+}

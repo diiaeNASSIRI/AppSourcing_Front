@@ -1,4 +1,4 @@
-:host { display: block; }
+﻿:host { display: block; }
 
 .login-page {
   min-height: 100vh;
@@ -26,16 +26,14 @@
 
 .login-form { display: grid; gap: 14px; margin-top: 8px; }
 .field { display: grid; gap: 6px; }
-.field__label { font-weight: 600; color: #223; }
-.field__control {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #d7deea;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  outline: none;
-}
-.field__control:focus { border-color: #4e73df; box-shadow: 0 0 0 3px rgba(78,115,223,0.15); }
+.field__label { font-weight: 600; color: #1f2a44; }
+
+
+.input-group .form-control { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+.input-group-text { background: #f4f6fb; border-color: #d7deea; color: #475569; }
+.input-group .btn { border-color: #d7deea; }
+.form-control { border: 1px solid #d7deea; border-radius: 8px; }
+.form-control:focus { border-color: #4e73df; box-shadow: 0 0 0 3px rgba(78,115,223,0.15); }
 
 .password-wrapper { position: relative; }
 .password-toggle {
@@ -57,16 +55,7 @@
 
 .form-error { color: #b00020; font-size: 0.85rem; }
 
-.btn {
-  width: 100%;
-  padding: 10px 12px;
-  background: #4e73df;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-}
+/* Do not globally override .btn; rely on Bootstrap */
 .btn[disabled] { opacity: 0.7; cursor: not-allowed; }
 
 .loader {
@@ -79,9 +68,8 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.checklist-preview { list-style: none; padding: 0; margin: 18px 0 0; color: #667; }
-.item { padding: 6px 0; border-bottom: 1px dashed #e6eaf2; font-size: 0.95rem; }
-.item:last-child { border-bottom: none; }
+/* checklist preview removed */
 
 .copyright { margin-top: 12px; text-align: center; color: #97a1b5; font-size: 0.85rem; }
+
 

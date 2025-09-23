@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
 import { AuthService } from './auth.service';
 
@@ -14,3 +14,4 @@ export class PermissionGuard implements CanActivate {
     return this.router.parseUrl('/dashboard');
   }
 }
+

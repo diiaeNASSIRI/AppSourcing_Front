@@ -1,9 +1,7 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class ReferenceStyleService {
-  // Map numeric order to color class + label
-  // 1: rouge, 2: bleu, 3: vert, 4: orange, 5: gris
   colorClassFor(order?: number | null): string {
     const v = Number(order ?? 0);
     switch (v) {
@@ -28,4 +26,3 @@ export class ReferenceStyleService {
     }
   }
 }
-

@@ -1,9 +1,2 @@
-/* Push main content to the right of fixed sidebar */
-.app-content {
-  margin-left: 260px; /* width of sidebar */
-  padding: 16px;
-}
-
-@media (max-width: 991px) {
-  .app-content { margin-left: 260px; }
-}
+/* Shell layout styles moved to global styles.css to keep behavior consistent */
+/* Local overrides can go here if needed. */

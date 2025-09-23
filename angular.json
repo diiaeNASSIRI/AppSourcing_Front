@@ -25,7 +25,12 @@
                                                                                                      "tsConfig":  "tsconfig.app.json",
                                                                                                      "assets":  [
                                                                                                                     "src/favicon.ico",
-                                                                                                                    "src/assets"
+                                                                                                                    "src/assets",
+                                                                                                                    {
+                                                                                                                        "glob": "**/*",
+                                                                                                                        "input": "node_modules/bootstrap-icons/font/fonts",
+                                                                                                                        "output": "assets/bootstrap-icons"
+                                                                                                                    }
                                                                                                                 ],
                                                                                                     "styles":  [
                                                                                                                    "node_modules/bootstrap/dist/css/bootstrap.min.css",
@@ -93,9 +98,14 @@
                                                                                                                   ],
                                                                                                     "tsConfig":  "tsconfig.spec.json",
                                                                                                     "assets":  [
-                                                                                                                   "src/favicon.ico",
-                                                                                                                   "src/assets"
-                                                                                                               ],
+                                                                                                                    "src/favicon.ico",
+                                                                                                                    "src/assets",
+                                                                                                                    {
+                                                                                                                        "glob": "**/*",
+                                                                                                                        "input": "node_modules/bootstrap-icons/font/fonts",
+                                                                                                                        "output": "assets/bootstrap-icons"
+                                                                                                                    }
+                                                                                                                ],
                                                                                                     "styles":  [
                                                                                                                    "src/styles.css"
                                                                                                                ],
@@ -111,3 +121,4 @@
                 "analytics":  "b8ea8940-e5af-4ff7-aaba-c5eb80c2a2b0"
             }
 }
+

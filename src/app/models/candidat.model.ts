@@ -10,7 +10,7 @@ export interface Candidat {
   lastName: string;
   profil: string;
   dateDisponibilite?: string | null;
-  experience?: number | null;
+  experience?: string | null; // libre (ex: 5 ans, Senior, Junior)
   pru?: number | null;
   links?: LinkItem[] | null;
   createdAt?: string | null;

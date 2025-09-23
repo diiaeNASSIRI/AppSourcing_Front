@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
 
@@ -25,7 +25,7 @@ export interface ChangePasswordRequest {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  // TODO: déporter vers environments si souhaité
+  // TODO: dÃ©porter vers environments si souhaitÃ©
   private readonly apiBase = '';
   private readonly tokenKey = 'auth_token';
 
@@ -179,3 +179,4 @@ export class AuthService {
     return names.some((n) => this.hasAuthority(n));
   }
 }
+

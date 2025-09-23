@@ -1,23 +1,37 @@
 <nav class="navbar navbar-expand navbar-light bg-light topbar mb-4 static-top shadow navbar-custom">
   <div class="container-fluid d-flex justify-content-between align-items-center">
     <div class="d-flex align-items-center">
-      <img src="assets/images/sii_services_maroc_logo.jpg" alt="SII Services Maroc" class="brand-logo me-2">
-      <span class="brand-name d-none d-sm-inline text-primary fw-semibold">Appsourcing</span>
+      <button class="btn btn-link d-inline d-lg-none me-2" (click)="menuToggle.emit()" [attr.aria-label]="'navbar.menuToggle.aria' | translate">
+        <i class="bi bi-list fs-2"></i>
+      </button>
+      <img src="assets/images/sii_services_maroc_logo.jpg" [alt]="'navbar.brand.alt' | translate" class="brand-logo me-2">
+      <span class="brand-name d-none d-sm-inline text-primary fw-semibold">{{ 'navbar.brand.name' | translate }}</span>
     </div>
     <ul class="navbar-nav flex-row align-items-center">
       <li class="nav-item me-3 d-flex align-items-center">
-        <button (click)="openNotifications()" class="btn btn-link btn-notif me-2">
+        <button (click)="openNotifications()" class="btn btn-link btn-notif me-2" [attr.aria-label]="'navbar.notifications.open' | translate">
           <i class="bi bi-bell fs-4"></i>
           <span *ngIf="unreadCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger badge-unread">
             {{ unreadCount }}
           </span>
         </button>
-        <img class="img-profile rounded-circle shadow-sm" [src]="'https://ui-avatars.com/api/?name=' + (email || 'User')" alt="avatar">
-        <span class="ms-2 text-dark username">{{ email || 'Utilisateur' }}</span>
+        <button type="button" class="btn btn-link me-2" (click)="openChangePasswordModal()" [attr.aria-label]="'navbar.actions.changePassword' | translate" [attr.title]="'navbar.actions.changePassword' | translate">
+          <i class="bi bi-key fs-5"></i>
+        </button>
+        <img class="img-profile rounded-circle shadow-sm d-none d-sm-inline" [src]="avatarUrl" [alt]="'navbar.avatar.alt' | translate">
+        <span class="ms-2 text-dark username d-none d-md-inline">{{ avatarName }}</span>
       </li>
       <li class="nav-item">
+        <button class="btn btn-outline-secondary btn-sm ms-2 px-3" (click)="switchLanguage()"
+                [attr.aria-label]="('navbar.language.switchTo' | translate:{ language: nextLanguageName })"
+                [attr.title]="('navbar.language.switchTo' | translate:{ language: nextLanguageName })">
+          <i class="bi bi-translate me-1"></i>{{ languageCode }}
+        </button>
+      </li>
+
+      <li class="nav-item">
         <button class="btn btn-outline-primary btn-sm ms-2 px-3" (click)="logout()">
-          <i class="bi bi-box-arrow-right me-1"></i> Déconnexion
+          <i class="bi bi-box-arrow-right me-1"></i>{{ 'navbar.logout' | translate }}
         </button>
       </li>
     </ul>
@@ -31,11 +45,11 @@
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Notifications</h5>
-        <button type="button" class="btn-close" (click)="closeNotifications()"></button>
+        <h5 class="modal-title">{{ 'navbar.notificationsModal.title' | translate }}</h5>
+        <button type="button" class="btn-close" (click)="closeNotifications()" [attr.aria-label]="'common.close' | translate"></button>
       </div>
       <div class="modal-body">
-        <div *ngIf="notifLoading">Chargement...</div>
+        <div *ngIf="notifLoading">{{ 'common.loading' | translate }}</div>
         <div *ngIf="notifError" class="alert alert-danger">{{ notifError }}</div>
         <ul class="list-group">
           <li *ngFor="let notif of unreadNotifications"
@@ -51,23 +65,78 @@
                 <small class="text-muted">{{ notif.timestamp | date:'short' }}</small>
               </div>
               <div class="small" [innerText]="notif.message"></div>
-              <div class="mt-1">
-                <span class="badge" [ngClass]="statusBadgeClass(parseStatus(notif.message))">{{ parseStatus(notif.message) }}</span>
-                <span *ngIf="!notif._localRead" class="badge bg-primary ms-1">Nouveau</span>
+              <div class="mt-1" *ngIf="notif.message as message">
+                <span class="badge" [ngClass]="statusBadgeClass(parseStatusCode(message))">
+                  {{ ('status.' + parseStatusCode(message)) | translate }}
+                </span>
+                <span *ngIf="!notif._localRead" class="badge bg-primary ms-1">{{ 'notifications.status.new' | translate }}</span>
               </div>
             </div>
           </li>
         </ul>
-        <div *ngIf="!notifLoading && unreadNotifications.length === 0" class="alert alert-info mt-2">Aucune nouvelle notification.</div>
+        <div *ngIf="!notifLoading && unreadNotifications.length === 0" class="alert alert-info mt-2">{{ 'navbar.notificationsModal.empty' | translate }}</div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline-secondary btn-sm" (click)="markAllLocalRead()" [disabled]="unreadNotifications.length===0">Tout marquer comme lu</button>
-        <button class="btn btn-primary btn-sm" (click)="gotoAllNotifications()">Voir toutes</button>
-        <button class="btn btn-secondary btn-sm" (click)="closeNotifications()">Fermer</button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="markAllLocalRead()" [disabled]="unreadNotifications.length===0">{{ 'notifications.actions.markAllRead' | translate }}</button>
+        <button class="btn btn-primary btn-sm" (click)="gotoAllNotifications()">{{ 'notifications.actions.viewAll' | translate }}</button>
+        <button class="btn btn-secondary btn-sm" (click)="closeNotifications()">{{ 'common.close' | translate }}</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Modal template: Change password -->
+<ng-template #changePwdTpl>
+  <div class="modal-header">
+    <h5 class="modal-title">{{ 'navbar.changePassword.title' | translate }}</h5>
+    <button type="button" class="btn-close" [attr.aria-label]="'common.close' | translate" (click)="modalRef?.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="changeForm" (ngSubmit)="submitChangePassword()">
+      <div class="mb-3">
+        <label class="form-label">{{ 'navbar.changePassword.current' | translate }}</label>
+        <div class="input-group">
+          <input [type]="showCurrent ? 'text' : 'password'" class="form-control" formControlName="currentPassword" />
+          <button type="button" class="btn btn-outline-secondary" (click)="showCurrent = !showCurrent" [attr.aria-label]="'common.actions.toggleVisibility' | translate">
+            <i [class]="showCurrent ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+          </button>
+        </div>
+        <small class="text-danger" *ngIf="changeForm.controls.currentPassword.touched && changeForm.controls.currentPassword.invalid">
+          {{ 'common.validation.required' | translate }}
+        </small>
+      </div>
 
+      <div class="mb-3">
+        <label class="form-label">{{ 'navbar.changePassword.new' | translate }}</label>
+        <div class="input-group">
+          <input [type]="showNew ? 'text' : 'password'" class="form-control" formControlName="newPassword" />
+          <button type="button" class="btn btn-outline-secondary" (click)="showNew = !showNew" [attr.aria-label]="'common.actions.toggleVisibility' | translate">
+            <i [class]="showNew ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+          </button>
+        </div>
+        <small class="text-muted">{{ 'navbar.changePassword.hint' | translate }}</small>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">{{ 'navbar.changePassword.confirm' | translate }}</label>
+        <div class="input-group">
+          <input [type]="showConfirm ? 'text' : 'password'" class="form-control" formControlName="confirmPassword" />
+          <button type="button" class="btn btn-outline-secondary" (click)="showConfirm = !showConfirm" [attr.aria-label]="'common.actions.toggleVisibility' | translate">
+            <i [class]="showConfirm ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="changeError" class="alert alert-danger py-1">{{ changeError }}</div>
+      <div *ngIf="changeSuccess" class="alert alert-success py-1">{{ changeSuccess }}</div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-outline-secondary" [disabled]="changeLoading" (click)="modalRef?.dismiss()">{{ 'common.cancel' | translate }}</button>
+    <button class="btn btn-primary" [disabled]="changeLoading" (click)="submitChangePassword()">
+      <span *ngIf="changeLoading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+      {{ 'common.save' | translate }}
+    </button>
+  </div>
+</ng-template>
 

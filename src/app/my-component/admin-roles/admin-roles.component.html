@@ -1,6 +1,6 @@
-<div class="container-fluid py-3">
+<div class="container-fluid entity-page py-3">
   <div class="d-flex align-items-center justify-content-between mb-3">
-    <h2 class="page-title m-0">
+  <h2 class="page-title m-0">
       <i class="bi bi-shield-lock me-2 text-primary"></i>
       Gestion des rôles
     </h2>
@@ -89,7 +89,7 @@
             </div>
           </div>
 
-          <!-- Groupe Besoins (matrice CRUD) -->
+          <!-- Groupe Besoins -->
           <div class="mb-3" *ngIf="permsBesoin.length">
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="m-0 text-primary">Besoins</h6>
@@ -101,13 +101,7 @@
             <div class="table-responsive mt-2">
               <table class="table table-sm table-bordered align-middle">
                 <thead class="table-light">
-                  <tr>
-                    <th>Ressource</th>
-                    <th class="text-center">Voir</th>
-                    <th class="text-center">Créer</th>
-                    <th class="text-center">Modifier</th>
-                    <th class="text-center">Supprimer</th>
-                  </tr>
+                  <tr><th>Ressource</th><th class="text-center">Voir</th><th class="text-center">Créer</th><th class="text-center">Modifier</th><th class="text-center">Supprimer</th></tr>
                 </thead>
                 <tbody>
                   <tr>
@@ -122,7 +116,7 @@
             </div>
           </div>
 
-          <!-- Groupe Candidats (matrice CRUD + sous-ressources) -->
+          <!-- Groupe Candidats -->
           <div class="mb-3" *ngIf="permsCandidat.length">
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="m-0 text-primary">Candidats</h6>
@@ -133,15 +127,7 @@
             </div>
             <div class="table-responsive mt-2">
               <table class="table table-sm table-bordered align-middle">
-                <thead class="table-light">
-                  <tr>
-                    <th>Ressource</th>
-                    <th class="text-center">Voir</th>
-                    <th class="text-center">Créer</th>
-                    <th class="text-center">Modifier</th>
-                    <th class="text-center">Supprimer</th>
-                  </tr>
-                </thead>
+                <thead class="table-light"><tr><th>Ressource</th><th class="text-center">Voir</th><th class="text-center">Créer</th><th class="text-center">Modifier</th><th class="text-center">Supprimer</th></tr></thead>
                 <tbody>
                   <tr>
                     <td class="w-50">Candidats</td>
@@ -150,26 +136,44 @@
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_UPDATE')" (change)="togglePerm('CANDIDAT_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_READ')"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_DELETE')" (change)="togglePerm('CANDIDAT_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_READ')"></td>
                   </tr>
-                  <tr>
-                    <td>Notes</td>
-                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_NOTE_READ')" (change)="togglePerm('CANDIDAT_NOTE_READ', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
-                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_NOTE_CREATE')" (change)="togglePerm('CANDIDAT_NOTE_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_NOTE_READ')"></td>
-                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_NOTE_UPDATE')" (change)="togglePerm('CANDIDAT_NOTE_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_NOTE_READ')"></td>
-                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_NOTE_DELETE')" (change)="togglePerm('CANDIDAT_NOTE_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_NOTE_READ')"></td>
-                  </tr>
-                  <tr>
-                    <td>CV</td>
-                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_CV_READ')" (change)="togglePerm('CANDIDAT_CV_READ', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
-                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_CV_UPLOAD')" (change)="togglePerm('CANDIDAT_CV_UPLOAD', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_CV_READ')"></td>
-                    <td class="text-center text-muted">—</td>
-                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_CV_DELETE')" (change)="togglePerm('CANDIDAT_CV_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_CV_READ')"></td>
-                  </tr>
                 </tbody>
               </table>
             </div>
           </div>
 
-          <!-- Référentiels group -->
+                <!-- Groupe Propositions -->
+      <div class="mb-3" *ngIf="permsProposition.length">
+        <div class="d-flex justify-content-between align-items-center">
+          <h6 class="m-0 text-primary">Propositions</h6>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary" (click)="setPropositionGroup(true)">Tout cocher</button>
+            <button class="btn btn-outline-secondary" (click)="setPropositionGroup(false)">Tout décocher</button>
+          </div>
+        </div>
+        <div class="table-responsive mt-2">
+          <table class="table table-sm table-bordered align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Ressource</th>
+                <th class="text-center">Voir</th>
+                <th class="text-center">Créer</th>
+                <th class="text-center">Modifier</th>
+                <th class="text-center">Supprimer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="w-50">Propositions</td>
+                <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('PROPOSITION_READ')" (change)="togglePerm('PROPOSITION_READ', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
+                <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('PROPOSITION_CREATE')" (change)="togglePerm('PROPOSITION_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('PROPOSITION_READ')"></td>
+                <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('PROPOSITION_EDIT')" (change)="togglePerm('PROPOSITION_EDIT', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('PROPOSITION_READ')"></td>
+                <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('PROPOSITION_DELETE')" (change)="togglePerm('PROPOSITION_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('PROPOSITION_READ')"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+<!-- Groupe Référentiels -->
           <div class="mb-3">
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="m-0 text-primary">Référentiels</h6>
@@ -180,15 +184,7 @@
             </div>
             <div class="table-responsive mt-2">
               <table class="table table-sm table-bordered align-middle">
-                <thead class="table-light">
-                  <tr>
-                    <th>Ressource</th>
-                    <th class="text-center">Voir</th>
-                    <th class="text-center">Créer</th>
-                    <th class="text-center">Modifier</th>
-                    <th class="text-center">Supprimer</th>
-                  </tr>
-                </thead>
+                <thead class="table-light"><tr><th>Ressource</th><th class="text-center">Voir</th><th class="text-center">Créer</th><th class="text-center">Modifier</th><th class="text-center">Supprimer</th></tr></thead>
                 <tbody>
                   <tr>
                     <td class="w-50">Statuts</td>
@@ -222,3 +218,4 @@
     </div>
   </div>
 </div>
+

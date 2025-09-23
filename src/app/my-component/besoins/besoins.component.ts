@@ -1,11 +1,18 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { Besoin, BesoinRequest, RefItem } from '../../models/besoin.model';
 import { BesoinServiceClient } from '../../my-service/besoin.service';
+import { Proposition, extractCandidatId, formatCandidatName, formatBesoinLabel } from '../../models/proposition.model';
+import { PropositionServiceClient } from '../../my-service/proposition.service';
 import { AuthService } from '../../my-service/auth.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ReferenceStyleService } from '../../my-service/reference-style.service';
 import { ReferenceService, ReferenceType } from '../../my-service/reference.service';
+import { Candidat } from '../../models/candidat.model';
+import { CandidatServiceClient } from '../../my-service/candidat.service';
+import { TranslationService } from '../../config/i18n/translation.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-besoins',
@@ -14,10 +21,32 @@ import { ReferenceService, ReferenceType } from '../../my-service/reference.serv
 })
 export class BesoinsComponent implements OnInit {
   @ViewChild('besoinForm') besoinFormTpl!: TemplateRef<any>;
+  @ViewChild('candidatsForBesoinTpl') candidatsForBesoinTpl!: TemplateRef<any>;
+  @ViewChild('candidatInfo') candidatInfoTpl!: TemplateRef<any>;
+  @ViewChild('besoinInfo') besoinInfoTpl!: TemplateRef<any>;
 
   besoins: Besoin[] = [];
   loading = false;
   error: string | null = null;
+
+  selectedBesoin: Besoin | null = null;
+  propositionsPourBesoin: Proposition[] = [];
+  candidatsMap: Map<number, Candidat> = new Map<number, Candidat>();
+  candidateDetail?: Candidat;
+  besoinDetail?: Besoin;
+  // Inline statut options for propositions in the modal
+  private readonly defaultPropStatusOptions: string[] = [
+    'Nouveau',
+    'Qualifié',
+    'En cours',
+    'Proposé',
+    'Entretien',
+    'Accepté',
+    'Refusé',
+    'Clôturé'
+  ];
+  propStatusOptions: string[] = [...this.defaultPropStatusOptions];
+  savingStatus: Record<number, boolean> = {};
 
   form!: FormGroup;
   showForm = false;
@@ -42,29 +71,37 @@ export class BesoinsComponent implements OnInit {
     private readonly fb: FormBuilder,
     public readonly auth: AuthService,
     private readonly modal: NgbModal,
+    private readonly propositionsApi: PropositionServiceClient,
     private readonly refs: ReferenceService,
+    private readonly candidatsApi: CandidatServiceClient,
     private readonly style: ReferenceStyleService,
+    private readonly translation: TranslationService
   ) {}
+
+  private translate(key: string, params?: Record<string, unknown>): string {
+    return this.translation.instant(key, params);
+  }
 
   ngOnInit(): void {
     this.form = this.fb.group({
       libelle: ['', [Validators.required, Validators.maxLength(255)]],
       projet: ['', [Validators.required, Validators.maxLength(255)]],
       owner: ['', [Validators.required, Validators.maxLength(255)]],
+  dateCreation: [null], // date saisie par l'utilisateur (yyyy-MM-dd)
       siteId: [null],
       pru: [null, [Validators.min(0)]],
       precision: ['', [Validators.maxLength(255)]],
       prioriteId: [null],
       statutId: [null],
-      nbrExperience: [null, [Validators.min(0)]],
+  nbrExperience: [null], // texte libre désormais
     });
 
     if (this.canView()) {
       this.loadReferences();
       this.loadAll();
     } else {
-      console.warn('[Besoins] Accès refusé: permission CAN_VIEW manquante');
-      this.error = 'Accès refusé (permission CAN_VIEW requise)';
+      console.warn('[Besoins] access denied: CAN_VIEW required');
+      this.error = this.translate('besoins.errors.accessDenied');
     }
   }
 
@@ -82,10 +119,10 @@ export class BesoinsComponent implements OnInit {
   }
 
   get sortedBesoins(): Besoin[] {
-    const arr = [...this.filteredBesoins];
+    const sortableBesoins = [...this.filteredBesoins];
     const k = this.sortKey;
     const d = this.sortDir === 'asc' ? 1 : -1;
-    arr.sort((a: any, b: any) => {
+    sortableBesoins.sort((a: any, b: any) => {
       // numeric sort for pru and nbrExperience
       if (k === 'pru' || k === 'nbrExperience') {
         const av = Number(a?.[k] ?? 0);
@@ -105,7 +142,7 @@ export class BesoinsComponent implements OnInit {
       if (av > bv) return 1 * d;
       return 0;
     });
-    return arr;
+    return sortableBesoins;
   }
 
   get pageItems(): Besoin[] {
@@ -137,9 +174,16 @@ export class BesoinsComponent implements OnInit {
         error: (e) => console.warn('[Besoins] failed to load refs', type, e)
       });
     };
-    load('status', (a) => this.refStatus = a);
+    load('status', (a) => { this.refStatus = a; this.refreshPropStatusOptions(); });
     load('site', (a) => this.refSites = a);
     load('priority', (a) => this.refPriorities = a);
+  }
+
+  private refreshPropStatusOptions(): void {
+    const labels = (this.refStatus || [])
+      .map(item => (item?.label ?? '').trim())
+      .filter((label, index, array) => label && array.indexOf(label) === index);
+    this.propStatusOptions = labels.length ? labels : [...this.defaultPropStatusOptions];
   }
 
   loadAll(): void {
@@ -147,17 +191,37 @@ export class BesoinsComponent implements OnInit {
     this.error = null;
     this.besoinApi.getAll().subscribe({
       next: (data) => {
-        this.besoins = data ?? [];
+        const LocalBesoins = (data as any[]) ?? [];
+        // Normalize potential id-only or partial objects due to backend identity serialization
+        this.besoins = LocalBesoins
+          .filter((b) => b != null)
+          .map((b: any): Besoin => {
+            if (typeof b === 'number') {
+              // Backend sent just an ID
+              return { id: b, libelle: `Besoin #${b}`, projet: '', owner: '' } as Besoin;
+            }
+            const id = b.id as number | undefined;
+            const libelle = (b.libelle ?? '').toString();
+            return {
+              ...b,
+              libelle: libelle || (id != null ? `Besoin #${id}` : ''),
+              projet: (b.projet ?? '').toString(),
+              owner: (b.owner ?? '').toString(),
+              precision: b.precision ?? null,
+              pru: b.pru ?? null,
+              nbrExperience: b.nbrExperience ?? null,
+            } as Besoin;
+          });
         this.loading = false;
       },
       error: (err) => {
         console.error('[Besoins] loadAll error', err);
         if (err?.status === 403) {
-          this.error = 'Accès refusé (permissions insuffisantes)';
+          this.error = this.translate('besoins.errors.insufficientPermissions');
         } else if (err?.status === 401) {
-          this.error = 'Session expirée/invalidée. Veuillez vous reconnecter.';
+          this.error = this.translate('besoins.errors.sessionExpired');
         } else {
-          this.error = 'Échec de chargement des besoins';
+          this.error = this.translate('besoins.errors.load');
         }
         this.loading = false;
       }
@@ -170,12 +234,13 @@ export class BesoinsComponent implements OnInit {
       libelle: '',
       projet: '',
       owner: '',
+  dateCreation: null,
       siteId: null,
       pru: null,
       precision: '',
       prioriteId: null,
       statutId: null,
-      nbrExperience: null,
+  nbrExperience: null,
     });
     this.editingId = null;
     this.modalRef = this.modal.open(this.besoinFormTpl, { size: 'lg', centered: true, backdrop: 'static' });
@@ -187,12 +252,13 @@ export class BesoinsComponent implements OnInit {
       libelle: b.libelle ?? '',
       projet: b.projet ?? '',
       owner: b.owner ?? '',
+  dateCreation: b.dateCreation ?? null,
       siteId: b.site?.id ?? null,
       pru: b.pru ?? null,
       precision: b.precision ?? '',
       prioriteId: b.priorite?.id ?? null,
       statutId: b.statut?.id ?? null,
-      nbrExperience: (typeof b.nbrExperience === 'number' ? b.nbrExperience : parseInt(String(b.nbrExperience||'')||'0',10)) || null,
+  nbrExperience: b.nbrExperience ?? null,
     });
     this.editingId = b.id ?? null;
     this.modalRef = this.modal.open(this.besoinFormTpl, { size: 'lg', centered: true, backdrop: 'static' });
@@ -213,8 +279,8 @@ export class BesoinsComponent implements OnInit {
       owner: v.owner,
       precision: v.precision ?? null,
       pru: v.pru ?? null,
-      dateCreation: null,
-      nbrExperience: v.nbrExperience != null ? String(v.nbrExperience) : null,
+  dateCreation: v.dateCreation || null, // conserver la date saisie (ou null si non fournie)
+  nbrExperience: v.nbrExperience != null ? String(v.nbrExperience).trim() || null : null,
       prioriteId: v.prioriteId ?? null,
       statutId: v.statutId ?? null,
       siteId: v.siteId ?? null,
@@ -235,7 +301,7 @@ export class BesoinsComponent implements OnInit {
       },
       error: (err) => {
         console.error('[Besoins] submit error', err);
-        this.error = err?.error?.message || 'Opération échouée';
+        this.error = err?.error?.message || this.translate('besoins.errors.operationFailed');
         this.loading = false;
       }
     });
@@ -244,7 +310,7 @@ export class BesoinsComponent implements OnInit {
   remove(b: Besoin): void {
     if (!this.canDelete()) return;
     if (!b.id) return;
-    const ok = confirm(`Supprimer le besoin "${b.libelle}" ?`);
+    const ok = confirm(this.translate('besoins.confirm.delete', { label: b.libelle ?? '' }));
     if (!ok) return;
     this.loading = true;
     this.error = null;
@@ -252,11 +318,145 @@ export class BesoinsComponent implements OnInit {
       next: () => this.loadAll(),
       error: (err) => {
         console.error('[Besoins] delete error', err);
-        this.error = 'Suppression échouée';
+        this.error = this.translate('besoins.errors.deleteFailed');
         this.loading = false;
       }
     });
   }
+
+  // Open a modal listing all candidats (via propositions) for a given besoin
+  openCandidats(b: Besoin): void {
+    if (!b.id) return;
+    this.selectedBesoin = b;
+    this.loading = true;
+    this.error = null;
+    // Ouvre le modal immédiatement avec l'état "Chargement..."
+    this.modal.open(this.candidatsForBesoinTpl, {
+      backdrop: 'static',
+      scrollable: true,
+      // Slightly larger than XL, but not fullscreen on desktop
+      modalDialogClass: 'modal-xxl modal-dialog-scrollable modal-fullscreen-md-down'
+    });
+    this.propositionsApi.getByBesoinId(b.id).subscribe({
+      next: (list) => {
+        const propositions = (list || []) as Proposition[];
+        this.propositionsPourBesoin = propositions.map((p) => ({
+          ...p,
+          candidatName: formatCandidatName(p.candidat, p.candidatName),
+          besoinLibelle: formatBesoinLabel(p.besoin, p.besoinLibelle)
+        }));
+        // Charger les fiches candidat complètes
+        this.loadCandidatsDetailsForPropositions(this.propositionsPourBesoin);
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('[Besoins] openCandidats error', err);
+        const status = err?.status;
+        const msg = err?.error?.message || err?.message || this.translate('besoins.errors.candidatLoad');
+        this.error = status ? `${msg} (HTTP ${status})` : msg;
+        this.loading = false;
+      }
+    });
+  }
+
+
+
+  displayCandidatFromProposition(p: Proposition): string {
+    return formatCandidatName(p?.candidat, p?.candidatName) ?? '-';
+  }
+
+  private loadCandidatsDetailsForPropositions(list: Proposition[]): void {
+    const ids = Array.from(new Set(
+      list
+        .map(p => extractCandidatId(p.candidat))
+        .filter((id): id is number => typeof id === 'number')
+    ));
+
+    this.candidatsMap.clear();
+    if (ids.length === 0) {
+      return;
+    }
+
+    const calls = ids.map(id =>
+      this.candidatsApi.getById(id).pipe(catchError(() => of<Candidat | null>(null)))
+    );
+
+    forkJoin(calls).subscribe(results => {
+      results.forEach(c => {
+        if (c && c.id != null) {
+          this.candidatsMap.set(c.id, c);
+        }
+      });
+    });
+  }
+
+  getCandidatDetails(p: Proposition): Candidat | null {
+    const id = extractCandidatId(p.candidat);
+    if (id == null) {
+      return null;
+    }
+    return this.candidatsMap.get(id) ?? null;
+  }
+
+  openCandidatInfoFromList(p: Proposition): void {
+    const id = extractCandidatId(p.candidat);
+    if (!id) {
+      return;
+    }
+    this.candidatsApi.getById(id).subscribe({
+      next: (c) => {
+        this.candidateDetail = c;
+        this.modal.open(this.candidatInfoTpl, { size: 'lg', backdrop: 'static', scrollable: true, modalDialogClass: 'modal-lg modal-dialog-scrollable modal-fullscreen-sm-down' });
+      },
+      error: () => { this.error = this.translate('besoins.errors.candidatInfo'); }
+    });
+  }
+
+  openCurrentBesoinInfo(): void {
+    const id = this.selectedBesoin?.id;
+    if (!id) return;
+    this.besoinApi.getById(id).subscribe({
+      next: (b) => { this.besoinDetail = b; this.modal.open(this.besoinInfoTpl, { size: 'lg', backdrop: 'static', scrollable: true, modalDialogClass: 'modal-lg modal-dialog-scrollable modal-fullscreen-sm-down' }); },
+      error: () => { this.error = this.translate('besoins.errors.besoinInfo'); }
+    });
+  }
+
+  // Update proposition status inline from the modal
+  updatePropositionStatus(p: Proposition, newStatus: string): void {
+    const propId = p.id;
+    if (!propId) {
+      return;
+    }
+
+    const previousStatus = p.statutQualif ?? null;
+    const statutValue = newStatus && newStatus.trim() ? newStatus.trim() : null;
+    p.statutQualif = statutValue;
+    this.savingStatus[propId] = true;
+
+    this.propositionsApi.updateStatus(propId, statutValue).subscribe({
+      next: (saved) => {
+        if (saved) {
+          p.statutQualif = saved.statutQualif ?? statutValue ?? null;
+          p.candidat = saved.candidat ?? p.candidat;
+          p.besoin = saved.besoin ?? p.besoin;
+          p.candidatName = formatCandidatName(p.candidat, p.candidatName);
+          p.besoinLibelle = formatBesoinLabel(p.besoin, p.besoinLibelle);
+        } else {
+          p.statutQualif = statutValue;
+        }
+        this.propositionsPourBesoin = [...this.propositionsPourBesoin];
+        delete this.savingStatus[propId];
+      },
+      error: (err) => {
+        console.error('[Besoins] updatePropositionStatus error', err);
+        this.error = err?.error?.message || this.translate('besoins.errors.statusUpdate');
+        p.statutQualif = previousStatus;
+        this.propositionsPourBesoin = [...this.propositionsPourBesoin];
+        delete this.savingStatus[propId];
+      }
+    });
+  }
+
 
   // Permissions helpers
   canView(): boolean { return this.auth.hasAuthority('BESOIN_READ') || this.auth.hasAuthority('CAN_VIEW'); }
@@ -268,3 +468,14 @@ export class BesoinsComponent implements OnInit {
   colorClassFor(v?: number | null): string { return this.style.colorClassFor(v); }
   colorLabelFor(v?: number | null): string { return this.style.colorLabelFor(v); }
 }
+
+
+
+
+
+
+
+
+
+
+

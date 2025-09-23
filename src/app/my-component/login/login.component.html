@@ -1,89 +1,87 @@
-<div class="login-page">
+﻿<div class="login-page">
   <div class="login-card" role="form" aria-labelledby="loginTitle">
     <div class="login-card__brand">
-      <img src="assets/images/sii_services_maroc_logo.jpg" alt="Logo" class="login-card__logo" />
-      <h1 id="loginTitle" class="login-card__title">Espace Checklists</h1>
-      <p class="login-card__tagline">Developing a digital & sustainable world together</p>
-</div>
+      <img src="assets/images/sii_services_maroc_logo.jpg" [alt]="'login.brand.logoAlt' | translate" class="login-card__logo" />
+      <h1 id="loginTitle" class="login-card__title">{{ 'login.brand.title' | translate }}</h1>
+      <p class="login-card__tagline">{{ 'login.brand.tagline' | translate }}</p>
+    </div>
 
-<!-- Modal: Force password change on first login/admin reset -->
-<ng-template #changePwdTpl let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title">Modifier votre mot de passe</h5>
-  </div>
-  <div class="modal-body">
-    <p class="mb-2">Pour continuer, veuillez définir un nouveau mot de passe.</p>
-    <form [formGroup]="changeForm" (ngSubmit)="submitChangePassword()">
-      <div class="mb-3">
-        <label class="form-label">Nouveau mot de passe</label>
-        <div class="password-wrapper">
-          <input [type]="showNewPassword ? 'text' : 'password'" class="form-control" formControlName="newPassword" />
-          <button type="button" class="password-toggle" (click)="toggleNewPasswordVisibility()" [attr.aria-label]="showNewPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
-            <span *ngIf="!showNewPassword">Afficher</span>
-            <span *ngIf="showNewPassword">Masquer</span>
-          </button>
-        </div>
+    <!-- Modal: Force password change on first login/admin reset -->
+    <ng-template #changePwdTpl let-modal>
+      <div class="modal-header">
+        <h5 class="modal-title">{{ 'login.changePassword.title' | translate }}</h5>
       </div>
-      <div class="mb-2">
-        <label class="form-label">Confirmer le mot de passe</label>
-        <div class="password-wrapper">
-          <input [type]="showConfirmPassword ? 'text' : 'password'" class="form-control" formControlName="confirmPassword" />
-          <button type="button" class="password-toggle" (click)="toggleConfirmPasswordVisibility()" [attr.aria-label]="showConfirmPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
-            <span *ngIf="!showConfirmPassword">Afficher</span>
-            <span *ngIf="showConfirmPassword">Masquer</span>
-          </button>
-        </div>
+      <div class="modal-body">
+        <p class="mb-2">{{ 'login.changePassword.intro' | translate }}</p>
+        <form [formGroup]="changeForm" (ngSubmit)="submitChangePassword()">
+          <div class="mb-3">
+            <label class="form-label">{{ 'login.changePassword.new' | translate }}</label>
+            <div class="password-wrapper">
+              <input [type]="showNewPassword ? 'text' : 'password'" class="form-control" formControlName="newPassword" />
+              <button type="button" class="password-toggle" (click)="toggleNewPasswordVisibility()" [attr.aria-label]="visibilityAriaLabel(showNewPassword)">
+                {{ visibilityText(showNewPassword) }}
+              </button>
+            </div>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">{{ 'login.changePassword.confirm' | translate }}</label>
+            <div class="password-wrapper">
+              <input [type]="showConfirmPassword ? 'text' : 'password'" class="form-control" formControlName="confirmPassword" />
+              <button type="button" class="password-toggle" (click)="toggleConfirmPasswordVisibility()" [attr.aria-label]="visibilityAriaLabel(showConfirmPassword)">
+                {{ visibilityText(showConfirmPassword) }}
+              </button>
+            </div>
+          </div>
+          <div *ngIf="changeError" class="text-danger small mt-1">{{ changeError }}</div>
+          <div *ngIf="changeSuccess" class="text-success small mt-1">{{ changeSuccess }}</div>
+          <div class="modal-footer px-0">
+            <button type="submit" class="btn btn-primary">{{ 'common.save' | translate }}</button>
+          </div>
+        </form>
       </div>
-      <div *ngIf="changeError" class="text-danger small mt-1">{{ changeError }}</div>
-      <div *ngIf="changeSuccess" class="text-success small mt-1">{{ changeSuccess }}</div>
-      <div class="modal-footer px-0">
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
-      </div>
-    </form>
-  </div>
-</ng-template>
+    </ng-template>
 
     <form (ngSubmit)="submit()" autocomplete="on" class="login-form" [formGroup]="form">
-      <div class="field">
-        <label for="email" class="field__label form-label">Email</label>
-        <input id="email" type="email" placeholder="email@example.com" formControlName="email" required class="field__control form-control" />
-        <small class="form-error" *ngIf="form.controls.email.touched && form.controls.email.invalid">Email invalide</small>
+      <div class="mb-2">
+        <label for="email" class="field__label form-label">{{ 'login.form.email.label' | translate }}</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+          <input id="email" type="email" [placeholder]="'login.form.email.placeholder' | translate" formControlName="email" required class="form-control" />
+        </div>
+        <small class="form-error" *ngIf="form.controls.email.touched && form.controls.email.invalid">{{ 'login.form.email.invalid' | translate }}</small>
       </div>
 
-      <div class="field">
-        <label for="password" class="field__label form-label">Mot de passe</label>
-        <div class="password-wrapper">
-          <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" required class="field__control form-control" />
-          <button type="button" class="password-toggle" (click)="togglePasswordVisibility()" [attr.aria-label]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
-            <span *ngIf="!showPassword">Afficher</span>
-            <span *ngIf="showPassword">Masquer</span>
+      <div class="mb-1">
+        <label for="password" class="field__label form-label">{{ 'login.form.password.label' | translate }}</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-lock"></i></span>
+          <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" required class="form-control" />
+          <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility()" [attr.aria-label]="visibilityAriaLabel(showPassword)">
+            <i [class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
           </button>
         </div>
-        <small class="form-error" *ngIf="form.controls.password.touched && form.controls.password.invalid">Mot de passe requis (6+ caractères)</small>
+        <small class="form-error" *ngIf="form.controls.password.touched && form.controls.password.invalid">{{ 'login.form.password.invalid' | translate }}</small>
       </div>
 
-      <div class="login-meta d-flex justify-content-between align-items-center">
+      <div class="login-meta d-flex justify-content-between align-items-center mt-2">
         <label class="remember">
           <input type="checkbox" class="form-check-input" />
-          <span class="form-check-label">Se souvenir</span>
+          <span class="form-check-label">{{ 'login.form.remember' | translate }}</span>
         </label>
-        <a href="#" (click)="$event.preventDefault()" class="forgot">Mot de passe oublié ?</a>
       </div>
 
       <div *ngIf="error" class="form-error text-danger mt-2" role="alert">{{ error }}</div>
 
-      <button class="btn btn-primary w-100 mt-2" type="submit" [disabled]="loading">
-        <span *ngIf="!loading">Se connecter</span>
-        <span *ngIf="loading" class="loader" aria-label="Chargement"></span>
+      <button class="btn btn-primary w-100 mt-3" type="submit" [disabled]="loading">
+        <span *ngIf="!loading">{{ 'login.form.submit' | translate }}</span>
+        <span *ngIf="loading" class="loader" [attr.aria-label]="'common.loading' | translate"></span>
       </button>
+
+      <p class="text-muted small text-center mt-3 mb-0">
+        {{ 'login.form.contactAdmin' | translate }}
+      </p>
     </form>
 
-    <ul class="checklist-preview" aria-hidden="true">
-      <li class="item">Préparer les éléments</li>
-      <li class="item">Valider les actions</li>
-      <li class="item">Suivre le statut</li>
-    </ul>
-
-    <div class="copyright">© {{ currentYear }} SII Maroc</div>
+    <div class="copyright">© {{ currentYear }} {{ 'login.brand.owner' | translate }}</div>
   </div>
 </div>

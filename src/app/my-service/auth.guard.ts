@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { CanActivate, Router, UrlTree } from '@angular/router';
 import { AuthService } from './auth.service';
 
@@ -10,7 +10,7 @@ export class AuthGuard implements CanActivate {
     const token = this.auth.getToken();
     if (!token) return this.router.parseUrl('/');
 
-    // Optionnel: vérifier l'expiration locale du JWT
+    // Optionnel: vÃ©rifier l'expiration locale du JWT
     const claims = this.auth.getJwtClaims() as any;
     if (claims && typeof claims.exp === 'number') {
       const expMs = claims.exp * 1000;
@@ -22,3 +22,4 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 }
+

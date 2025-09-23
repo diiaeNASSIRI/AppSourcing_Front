@@ -1,8 +1,9 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, Validators, FormControl } from '@angular/forms';
 import { AdminServiceClient, AdminUserDto, RoleDto } from '../../my-service/admin.service';
 import { AuthService } from '../../my-service/auth.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { TranslationService } from '../../config/i18n/translation.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -59,8 +60,13 @@ export class AdminUsersComponent implements OnInit {
     private admin: AdminServiceClient,
     private fb: FormBuilder,
     private auth: AuthService,
-    private modal: NgbModal
+    private modal: NgbModal,
+    private readonly translation: TranslationService
   ) {}
+
+  private translate(key: string, params?: Record<string, unknown>): string {
+    return this.translation.instant(key, params);
+  }
 
   ngOnInit(): void {
     // Debug: log authorities/claims for 403 diagnosis
@@ -150,11 +156,11 @@ export class AdminUsersComponent implements OnInit {
           error: err?.error,
         });
         if (err?.status === 403) {
-          this.error = 'Accès refusé (ADMIN requis). Vérifiez votre rôle/permissions.';
+          this.error = this.translate('adminUsers.errors.accessDenied');
         } else if (err?.status === 401) {
-          this.error = 'Session invalide/expirée. Veuillez vous reconnecter.';
+          this.error = this.translate('adminUsers.errors.sessionExpired');
         } else {
-          this.error = err?.error?.message || 'Erreur lors du chargement des utilisateurs';
+          this.error = err?.error?.message || this.translate('adminUsers.errors.load');
         }
       }
     });
@@ -188,13 +194,13 @@ export class AdminUsersComponent implements OnInit {
     const { fullName, email, password, roleId } = this.createForm.getRawValue() as any;
   this.admin.createUser({ fullName, email, password, roleId: roleId ?? null }).subscribe({
       next: () => {
-        this.success = 'Utilisateur créé';
+        this.success = this.translate('adminUsers.success.create');
     this.createForm.reset();
         this.refresh();
         this.activeModal?.close();
       },
       error: (err) => {
-        this.error = err?.error?.message || 'Création échouée';
+        this.error = err?.error?.message || this.translate('adminUsers.errors.createFailed');
       }
     });
   }
@@ -226,7 +232,7 @@ export class AdminUsersComponent implements OnInit {
   const { fullName, password, roleId } = this.editForm.getRawValue() as any;
   this.admin.updateUser(email, { fullName, password, roleId: roleId ?? null }).subscribe({
       next: (u) => {
-        this.success = 'Utilisateur mis à jour';
+        this.success = this.translate('adminUsers.success.update');
         // Update local list
         const idx = this.users.findIndex((x) => x.email === u.email);
         if (idx >= 0) this.users[idx] = u;
@@ -234,7 +240,7 @@ export class AdminUsersComponent implements OnInit {
         this.activeModal?.close();
       },
       error: (err) => {
-        this.error = err?.error?.message || 'Mise à jour échouée';
+        this.error = err?.error?.message || this.translate('adminUsers.errors.updateFailed');
       }
     });
   }
@@ -250,14 +256,14 @@ export class AdminUsersComponent implements OnInit {
   }
 
   deleteUser(u: AdminUserDto): void {
-    if (!confirm(`Supprimer l'utilisateur ${u.email} ?`)) return;
+    if (!confirm(this.translate('adminUsers.confirm.delete', { email: u.email }))) return;
     this.admin.deleteUser(u.email).subscribe({
       next: () => {
         this.users = this.users.filter(x => x.email !== u.email);
         if (this.selectedUser?.email === u.email) this.cancelEdit();
       },
       error: (err) => {
-        this.error = err?.error?.message || 'Suppression échouée';
+        this.error = err?.error?.message || this.translate('adminUsers.errors.deleteFailed');
       }
     });
   }
@@ -274,3 +280,4 @@ export class AdminUsersComponent implements OnInit {
     return this.userDetailsPerms.indexOf(p) >= 0;
   }
 }
+

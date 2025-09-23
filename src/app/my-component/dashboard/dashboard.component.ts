@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import { AuthService, UserInfoResponse } from '../../my-service/auth.service';
 
 @Component({
@@ -16,4 +16,5 @@ export class DashboardComponent {
     });
   }
 }
+
 

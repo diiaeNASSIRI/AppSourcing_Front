@@ -38,5 +38,10 @@ export class SidebarComponent {
       'REFERENCE_PRIORITY_READ'
     );
   }
+
+  get canSeePropositions(): boolean {
+    // Must stay aligned with backend GET /propositions guard
+    return this.auth.hasAny('ADMIN', 'PROPOSITION_READ', 'CAN_VIEW');
+  }
 }
 
