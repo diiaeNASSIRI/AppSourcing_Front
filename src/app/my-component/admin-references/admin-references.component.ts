@@ -5,6 +5,7 @@ import { AuthService } from '../../my-service/auth.service';
 import { Perms, Roles } from '../../config/permissions';
 import { ReferenceStyleService } from '../../my-service/reference-style.service';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { TranslationService } from '../../config/i18n/translation.service';
 
 @Component({
   selector: 'app-admin-references',
@@ -37,6 +38,7 @@ export class AdminReferencesComponent implements OnInit {
     public readonly auth: AuthService,
   private readonly style: ReferenceStyleService,
   private readonly modal: NgbModal,
+  private readonly translation: TranslationService,
   ) {}
 
   ngOnInit(): void {
@@ -84,7 +86,7 @@ export class AdminReferencesComponent implements OnInit {
         if (this.page > maxPage) this.page = 1;
         this.loading = false;
       },
-      error: () => { this.error = 'Erreur de chargement'; this.loading = false; }
+  error: () => { this.error = this.t('references.errors.load'); this.loading = false; }
     });
   }
 
@@ -113,11 +115,11 @@ export class AdminReferencesComponent implements OnInit {
   remove(item: ReferenceItem): void {
     if (!item.id) return;
     if (!this.canDeleteCurrent()) return;
-    if (!confirm(`Supprimer "${item.label}" ?`)) return;
+  if (!confirm(this.t('references.confirm.delete', { label: item.label }))) return;
     this.loading = true;
     this.refs.delete(this.current, item.id).subscribe({
       next: () => this.load(),
-      error: () => { this.error = 'Suppression échouée'; this.loading = false; }
+  error: () => { this.error = this.t('references.errors.delete'); this.loading = false; }
     });
   }
 
@@ -131,7 +133,7 @@ export class AdminReferencesComponent implements OnInit {
       : this.refs.create(this.current, payload);
     obs.subscribe({
       next: () => { this.editingId = null; this.closeForm(); this.load(); },
-      error: () => { this.error = 'Opération échouée'; this.loading = false; }
+  error: () => { this.error = this.t('references.errors.operation'); this.loading = false; }
     });
   }
 
@@ -255,13 +257,13 @@ export class AdminReferencesComponent implements OnInit {
   get typeDescription(): string {
     switch (this.current) {
       case 'status':
-  return 'Statuts utilisés dans l\'interface Besoins (colonne Statut).';
+  return this.t('references.description.status');
       case 'site':
-  return 'Sites utilisés dans l\'interface Besoins (localisation / centre).';
+  return this.t('references.description.site');
       case 'priority':
-  return 'Priorités utilisées dans l\'interface Besoins.';
+  return this.t('references.description.priority');
       case 'statut-qualification':
-  return 'Statuts de qualification utilisés pour les propositions.';
+  return this.t('references.description.statutQualification');
       default:
         return '';
     }
@@ -270,12 +272,16 @@ export class AdminReferencesComponent implements OnInit {
   // Libellé lisible (pluriel) pour affichage dans le header / modal
   get currentLabel(): string {
     switch (this.current) {
-      case 'status': return 'Statuts';
-      case 'site': return 'Sites';
-      case 'priority': return 'Priorités';
-      case 'statut-qualification': return 'Statuts de qualification';
+      case 'status': return this.t('references.labels.status.plural');
+      case 'site': return this.t('references.labels.site.plural');
+      case 'priority': return this.t('references.labels.priority.plural');
+      case 'statut-qualification': return this.t('references.labels.statutQualification.plural');
       default: return this.current;
     }
+  }
+
+  private t(key: string, params?: Record<string, unknown>): string {
+    return this.translation.instant(key, params);
   }
 }
 

@@ -22,8 +22,7 @@ import { catchError } from 'rxjs/operators';
 export class BesoinsComponent implements OnInit {
   @ViewChild('besoinForm') besoinFormTpl!: TemplateRef<any>;
   @ViewChild('candidatsForBesoinTpl') candidatsForBesoinTpl!: TemplateRef<any>;
-  @ViewChild('candidatInfo') candidatInfoTpl!: TemplateRef<any>;
-  @ViewChild('besoinInfo') besoinInfoTpl!: TemplateRef<any>;
+  // Removed candidate and besoin info modals
 
   besoins: Besoin[] = [];
   loading = false;
@@ -32,8 +31,7 @@ export class BesoinsComponent implements OnInit {
   selectedBesoin: Besoin | null = null;
   propositionsPourBesoin: Proposition[] = [];
   candidatsMap: Map<number, Candidat> = new Map<number, Candidat>();
-  candidateDetail?: Candidat;
-  besoinDetail?: Besoin;
+  // Removed candidateDetail and besoinDetail (info modals removed)
   // Inline statut options for propositions in the modal
   propStatusOptions: RefItem[] = [];
   savingStatus: Record<number, boolean> = {};
@@ -382,28 +380,7 @@ export class BesoinsComponent implements OnInit {
     return this.candidatsMap.get(id) ?? null;
   }
 
-  openCandidatInfoFromList(p: Proposition): void {
-    const id = extractCandidatId(p.candidat);
-    if (!id) {
-      return;
-    }
-    this.candidatsApi.getById(id).subscribe({
-      next: (c) => {
-        this.candidateDetail = c;
-        this.modal.open(this.candidatInfoTpl, { size: 'lg', backdrop: 'static', scrollable: true, modalDialogClass: 'modal-lg modal-dialog-scrollable modal-fullscreen-sm-down' });
-      },
-      error: () => { this.error = this.translate('besoins.errors.candidatInfo'); }
-    });
-  }
-
-  openCurrentBesoinInfo(): void {
-    const id = this.selectedBesoin?.id;
-    if (!id) return;
-    this.besoinApi.getById(id).subscribe({
-      next: (b) => { this.besoinDetail = b; this.modal.open(this.besoinInfoTpl, { size: 'lg', backdrop: 'static', scrollable: true, modalDialogClass: 'modal-lg modal-dialog-scrollable modal-fullscreen-sm-down' }); },
-      error: () => { this.error = this.translate('besoins.errors.besoinInfo'); }
-    });
-  }
+  // Removed openCandidatInfoFromList and openCurrentBesoinInfo methods (modals removed)
 
   // Update proposition status inline from the modal
   updatePropositionStatus(p: Proposition, newStatusId: number | null): void {
