@@ -10,6 +10,7 @@
         <button *ngIf="canReadType('status')" class="btn btn-outline-primary" [class.active]="current==='status'" (click)="setType('status')">Statuts</button>
         <button *ngIf="canReadType('site')" class="btn btn-outline-primary" [class.active]="current==='site'" (click)="setType('site')">Sites</button>
         <button *ngIf="canReadType('priority')" class="btn btn-outline-primary" [class.active]="current==='priority'" (click)="setType('priority')">Priorités</button>
+        <button *ngIf="canReadType('statut-qualification')" class="btn btn-outline-primary" [class.active]="current==='statut-qualification'" (click)="setType('statut-qualification')">Statuts de qualification</button>
       </div>
       <button *ngIf="canCreateCurrent()" class="btn btn-primary" (click)="startCreate()">
         <i class="bi bi-plus-lg me-1"></i> Ajouter

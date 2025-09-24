@@ -1,4 +1,4 @@
-﻿export const Roles = {
+export const Roles = {
   Admin: 'ADMIN',
   RefManager: 'REF_MANAGER'
 } as const;
@@ -32,6 +32,12 @@ export const Perms = {
       Read: 'REFERENCE_PRIORITY_READ',
       Update: 'REFERENCE_PRIORITY_UPDATE',
       Delete: 'REFERENCE_PRIORITY_DELETE'
+    },
+    StatutQualification: {
+      Create: 'REFERENCE_STATUT_QUALIFICATION_CREATE',
+      Read: 'REFERENCE_STATUT_QUALIFICATION_READ',
+      Update: 'REFERENCE_STATUT_QUALIFICATION_UPDATE',
+      Delete: 'REFERENCE_STATUT_QUALIFICATION_DELETE'
     }
   }
 } as const;

@@ -207,6 +207,13 @@
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_PRIORITY_UPDATE')" (change)="togglePerm('REFERENCE_PRIORITY_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_PRIORITY_READ')"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_PRIORITY_DELETE')" (change)="togglePerm('REFERENCE_PRIORITY_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_PRIORITY_READ')"></td>
                   </tr>
+                  <tr>
+                    <td>Statuts de qualification</td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUT_QUALIFICATION_READ')" (change)="togglePerm('REFERENCE_STATUT_QUALIFICATION_READ', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUT_QUALIFICATION_CREATE')" (change)="togglePerm('REFERENCE_STATUT_QUALIFICATION_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_STATUT_QUALIFICATION_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUT_QUALIFICATION_UPDATE')" (change)="togglePerm('REFERENCE_STATUT_QUALIFICATION_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_STATUT_QUALIFICATION_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUT_QUALIFICATION_DELETE')" (change)="togglePerm('REFERENCE_STATUT_QUALIFICATION_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_STATUT_QUALIFICATION_READ')"></td>
+                  </tr>
                 </tbody>
               </table>
             </div>

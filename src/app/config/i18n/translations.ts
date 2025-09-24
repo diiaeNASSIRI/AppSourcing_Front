@@ -193,6 +193,7 @@ const TRANSLATION_ENTRIES: Record<string, TranslationEntry> = {
   'propositions.form.selectCandidate': { fr: '-- choisir un candidat --', en: '-- choose a candidate --' },
   'propositions.form.need': { fr: 'Besoin', en: 'Need' },
   'propositions.form.selectNeed': { fr: '-- choisir un besoin --', en: '-- choose a need --' },
+  'propositions.form.selectStatus': { fr: '-- choisir un statut de qualification --', en: '-- choose a qualification status --' },
   'propositions.form.dateProposition': { fr: 'Date proposition', en: 'Proposed on' },
   'propositions.form.responseDelay': { fr: 'D\u00e9lai r\u00e9ponse', en: 'Response time' },
   'propositions.form.dateOffer': { fr: 'Date propale', en: 'Offer date' },

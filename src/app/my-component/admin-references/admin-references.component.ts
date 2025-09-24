@@ -193,6 +193,7 @@ export class AdminReferencesComponent implements OnInit {
       case 'status': return this.auth.hasAuthority(Perms.Reference.Status.Read);
       case 'site': return this.auth.hasAuthority(Perms.Reference.Site.Read);
       case 'priority': return this.auth.hasAuthority(Perms.Reference.Priority.Read);
+      case 'statut-qualification': return this.auth.hasAuthority(Perms.Reference.StatutQualification.Read);
     }
   }
 
@@ -202,6 +203,7 @@ export class AdminReferencesComponent implements OnInit {
       case 'status': return this.auth.hasAuthority(Perms.Reference.Status.Create);
       case 'site': return this.auth.hasAuthority(Perms.Reference.Site.Create);
       case 'priority': return this.auth.hasAuthority(Perms.Reference.Priority.Create);
+      case 'statut-qualification': return this.auth.hasAuthority(Perms.Reference.StatutQualification.Create);
     }
   }
 
@@ -211,6 +213,7 @@ export class AdminReferencesComponent implements OnInit {
       case 'status': return this.auth.hasAuthority(Perms.Reference.Status.Update);
       case 'site': return this.auth.hasAuthority(Perms.Reference.Site.Update);
       case 'priority': return this.auth.hasAuthority(Perms.Reference.Priority.Update);
+      case 'statut-qualification': return this.auth.hasAuthority(Perms.Reference.StatutQualification.Update);
     }
   }
 
@@ -220,6 +223,7 @@ export class AdminReferencesComponent implements OnInit {
       case 'status': return this.auth.hasAuthority(Perms.Reference.Status.Delete);
       case 'site': return this.auth.hasAuthority(Perms.Reference.Site.Delete);
       case 'priority': return this.auth.hasAuthority(Perms.Reference.Priority.Delete);
+      case 'statut-qualification': return this.auth.hasAuthority(Perms.Reference.StatutQualification.Delete);
     }
   }
 
@@ -228,7 +232,7 @@ export class AdminReferencesComponent implements OnInit {
   }
 
   private selectFirstAllowedType(): void {
-    const order: ReferenceType[] = ['status', 'site', 'priority'];
+    const order: ReferenceType[] = ['status', 'site', 'priority', 'statut-qualification'];
     const found = order.find((t) => this.canReadType(t));
     this.current = found ?? 'status';
   }
@@ -256,6 +260,8 @@ export class AdminReferencesComponent implements OnInit {
   return 'Sites utilisés dans l\'interface Besoins (localisation / centre).';
       case 'priority':
   return 'Priorités utilisées dans l\'interface Besoins.';
+      case 'statut-qualification':
+  return 'Statuts de qualification utilisés pour les propositions.';
       default:
         return '';
     }
@@ -267,6 +273,7 @@ export class AdminReferencesComponent implements OnInit {
       case 'status': return 'Statuts';
       case 'site': return 'Sites';
       case 'priority': return 'Priorités';
+      case 'statut-qualification': return 'Statuts de qualification';
       default: return this.current;
     }
   }

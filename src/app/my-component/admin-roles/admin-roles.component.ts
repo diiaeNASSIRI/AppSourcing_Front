@@ -180,6 +180,7 @@ export class AdminRolesComponent implements OnInit {
     if (p.startsWith('REFERENCE_STATUS_')) return p.endsWith('_READ') ? p : 'REFERENCE_STATUS_READ';
     if (p.startsWith('REFERENCE_SITE_')) return p.endsWith('_READ') ? p : 'REFERENCE_SITE_READ';
     if (p.startsWith('REFERENCE_PRIORITY_')) return p.endsWith('_READ') ? p : 'REFERENCE_PRIORITY_READ';
+    if (p.startsWith('REFERENCE_STATUT_QUALIFICATION_')) return p.endsWith('_READ') ? p : 'REFERENCE_STATUT_QUALIFICATION_READ';
     return null;
   }
 
@@ -194,6 +195,7 @@ export class AdminRolesComponent implements OnInit {
       case 'REFERENCE_STATUS_READ': return ['REFERENCE_STATUS_CREATE','REFERENCE_STATUS_UPDATE','REFERENCE_STATUS_DELETE'];
       case 'REFERENCE_SITE_READ': return ['REFERENCE_SITE_CREATE','REFERENCE_SITE_UPDATE','REFERENCE_SITE_DELETE'];
       case 'REFERENCE_PRIORITY_READ': return ['REFERENCE_PRIORITY_CREATE','REFERENCE_PRIORITY_UPDATE','REFERENCE_PRIORITY_DELETE'];
+      case 'REFERENCE_STATUT_QUALIFICATION_READ': return ['REFERENCE_STATUT_QUALIFICATION_CREATE','REFERENCE_STATUT_QUALIFICATION_UPDATE','REFERENCE_STATUT_QUALIFICATION_DELETE'];
       default: return [];
     }
   }
@@ -208,3 +210,4 @@ export class AdminRolesComponent implements OnInit {
     }
   }
 }
+

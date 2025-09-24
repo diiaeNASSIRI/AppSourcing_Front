@@ -215,9 +215,9 @@
               <td>{{ (getCandidatDetails(p)?.pru != null) ? (getCandidatDetails(p)?.pru | number:'1.0-0') : '-' }}</td>
               <td>
                 <div class="d-flex align-items-center gap-2">
-                  <select class="form-select form-select-sm status-select" [ngModel]="p.statutQualif || ''" (ngModelChange)="updatePropositionStatus(p, $event)" [disabled]="savingStatus[p.id!]">
-                    <option [ngValue]="''">—</option>
-                    <option *ngFor="let s of propStatusOptions" [ngValue]="s">{{ s }}</option>
+                  <select class="form-select form-select-sm status-select" [ngModel]="p.statutQualifId ?? null" (ngModelChange)="updatePropositionStatus(p, $event)" [disabled]="savingStatus[p.id!]">
+                    <option [ngValue]="null">—</option>
+                    <option *ngFor="let s of propStatusOptions" [ngValue]="s.id">{{ s.label }}</option>
                   </select>
                   <div *ngIf="savingStatus[p.id!]" class="spinner-border spinner-border-sm text-secondary" role="status">
                     <span class="visually-hidden">{{ 'common.saving' | translate }}</span>
