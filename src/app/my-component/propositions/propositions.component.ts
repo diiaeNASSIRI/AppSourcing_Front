@@ -6,10 +6,11 @@ import { Subject, takeUntil, forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Proposition, PropositionRequest, extractCandidatId, extractBesoinId, formatCandidatName, formatBesoinLabel } from '../../models/proposition.model';
 import { Candidat } from '../../models/candidat.model';
-import { Besoin } from '../../models/besoin.model';
+import { Besoin, RefItem } from '../../models/besoin.model';
 import { PropositionServiceClient } from '../../my-service/proposition.service';
 import { CandidatServiceClient } from '../../my-service/candidat.service';
 import { BesoinServiceClient } from '../../my-service/besoin.service';
+import { ReferenceService } from '../../my-service/reference.service';
 import { AuthService } from '../../my-service/auth.service';
 import { TranslationService } from '../../config/i18n/translation.service';
 
@@ -31,6 +32,8 @@ export class PropositionsComponent implements OnInit, OnDestroy {
   candidats: Array<{ id: number; label: string }> = [];
   besoins: Array<{ id: number; label: string }> = [];
 
+  statutQualifs: RefItem[] = [];
+
   form = this.fb.group({
     candidatId: [null as number | null, [Validators.required]],
     besoinId: [null as number | null, [Validators.required]],
@@ -38,7 +41,7 @@ export class PropositionsComponent implements OnInit, OnDestroy {
     delaiReponse: [''],
     datePropale: [''],
     dateDemarrage: [''],
-    statutQualif: [''],
+    statutQualifId: [null as number | null],
   });
 
   // Table UI state (alignÃ© sur besoins/candidats)
@@ -61,6 +64,7 @@ export class PropositionsComponent implements OnInit, OnDestroy {
     private readonly api: PropositionServiceClient,
     private readonly candidatsApi: CandidatServiceClient,
     private readonly besoinsApi: BesoinServiceClient,
+    private readonly refs: ReferenceService,
     private readonly auth: AuthService,
     private readonly translation: TranslationService
   ) {}
@@ -95,6 +99,7 @@ export class PropositionsComponent implements OnInit, OnDestroy {
           ...p,
           candidatName: this.labelForCandidat(p.candidat, p.candidatName),
           besoinLibelle: this.labelForBesoin(p.besoin, p.besoinLibelle),
+          statutQualif: this.labelForStatut(p.statutQualifId ?? null, p.statutQualif),
         }));
   // si la page courante dÃ©passe aprÃ¨s rafraÃ®chissement, revenir Ã  1
   const total = this.filtered.length;
@@ -115,6 +120,22 @@ export class PropositionsComponent implements OnInit, OnDestroy {
     return formatBesoinLabel(besoin, fallback);
   }
 
+  private labelForStatut(id: number | null | undefined, fallback?: string | null): string | null {
+    if (id == null) {
+      return fallback ?? null;
+    }
+    const found = this.statutQualifs.find((s) => s.id === id);
+    const label = found?.label?.toString().trim();
+    return label && label.length > 0 ? label : (fallback ?? null);
+  }
+
+  private applyStatutLabels(): void {
+    this.items = this.items.map((p) => ({
+      ...p,
+      statutQualif: this.labelForStatut(p.statutQualifId ?? null, p.statutQualif),
+    }));
+  }
+
   loadLookups() {
     this.candidatsApi.getAll().pipe(takeUntil(this.destroy$)).subscribe(list => {
       this.candidats = (list || [])
@@ -125,6 +146,21 @@ export class PropositionsComponent implements OnInit, OnDestroy {
       this.besoins = (list || [])
         .filter(b => b && b.id != null)
         .map(b => ({ id: b.id!, label: b.libelle || `Besoin #${b.id}` }));
+    });
+    this.refs.list('statut-qualification').pipe(takeUntil(this.destroy$)).subscribe(list => {
+      const arr = (list || []).filter(r => r && r.id != null) as RefItem[];
+      arr.sort((a, b) => {
+        const ao = Number(a.sortOrder ?? 0);
+        const bo = Number(b.sortOrder ?? 0);
+        if (ao !== bo) {
+          return ao - bo;
+        }
+        const al = (a.label || '').toString().toLowerCase();
+        const bl = (b.label || '').toString().toLowerCase();
+        return al.localeCompare(bl);
+      });
+      this.statutQualifs = arr;
+      this.applyStatutLabels();
     });
   }
 
@@ -137,7 +173,7 @@ export class PropositionsComponent implements OnInit, OnDestroy {
       delaiReponse: '',
       datePropale: '',
       dateDemarrage: '',
-      statutQualif: ''
+      statutQualifId: null
     });
   this.formError = null;
       this.loadLookups();
@@ -153,7 +189,7 @@ export class PropositionsComponent implements OnInit, OnDestroy {
       delaiReponse: p.delaiReponse ?? '',
       datePropale: p.datePropale ?? '',
       dateDemarrage: p.dateDemarrage ?? '',
-      statutQualif: p.statutQualif ?? ''
+      statutQualifId: p.statutQualifId ?? null
     });
   this.formError = null;
       this.loadLookups();
@@ -235,6 +271,7 @@ export class PropositionsComponent implements OnInit, OnDestroy {
     const besoinId = Number(this.form.value.besoinId);
     if (!candidatId || !besoinId) { this.formError = 'Veuillez sÃ©lectionner un candidat et un besoin.'; return; }
 
+    const statutQualifId = this.form.value.statutQualifId != null ? Number(this.form.value.statutQualifId) : null;
     const payload: PropositionRequest = {
       candidatId,
       besoinId,
@@ -242,7 +279,7 @@ export class PropositionsComponent implements OnInit, OnDestroy {
       delaiReponse: this.form.value.delaiReponse || null,
       datePropale: this.form.value.datePropale || null,
   dateDemarrage: this.form.value.dateDemarrage || null,
-  statutQualif: this.form.value.statutQualif || null,
+  statutQualifId: statutQualifId,
     };
 
     const req$ = this.editingId

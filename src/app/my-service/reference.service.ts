@@ -1,8 +1,8 @@
-﻿import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export type ReferenceType = 'status' | 'site' | 'priority';
+export type ReferenceType = 'status' | 'site' | 'priority' | 'statut-qualification';
 
 export interface ReferenceItem {
   id?: number;
@@ -35,5 +35,3 @@ export class ReferenceService {
     return this.http.delete<void>(`${this.base}/${type}/${id}`);
   }
 }
-
-
