@@ -1,6 +1,7 @@
 ﻿import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { AdminServiceClient, RoleDto } from '../../my-service/admin.service';
+import { TranslationService } from '../../config/i18n/translation.service';
 import { AuthService } from '../../my-service/auth.service';
 
 @Component({
@@ -25,7 +26,7 @@ export class AdminRolesComponent implements OnInit {
     newName: ['', [Validators.required, Validators.minLength(2)]]
   });
 
-  constructor(private fb: FormBuilder, private admin: AdminServiceClient, public readonly auth: AuthService) {}
+  constructor(private fb: FormBuilder, private admin: AdminServiceClient, public readonly auth: AuthService, private readonly translation: TranslationService) {}
 
   ngOnInit(): void {
     this.refresh();
@@ -37,7 +38,7 @@ export class AdminRolesComponent implements OnInit {
     this.error = null;
     this.admin.listRoles().subscribe({
       next: (res) => { this.roles = res.roles || []; this.loading = false; },
-      error: (err) => { this.loading = false; this.error = err?.error?.message || 'Failed to load roles'; }
+  error: (err) => { this.loading = false; this.error = err?.error?.message || this.t('adminRoles.errors.load'); }
     });
   }
 
@@ -66,8 +67,8 @@ export class AdminRolesComponent implements OnInit {
     if (this.createForm.invalid) { this.createForm.markAllAsTouched(); return; }
     const { name } = this.createForm.getRawValue() as any;
     this.admin.createRole(name).subscribe({
-      next: () => { this.success = 'Role created'; this.createForm.reset(); this.refresh(); },
-      error: (err) => { this.error = err?.error?.message || 'Create failed'; }
+  next: () => { this.success = this.t('adminRoles.success.create'); this.createForm.reset(); this.refresh(); },
+  error: (err) => { this.error = err?.error?.message || this.t('adminRoles.errors.create'); }
     });
   }
 
@@ -76,16 +77,16 @@ export class AdminRolesComponent implements OnInit {
     if (this.renameForm.invalid) { this.renameForm.markAllAsTouched(); return; }
     const { newName } = this.renameForm.getRawValue() as any;
     this.admin.renameRole(this.selectedRole.name, newName).subscribe({
-      next: () => { this.success = 'Role renamed'; this.refresh(); },
-      error: (err) => { this.error = err?.error?.message || 'Rename failed'; }
+  next: () => { this.success = this.t('adminRoles.success.rename'); this.refresh(); },
+  error: (err) => { this.error = err?.error?.message || this.t('adminRoles.errors.rename'); }
     });
   }
 
   deleteRole(r: RoleDto): void {
-    if (!confirm(`Delete role ${r.name}?`)) return;
+    if (!confirm(this.t('adminRoles.confirm.delete', { name: r.name }))) return;
     this.admin.deleteRole(r.name).subscribe({
       next: () => { if (this.selectedRole?.id === r.id) { this.selectedRole = null; } this.refresh(); },
-      error: (err) => { this.error = err?.error?.message || 'Delete failed'; }
+      error: (err) => { this.error = err?.error?.message || this.t('adminRoles.errors.delete'); }
     });
   }
 
@@ -112,12 +113,12 @@ export class AdminRolesComponent implements OnInit {
       .filter(p => p !== 'ADMIN_PANEL');
     this.admin.setRolePermissions(this.selectedRole.name, perms).subscribe({
       next: (res) => {
-        this.success = 'Permissions updated';
+  this.success = this.t('adminRoles.success.permissionsUpdate');
         const permsResp = new Set<string>();
         (res.permissions || []).forEach((p: string) => permsResp.add(this.normalizePermission(p)));
         this.selectedPerms = permsResp;
       },
-      error: (err) => { this.error = err?.error?.message || 'Update permissions failed'; }
+  error: (err) => { this.error = err?.error?.message || this.t('adminRoles.errors.permissionsUpdate'); }
     });
   }
 
@@ -209,5 +210,7 @@ export class AdminRolesComponent implements OnInit {
       default: return name;
     }
   }
+
+  private t(key: string, params?: Record<string, unknown>): string { return this.translation.instant(key, params); }
 }
 

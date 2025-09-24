@@ -2,18 +2,18 @@
   <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
     <h2 class="page-title m-0 d-flex align-items-center gap-2">
       <i class="bi bi-gear me-1 text-primary"></i>
-      <span>Référentiels · {{ currentLabel }}</span>
+  <span>{{ 'references.header.title' | translate }} · {{ currentLabel }}</span>
       <span class="badge bg-primary-subtle text-primary align-middle">{{ totalItems }}</span>
     </h2>
     <div class="d-flex flex-wrap gap-2">
       <div class="btn-group me-2">
-        <button *ngIf="canReadType('status')" class="btn btn-outline-primary" [class.active]="current==='status'" (click)="setType('status')">Statuts</button>
-        <button *ngIf="canReadType('site')" class="btn btn-outline-primary" [class.active]="current==='site'" (click)="setType('site')">Sites</button>
-        <button *ngIf="canReadType('priority')" class="btn btn-outline-primary" [class.active]="current==='priority'" (click)="setType('priority')">Priorités</button>
-        <button *ngIf="canReadType('statut-qualification')" class="btn btn-outline-primary" [class.active]="current==='statut-qualification'" (click)="setType('statut-qualification')">Statuts de qualification</button>
+  <button *ngIf="canReadType('status')" class="btn btn-outline-primary" [class.active]="current==='status'" (click)="setType('status')">{{ 'references.switch.status' | translate }}</button>
+  <button *ngIf="canReadType('site')" class="btn btn-outline-primary" [class.active]="current==='site'" (click)="setType('site')">{{ 'references.switch.site' | translate }}</button>
+  <button *ngIf="canReadType('priority')" class="btn btn-outline-primary" [class.active]="current==='priority'" (click)="setType('priority')">{{ 'references.switch.priority' | translate }}</button>
+  <button *ngIf="canReadType('statut-qualification')" class="btn btn-outline-primary" [class.active]="current==='statut-qualification'" (click)="setType('statut-qualification')">{{ 'references.switch.statutQualification' | translate }}</button>
       </div>
       <button *ngIf="canCreateCurrent()" class="btn btn-primary" (click)="startCreate()">
-        <i class="bi bi-plus-lg me-1"></i> Ajouter
+        <i class="bi bi-plus-lg me-1"></i> {{ 'references.actions.add' | translate }}
       </button>
     </div>
   </div>
@@ -25,10 +25,10 @@
 
   <div class="card entity-card shadow mb-4">
     <div class="card-header py-3 d-flex flex-column flex-md-row align-items-md-center gap-2">
-      <h6 class="m-0 text-primary order-1">Liste {{ currentLabel }}</h6>
+  <h6 class="m-0 text-primary order-1">{{ 'references.table.listOf' | translate:{ label: currentLabel } }}</h6>
       <span *ngIf="typeDescription as desc" class="small text-muted text-center flex-grow-1 order-3 order-md-2">{{ desc }}</span>
-      <button class="btn btn-outline-secondary btn-sm ms-md-auto order-2 order-md-3" (click)="load()" title="Rafraîchir">
-        <i class="bi bi-arrow-repeat me-1"></i> Rafraîchir
+      <button class="btn btn-outline-secondary btn-sm ms-md-auto order-2 order-md-3" (click)="load()" [attr.title]="'references.actions.refresh' | translate">
+        <i class="bi bi-arrow-repeat me-1"></i> {{ 'references.actions.refresh' | translate }}
       </button>
     </div>
     <div class="card-body">
@@ -36,12 +36,12 @@
         <div class="col-6 col-sm-5 col-md-4">
           <div class="input-group input-group-sm">
             <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input type="text" class="form-control" placeholder="Rechercher (code, libellé, description...)" [(ngModel)]="search" />
+            <input type="text" class="form-control" [placeholder]="'references.filters.searchPlaceholder' | translate" [(ngModel)]="search" />
           </div>
         </div>
         <div class="col-6 col-sm-4 col-md-3 ms-sm-auto text-sm-end">
           <div class="d-inline-flex align-items-center">
-            <span class="me-2 small text-muted text-nowrap">Lignes par page</span>
+            <span class="me-2 small text-muted text-nowrap">{{ 'common.table.rowsPerPage' | translate }}</span>
             <select class="form-select form-select-sm" (change)="pageSize = +$any($event.target).value; page = 1">
               <option [selected]="pageSize===5" value="5">5</option>
               <option [selected]="pageSize===10" value="10">10</option>
@@ -56,11 +56,11 @@
         <table class="table entity-table table-sm table-bordered table-hover align-middle" *ngIf="totalItems > 0; else emptyRefs">
           <thead class="table-light align-middle">
             <tr>
-              <th (click)="setSort('code')" role="button"><i class="bi bi-upc me-1 text-secondary"></i> Code</th>
-              <th (click)="setSort('label')" role="button"><i class="bi bi-tag-fill me-1 text-secondary"></i> Libellé</th>
-              <th (click)="setSort('active')" role="button"><i class="bi bi-check-circle me-1 text-secondary"></i> Actif</th>
-              <th (click)="setSort('sortOrder')" role="button"><i class="bi bi-palette me-1 text-secondary"></i> Couleur</th>
-              <th *ngIf="showActionsColumn()" class="entity-actions"><i class="bi bi-sliders me-1 text-secondary"></i> Actions</th>
+              <th (click)="setSort('code')" role="button"><i class="bi bi-upc me-1 text-secondary"></i> {{ 'references.table.columns.code' | translate }}</th>
+              <th (click)="setSort('label')" role="button"><i class="bi bi-tag-fill me-1 text-secondary"></i> {{ 'references.table.columns.label' | translate }}</th>
+              <th (click)="setSort('active')" role="button"><i class="bi bi-check-circle me-1 text-secondary"></i> {{ 'references.table.columns.active' | translate }}</th>
+              <th (click)="setSort('sortOrder')" role="button"><i class="bi bi-palette me-1 text-secondary"></i> {{ 'references.table.columns.color' | translate }}</th>
+              <th *ngIf="showActionsColumn()" class="entity-actions"><i class="bi bi-sliders me-1 text-secondary"></i> {{ 'references.table.columns.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -68,7 +68,7 @@
               <td>{{ it.code }}</td>
               <td>{{ it.label }}</td>
               <td>
-                <span class="badge" [ngClass]="it.active ? 'bg-success' : 'bg-secondary'">{{ it.active ? 'Oui' : 'Non' }}</span>
+                <span class="badge" [ngClass]="it.active ? 'bg-success' : 'bg-secondary'">{{ it.active ? ('common.yes' | translate) : ('common.no' | translate) }}</span>
               </td>
               <td><span [class]="colorClassFor(it.sortOrder)">{{ colorLabelFor(it.sortOrder) }}</span></td>
               <td *ngIf="showActionsColumn()" class="entity-actions">
@@ -79,12 +79,12 @@
           </tbody>
         </table>
         <ng-template #emptyRefs>
-          <div class="empty-state">Aucun élément trouvé.</div>
+          <div class="empty-state">{{ 'references.table.empty' | translate }}</div>
         </ng-template>
       </div>
 
       <div class="d-flex justify-content-between align-items-center entity-footer">
-        <div class="small text-muted">Total: {{ totalItems }}</div>
+  <div class="small text-muted">{{ 'references.table.total' | translate }} {{ totalItems }}</div>
         <ngb-pagination [collectionSize]="totalItems" [(page)]="page" [pageSize]="pageSize" [maxSize]="5" [ellipses]="true" [boundaryLinks]="true" size="sm"></ngb-pagination>
       </div>
     </div>
@@ -93,33 +93,33 @@
   <!-- Modal Form -->
   <ng-template #refForm>
     <div class="modal-header">
-  <h5 class="modal-title">{{ editingId ? 'Modifier' : 'Créer' }} un {{ currentLabel | lowercase }}</h5>
+  <h5 class="modal-title">{{ (editingId ? 'references.modal.form.editTitle' : 'references.modal.form.createTitle') | translate:{ label: (currentLabel | lowercase) } }}</h5>
       <button type="button" class="btn-close" aria-label="Fermer" (click)="cancelForm()"></button>
     </div>
     <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="modal-body">
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label">Code (auto)</label>
+            <label class="form-label">{{ 'references.form.code' | translate }}</label>
             <input class="form-control" [value]="form.value.code || ''" readonly />
           </div>
           <div class="col-md-6">
-            <label class="form-label">Libellé</label>
+            <label class="form-label">{{ 'references.form.label' | translate }}</label>
             <input class="form-control" formControlName="label" />
           </div>
           <div class="col-md-12">
-            <label class="form-label">Description</label>
+            <label class="form-label">{{ 'references.form.description' | translate }}</label>
             <input class="form-control" formControlName="description" />
           </div>
           <div class="col-md-6">
-            <label class="form-label">Couleur</label>
+            <label class="form-label">{{ 'references.form.color' | translate }}</label>
             <div class="input-group">
               <select class="form-select" formControlName="sortOrder">
-                <option [ngValue]="1">Rouge</option>
-                <option [ngValue]="2">Bleu</option>
-                <option [ngValue]="3">Vert</option>
-                <option [ngValue]="4">Orange</option>
-                <option [ngValue]="5">Gris</option>
+                <option [ngValue]="1">{{ 'references.colors.red' | translate }}</option>
+                <option [ngValue]="2">{{ 'references.colors.blue' | translate }}</option>
+                <option [ngValue]="3">{{ 'references.colors.green' | translate }}</option>
+                <option [ngValue]="4">{{ 'references.colors.orange' | translate }}</option>
+                <option [ngValue]="5">{{ 'references.colors.gray' | translate }}</option>
               </select>
               <span class="input-group-text"><span [class]="colorClassFor(form.value.sortOrder)">{{ colorLabelFor(form.value.sortOrder) }}</span></span>
             </div>
@@ -127,14 +127,14 @@
           <div class="col-md-6 d-flex align-items-center pt-3">
             <div class="form-check form-switch">
               <input type="checkbox" class="form-check-input" role="switch" id="activeSwitch" formControlName="active" />
-              <label for="activeSwitch" class="form-check-label ms-2">Actif</label>
+              <label for="activeSwitch" class="form-check-label ms-2">{{ 'references.form.active' | translate }}</label>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" (click)="cancelForm()">Annuler</button>
-        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading || (editingId ? !canUpdateCurrent() : !canCreateCurrent())">{{ editingId ? 'Enregistrer' : 'Créer' }}</button>
+  <button type="button" class="btn btn-outline-secondary" (click)="cancelForm()">{{ 'common.cancel' | translate }}</button>
+  <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading || (editingId ? !canUpdateCurrent() : !canCreateCurrent())">{{ editingId ? ('common.save' | translate) : ('common.create' | translate) }}</button>
       </div>
     </form>
   </ng-template>
