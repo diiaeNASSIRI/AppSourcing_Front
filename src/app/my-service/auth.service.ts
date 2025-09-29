@@ -1,5 +1,6 @@
-﻿import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
 
 export interface LoginRequest {
@@ -25,8 +26,8 @@ export interface ChangePasswordRequest {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  // TODO: dÃ©porter vers environments si souhaitÃ©
-  private readonly apiBase = '';
+  // TODO: déporter vers environments si souhaité
+  private readonly apiBase = environment.apiUrl;
   private readonly tokenKey = 'auth_token';
 
   private readonly loggedIn$ = new BehaviorSubject<boolean>(!!this.getToken());

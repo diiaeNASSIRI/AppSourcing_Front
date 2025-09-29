@@ -1,5 +1,6 @@
 ﻿import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { Observable, tap } from 'rxjs';
 
 export interface AdminUserDto {
@@ -27,7 +28,7 @@ export interface UpdatePermissionsRequest {
 
 @Injectable({ providedIn: 'root' })
 export class AdminServiceClient {
-  private readonly base = '/admin';
+  private readonly base = `${environment.apiUrl}/admin`;
 
   constructor(private http: HttpClient) {}
 

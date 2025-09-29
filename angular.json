@@ -12,7 +12,7 @@
                                                      "sourceRoot":  "src",
                                                      "prefix":  "app",
                                                      "architect":  {
-                                                                       "build":  {
+                                                                      "build":  {
                                                                                      "builder":  "@angular-devkit/build-angular:browser",
                                                                                      "options":  {
                                                                                                      "outputPath":  "dist/appsourcing-frontend-01",
@@ -41,8 +41,11 @@
 
                                                                                                                  ]
                                                                                                  },
-                                                                                     "configurations":  {
-                                                                                                            "production":  {
+                                                                                                                                                                         "configurations":  {
+                                                                                                                                                                                                                        "production":  {
+                                                                                                                                                                                                                                                             "fileReplacements": [
+                                                                                                                                                                                                                                                                 { "replace": "src/environments/environment.ts", "with": "src/environments/environment.prod.ts" }
+                                                                                                                                                                                                                                                             ],
                                                                                                                                "budgets":  [
                                                                                                                                                {
                                                                                                                                                    "type":  "initial",
@@ -57,7 +60,10 @@
                                                                                                                                            ],
                                                                                                                                "outputHashing":  "all"
                                                                                                                            },
-                                                                                                            "development":  {
+                                                                                                                                                                                                                        "development":  {
+                                                                                                                                                                                                                                                                "fileReplacements": [
+                                                                                                                                                                                                                                                                 { "replace": "src/environments/environment.ts", "with": "src/environments/environment.ts" }
+                                                                                                                                                                                                                                                             ],
                                                                                                                                 "buildOptimizer":  false,
                                                                                                                                 "optimization":  false,
                                                                                                                                 "vendorChunk":  true,

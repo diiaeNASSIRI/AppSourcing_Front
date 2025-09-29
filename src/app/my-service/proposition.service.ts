@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { Proposition, PropositionRequest } from '../models/proposition.model';
 
 @Injectable({ providedIn: 'root' })
 export class PropositionServiceClient {
-  private readonly base = '/propositions';
+  private readonly base = `${environment.apiUrl}/propositions`;
 
   constructor(private http: HttpClient) {}
 
