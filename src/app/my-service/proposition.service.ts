@@ -34,8 +34,8 @@ export class PropositionServiceClient {
     return this.http.put<Proposition>(`${this.base}/${id}`, payload);
   }
 
-  updateStatus(id: number, statutQualif: string | null): Observable<Proposition> {
-    return this.http.patch<Proposition>(`${this.base}/${id}/status`, { statutQualif });
+  updateStatus(id: number, statutQualifId: number | null): Observable<Proposition> {
+    return this.http.patch<Proposition>(`${this.base}/${id}/status`, { statutQualifId });
   }
 
   delete(id: number): Observable<void> {

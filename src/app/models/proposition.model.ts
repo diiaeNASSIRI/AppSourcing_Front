@@ -1,3 +1,5 @@
+import { RefItem } from './besoin.model';
+
 export interface CandidatSummary {
   id?: number;
   firstName?: string | null;
@@ -23,7 +25,9 @@ export interface Proposition {
   delaiReponse?: string | null;
   datePropale?: string | null;
   dateDemarrage?: string | null;
+  statutQualifId?: number | null;
   statutQualif?: string | null;
+  statutQualification?: RefItem | null;
 
   // convenience fields for UI (computed client-side)
   candidatName?: string | null;
@@ -37,7 +41,7 @@ export interface PropositionRequest {
   delaiReponse?: string | null;
   datePropale?: string | null;
   dateDemarrage?: string | null;
-  statutQualif?: string | null;
+  statutQualifId?: number | null;
 }
 
 export function extractCandidatId(ref: CandidatRef): number | null {

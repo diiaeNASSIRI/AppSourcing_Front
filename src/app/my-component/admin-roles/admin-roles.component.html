@@ -2,7 +2,7 @@
   <div class="d-flex align-items-center justify-content-between mb-3">
   <h2 class="page-title m-0">
       <i class="bi bi-shield-lock me-2 text-primary"></i>
-      Gestion des rôles
+  {{ 'adminRoles.header.title' | translate }}
     </h2>
   </div>
 
@@ -14,12 +14,12 @@
   <div class="row g-3">
     <div class="col-md-5">
       <div class="card shadow-sm">
-        <div class="card-header">Rôles</div>
+  <div class="card-header">{{ 'adminRoles.roles.title' | translate }}</div>
         <div class="card-body">
           <div class="mb-3">
             <form [formGroup]="createForm" (ngSubmit)="createRole()" class="d-flex gap-2">
-              <input class="form-control" formControlName="name" placeholder="Nouveau rôle (ex: MANAGER)" [disabled]="!canEditAdminRoles()" />
-              <button class="btn btn-primary" type="submit" [disabled]="createForm.invalid || !canEditAdminRoles()">Ajouter</button>
+              <input class="form-control" formControlName="name" [placeholder]="'adminRoles.form.newRole.placeholder' | translate" [disabled]="!canEditAdminRoles()" />
+              <button class="btn btn-primary" type="submit" [disabled]="createForm.invalid || !canEditAdminRoles()">{{ 'adminRoles.form.add' | translate }}</button>
             </form>
           </div>
           <ul class="list-group">
@@ -37,48 +37,48 @@
 
     <div class="col-md-7" *ngIf="selectedRole as sr">
       <div class="card shadow-sm mb-3">
-        <div class="card-header">Renommer le rôle</div>
+  <div class="card-header">{{ 'adminRoles.rename.title' | translate }}</div>
         <div class="card-body">
           <form [formGroup]="renameForm" (ngSubmit)="renameRole()" class="d-flex gap-2">
             <input class="form-control" formControlName="newName" [disabled]="!canEditAdminRoles()" />
-            <button class="btn btn-primary" type="submit" [disabled]="renameForm.invalid || !canEditAdminRoles()">Renommer</button>
+            <button class="btn btn-primary" type="submit" [disabled]="renameForm.invalid || !canEditAdminRoles()">{{ 'adminRoles.rename.submit' | translate }}</button>
           </form>
         </div>
       </div>
 
       <div class="card shadow-sm">
-        <div class="card-header">Permissions du rôle « {{ sr.name }} »</div>
+  <div class="card-header">{{ 'adminRoles.permissions.title' | translate:{ name: sr.name } }}</div>
         <div class="card-body">
           <!-- Groupe Admin -->
           <div class="mb-3" *ngIf="permsAdmin.length">
             <div class="d-flex justify-content-between align-items-center">
-              <h6 class="m-0 text-primary">Admin</h6>
+              <h6 class="m-0 text-primary">{{ 'adminRoles.groups.admin' | translate }}</h6>
               <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-secondary" (click)="setGroup('ADMIN_', true)">Tout cocher</button>
-                <button class="btn btn-outline-secondary" (click)="setGroup('ADMIN_', false)">Tout décocher</button>
+                <button class="btn btn-outline-secondary" (click)="setGroup('ADMIN_', true)">{{ 'adminRoles.group.actions.checkAll' | translate }}</button>
+                <button class="btn btn-outline-secondary" (click)="setGroup('ADMIN_', false)">{{ 'adminRoles.group.actions.uncheckAll' | translate }}</button>
               </div>
             </div>
             <div class="table-responsive mt-2">
               <table class="table table-sm table-bordered align-middle">
                 <thead class="table-light">
                   <tr>
-                    <th>Ressource</th>
-                    <th class="text-center">Voir</th>
-                    <th class="text-center">Créer</th>
-                    <th class="text-center">Modifier</th>
-                    <th class="text-center">Supprimer</th>
+                    <th>{{ 'common.permissions.resource' | translate }}</th>
+                    <th class="text-center">{{ 'common.permissions.view' | translate }}</th>
+                    <th class="text-center">{{ 'common.permissions.create' | translate }}</th>
+                    <th class="text-center">{{ 'common.permissions.update' | translate }}</th>
+                    <th class="text-center">{{ 'common.permissions.delete' | translate }}</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td class="w-50">Rôles</td>
+                    <td class="w-50">{{ 'common.permissionResources.roles' | translate }}</td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('ADMIN_MANAGE_ROLES_CAN_VIEW')" (change)="togglePerm('ADMIN_MANAGE_ROLES_CAN_VIEW', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('ADMIN_MANAGE_ROLES_CAN_EDIT')" (change)="togglePerm('ADMIN_MANAGE_ROLES_CAN_EDIT', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('ADMIN_MANAGE_ROLES_CAN_VIEW')"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('ADMIN_MANAGE_ROLES_CAN_EDIT')" (change)="togglePerm('ADMIN_MANAGE_ROLES_CAN_EDIT', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('ADMIN_MANAGE_ROLES_CAN_VIEW')"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('ADMIN_MANAGE_ROLES_CAN_EDIT')" (change)="togglePerm('ADMIN_MANAGE_ROLES_CAN_EDIT', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('ADMIN_MANAGE_ROLES_CAN_VIEW')"></td>
                   </tr>
                   <tr>
-                    <td>Utilisateurs</td>
+                    <td>{{ 'common.permissionResources.users' | translate }}</td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('ADMIN_MANAGE_USERS_CAN_VIEW')" (change)="togglePerm('ADMIN_MANAGE_USERS_CAN_VIEW', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('ADMIN_MANAGE_USERS_CAN_EDIT')" (change)="togglePerm('ADMIN_MANAGE_USERS_CAN_EDIT', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('ADMIN_MANAGE_USERS_CAN_VIEW')"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('ADMIN_MANAGE_USERS_CAN_EDIT')" (change)="togglePerm('ADMIN_MANAGE_USERS_CAN_EDIT', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('ADMIN_MANAGE_USERS_CAN_VIEW')"></td>
@@ -92,20 +92,20 @@
           <!-- Groupe Besoins -->
           <div class="mb-3" *ngIf="permsBesoin.length">
             <div class="d-flex justify-content-between align-items-center">
-              <h6 class="m-0 text-primary">Besoins</h6>
+              <h6 class="m-0 text-primary">{{ 'adminRoles.groups.needs' | translate }}</h6>
               <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-secondary" (click)="setGroup('BESOIN_', true)">Tout cocher</button>
-                <button class="btn btn-outline-secondary" (click)="setGroup('BESOIN_', false)">Tout décocher</button>
+                <button class="btn btn-outline-secondary" (click)="setGroup('BESOIN_', true)">{{ 'adminRoles.group.actions.checkAll' | translate }}</button>
+                <button class="btn btn-outline-secondary" (click)="setGroup('BESOIN_', false)">{{ 'adminRoles.group.actions.uncheckAll' | translate }}</button>
               </div>
             </div>
             <div class="table-responsive mt-2">
               <table class="table table-sm table-bordered align-middle">
                 <thead class="table-light">
-                  <tr><th>Ressource</th><th class="text-center">Voir</th><th class="text-center">Créer</th><th class="text-center">Modifier</th><th class="text-center">Supprimer</th></tr>
+                  <tr><th>{{ 'common.permissions.resource' | translate }}</th><th class="text-center">{{ 'common.permissions.view' | translate }}</th><th class="text-center">{{ 'common.permissions.create' | translate }}</th><th class="text-center">{{ 'common.permissions.update' | translate }}</th><th class="text-center">{{ 'common.permissions.delete' | translate }}</th></tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td class="w-50">Besoins</td>
+                    <td class="w-50">{{ 'common.permissionResources.needs' | translate }}</td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('BESOIN_READ')" (change)="togglePerm('BESOIN_READ', $any($event.target).checked)"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('BESOIN_CREATE')" (change)="togglePerm('BESOIN_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('BESOIN_READ')"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('BESOIN_UPDATE')" (change)="togglePerm('BESOIN_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('BESOIN_READ')"></td>
@@ -119,18 +119,18 @@
           <!-- Groupe Candidats -->
           <div class="mb-3" *ngIf="permsCandidat.length">
             <div class="d-flex justify-content-between align-items-center">
-              <h6 class="m-0 text-primary">Candidats</h6>
+              <h6 class="m-0 text-primary">{{ 'adminRoles.groups.candidates' | translate }}</h6>
               <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-secondary" (click)="setGroup('CANDIDAT_', true)">Tout cocher</button>
-                <button class="btn btn-outline-secondary" (click)="setGroup('CANDIDAT_', false)">Tout décocher</button>
+                <button class="btn btn-outline-secondary" (click)="setGroup('CANDIDAT_', true)">{{ 'adminRoles.group.actions.checkAll' | translate }}</button>
+                <button class="btn btn-outline-secondary" (click)="setGroup('CANDIDAT_', false)">{{ 'adminRoles.group.actions.uncheckAll' | translate }}</button>
               </div>
             </div>
             <div class="table-responsive mt-2">
               <table class="table table-sm table-bordered align-middle">
-                <thead class="table-light"><tr><th>Ressource</th><th class="text-center">Voir</th><th class="text-center">Créer</th><th class="text-center">Modifier</th><th class="text-center">Supprimer</th></tr></thead>
+                <thead class="table-light"><tr><th>{{ 'common.permissions.resource' | translate }}</th><th class="text-center">{{ 'common.permissions.view' | translate }}</th><th class="text-center">{{ 'common.permissions.create' | translate }}</th><th class="text-center">{{ 'common.permissions.update' | translate }}</th><th class="text-center">{{ 'common.permissions.delete' | translate }}</th></tr></thead>
                 <tbody>
                   <tr>
-                    <td class="w-50">Candidats</td>
+                    <td class="w-50">{{ 'common.permissionResources.candidates' | translate }}</td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_READ')" (change)="togglePerm('CANDIDAT_READ', $any($event.target).checked)"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_CREATE')" (change)="togglePerm('CANDIDAT_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_READ')"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('CANDIDAT_UPDATE')" (change)="togglePerm('CANDIDAT_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('CANDIDAT_READ')"></td>
@@ -144,26 +144,26 @@
                 <!-- Groupe Propositions -->
       <div class="mb-3" *ngIf="permsProposition.length">
         <div class="d-flex justify-content-between align-items-center">
-          <h6 class="m-0 text-primary">Propositions</h6>
+          <h6 class="m-0 text-primary">{{ 'adminRoles.groups.propositions' | translate }}</h6>
           <div class="btn-group btn-group-sm">
-            <button class="btn btn-outline-secondary" (click)="setPropositionGroup(true)">Tout cocher</button>
-            <button class="btn btn-outline-secondary" (click)="setPropositionGroup(false)">Tout décocher</button>
+            <button class="btn btn-outline-secondary" (click)="setPropositionGroup(true)">{{ 'adminRoles.group.actions.checkAll' | translate }}</button>
+            <button class="btn btn-outline-secondary" (click)="setPropositionGroup(false)">{{ 'adminRoles.group.actions.uncheckAll' | translate }}</button>
           </div>
         </div>
         <div class="table-responsive mt-2">
           <table class="table table-sm table-bordered align-middle">
             <thead class="table-light">
               <tr>
-                <th>Ressource</th>
-                <th class="text-center">Voir</th>
-                <th class="text-center">Créer</th>
-                <th class="text-center">Modifier</th>
-                <th class="text-center">Supprimer</th>
+                <th>{{ 'common.permissions.resource' | translate }}</th>
+                <th class="text-center">{{ 'common.permissions.view' | translate }}</th>
+                <th class="text-center">{{ 'common.permissions.create' | translate }}</th>
+                <th class="text-center">{{ 'common.permissions.update' | translate }}</th>
+                <th class="text-center">{{ 'common.permissions.delete' | translate }}</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="w-50">Propositions</td>
+                <td class="w-50">{{ 'common.permissionResources.propositions' | translate }}</td>
                 <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('PROPOSITION_READ')" (change)="togglePerm('PROPOSITION_READ', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
                 <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('PROPOSITION_CREATE')" (change)="togglePerm('PROPOSITION_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('PROPOSITION_READ')"></td>
                 <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('PROPOSITION_EDIT')" (change)="togglePerm('PROPOSITION_EDIT', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('PROPOSITION_READ')"></td>
@@ -176,43 +176,50 @@
 <!-- Groupe Référentiels -->
           <div class="mb-3">
             <div class="d-flex justify-content-between align-items-center">
-              <h6 class="m-0 text-primary">Référentiels</h6>
+              <h6 class="m-0 text-primary">{{ 'adminRoles.groups.references' | translate }}</h6>
               <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-secondary" (click)="setGroup('REFERENCE_', true)">Tout cocher</button>
-                <button class="btn btn-outline-secondary" (click)="setGroup('REFERENCE_', false)">Tout décocher</button>
+                <button class="btn btn-outline-secondary" (click)="setGroup('REFERENCE_', true)">{{ 'adminRoles.group.actions.checkAll' | translate }}</button>
+                <button class="btn btn-outline-secondary" (click)="setGroup('REFERENCE_', false)">{{ 'adminRoles.group.actions.uncheckAll' | translate }}</button>
               </div>
             </div>
             <div class="table-responsive mt-2">
               <table class="table table-sm table-bordered align-middle">
-                <thead class="table-light"><tr><th>Ressource</th><th class="text-center">Voir</th><th class="text-center">Créer</th><th class="text-center">Modifier</th><th class="text-center">Supprimer</th></tr></thead>
+                <thead class="table-light"><tr><th>{{ 'common.permissions.resource' | translate }}</th><th class="text-center">{{ 'common.permissions.view' | translate }}</th><th class="text-center">{{ 'common.permissions.create' | translate }}</th><th class="text-center">{{ 'common.permissions.update' | translate }}</th><th class="text-center">{{ 'common.permissions.delete' | translate }}</th></tr></thead>
                 <tbody>
                   <tr>
-                    <td class="w-50">Statuts</td>
+                    <td class="w-50">{{ 'references.switch.status' | translate }}</td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUS_READ')" (change)="togglePerm('REFERENCE_STATUS_READ', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUS_CREATE')" (change)="togglePerm('REFERENCE_STATUS_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_STATUS_READ')"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUS_UPDATE')" (change)="togglePerm('REFERENCE_STATUS_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_STATUS_READ')"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUS_DELETE')" (change)="togglePerm('REFERENCE_STATUS_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_STATUS_READ')"></td>
                   </tr>
                   <tr>
-                    <td>Sites</td>
+                    <td>{{ 'references.switch.site' | translate }}</td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_SITE_READ')" (change)="togglePerm('REFERENCE_SITE_READ', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_SITE_CREATE')" (change)="togglePerm('REFERENCE_SITE_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_SITE_READ')"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_SITE_UPDATE')" (change)="togglePerm('REFERENCE_SITE_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_SITE_READ')"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_SITE_DELETE')" (change)="togglePerm('REFERENCE_SITE_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_SITE_READ')"></td>
                   </tr>
                   <tr>
-                    <td>Priorités</td>
+                    <td>{{ 'references.switch.priority' | translate }}</td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_PRIORITY_READ')" (change)="togglePerm('REFERENCE_PRIORITY_READ', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_PRIORITY_CREATE')" (change)="togglePerm('REFERENCE_PRIORITY_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_PRIORITY_READ')"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_PRIORITY_UPDATE')" (change)="togglePerm('REFERENCE_PRIORITY_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_PRIORITY_READ')"></td>
                     <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_PRIORITY_DELETE')" (change)="togglePerm('REFERENCE_PRIORITY_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_PRIORITY_READ')"></td>
+                  </tr>
+                  <tr>
+                    <td>{{ 'references.switch.statutQualification' | translate }}</td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUT_QUALIFICATION_READ')" (change)="togglePerm('REFERENCE_STATUT_QUALIFICATION_READ', $any($event.target).checked)" [disabled]="!canEditAdminRoles()"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUT_QUALIFICATION_CREATE')" (change)="togglePerm('REFERENCE_STATUT_QUALIFICATION_CREATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_STATUT_QUALIFICATION_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUT_QUALIFICATION_UPDATE')" (change)="togglePerm('REFERENCE_STATUT_QUALIFICATION_UPDATE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_STATUT_QUALIFICATION_READ')"></td>
+                    <td class="text-center"><input class="form-check-input" type="checkbox" [checked]="selectedPerms.has('REFERENCE_STATUT_QUALIFICATION_DELETE')" (change)="togglePerm('REFERENCE_STATUT_QUALIFICATION_DELETE', $any($event.target).checked)" [disabled]="!canEditAdminRoles() || !selectedPerms.has('REFERENCE_STATUT_QUALIFICATION_READ')"></td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
 
-          <button class="btn btn-success mt-2" (click)="savePermissions()">Appliquer</button>
+          <button class="btn btn-success mt-2" (click)="savePermissions()">{{ 'adminRoles.actions.apply' | translate }}</button>
         </div>
       </div>
     </div>

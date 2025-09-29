@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { Besoin, BesoinRequest, RefItem } from '../../models/besoin.model';
 import { BesoinServiceClient } from '../../my-service/besoin.service';
@@ -22,8 +22,7 @@ import { catchError } from 'rxjs/operators';
 export class BesoinsComponent implements OnInit {
   @ViewChild('besoinForm') besoinFormTpl!: TemplateRef<any>;
   @ViewChild('candidatsForBesoinTpl') candidatsForBesoinTpl!: TemplateRef<any>;
-  @ViewChild('candidatInfo') candidatInfoTpl!: TemplateRef<any>;
-  @ViewChild('besoinInfo') besoinInfoTpl!: TemplateRef<any>;
+  // Removed candidate and besoin info modals
 
   besoins: Besoin[] = [];
   loading = false;
@@ -32,20 +31,9 @@ export class BesoinsComponent implements OnInit {
   selectedBesoin: Besoin | null = null;
   propositionsPourBesoin: Proposition[] = [];
   candidatsMap: Map<number, Candidat> = new Map<number, Candidat>();
-  candidateDetail?: Candidat;
-  besoinDetail?: Besoin;
+  // Removed candidateDetail and besoinDetail (info modals removed)
   // Inline statut options for propositions in the modal
-  private readonly defaultPropStatusOptions: string[] = [
-    'Nouveau',
-    'Qualifié',
-    'En cours',
-    'Proposé',
-    'Entretien',
-    'Accepté',
-    'Refusé',
-    'Clôturé'
-  ];
-  propStatusOptions: string[] = [...this.defaultPropStatusOptions];
+  propStatusOptions: RefItem[] = [];
   savingStatus: Record<number, boolean> = {};
 
   form!: FormGroup;
@@ -87,13 +75,13 @@ export class BesoinsComponent implements OnInit {
       libelle: ['', [Validators.required, Validators.maxLength(255)]],
       projet: ['', [Validators.required, Validators.maxLength(255)]],
       owner: ['', [Validators.required, Validators.maxLength(255)]],
-  dateCreation: [null], // date saisie par l'utilisateur (yyyy-MM-dd)
+      dateCreation: [null], // date saisie par l'utilisateur (yyyy-MM-dd)
       siteId: [null],
       pru: [null, [Validators.min(0)]],
       precision: ['', [Validators.maxLength(255)]],
       prioriteId: [null],
       statutId: [null],
-  nbrExperience: [null], // texte libre désormais
+      nbrExperience: [null], // texte libre desormais
     });
 
     if (this.canView()) {
@@ -174,16 +162,10 @@ export class BesoinsComponent implements OnInit {
         error: (e) => console.warn('[Besoins] failed to load refs', type, e)
       });
     };
-    load('status', (a) => { this.refStatus = a; this.refreshPropStatusOptions(); });
+    load('status', (a) => this.refStatus = a);
     load('site', (a) => this.refSites = a);
     load('priority', (a) => this.refPriorities = a);
-  }
-
-  private refreshPropStatusOptions(): void {
-    const labels = (this.refStatus || [])
-      .map(item => (item?.label ?? '').trim())
-      .filter((label, index, array) => label && array.indexOf(label) === index);
-    this.propStatusOptions = labels.length ? labels : [...this.defaultPropStatusOptions];
+    load('statut-qualification', (a) => this.propStatusOptions = a);
   }
 
   loadAll(): void {
@@ -398,51 +380,37 @@ export class BesoinsComponent implements OnInit {
     return this.candidatsMap.get(id) ?? null;
   }
 
-  openCandidatInfoFromList(p: Proposition): void {
-    const id = extractCandidatId(p.candidat);
-    if (!id) {
-      return;
-    }
-    this.candidatsApi.getById(id).subscribe({
-      next: (c) => {
-        this.candidateDetail = c;
-        this.modal.open(this.candidatInfoTpl, { size: 'lg', backdrop: 'static', scrollable: true, modalDialogClass: 'modal-lg modal-dialog-scrollable modal-fullscreen-sm-down' });
-      },
-      error: () => { this.error = this.translate('besoins.errors.candidatInfo'); }
-    });
-  }
-
-  openCurrentBesoinInfo(): void {
-    const id = this.selectedBesoin?.id;
-    if (!id) return;
-    this.besoinApi.getById(id).subscribe({
-      next: (b) => { this.besoinDetail = b; this.modal.open(this.besoinInfoTpl, { size: 'lg', backdrop: 'static', scrollable: true, modalDialogClass: 'modal-lg modal-dialog-scrollable modal-fullscreen-sm-down' }); },
-      error: () => { this.error = this.translate('besoins.errors.besoinInfo'); }
-    });
-  }
+  // Removed openCandidatInfoFromList and openCurrentBesoinInfo methods (modals removed)
 
   // Update proposition status inline from the modal
-  updatePropositionStatus(p: Proposition, newStatus: string): void {
+  updatePropositionStatus(p: Proposition, newStatusId: number | null): void {
     const propId = p.id;
     if (!propId) {
       return;
     }
 
-    const previousStatus = p.statutQualif ?? null;
-    const statutValue = newStatus && newStatus.trim() ? newStatus.trim() : null;
-    p.statutQualif = statutValue;
+    const normalized = newStatusId != null ? Number(newStatusId) : null;
+    const statutId = normalized != null && !Number.isNaN(normalized) ? normalized : null;
+
+    const previousId = p.statutQualifId ?? null;
+    const previousLabel = p.statutQualif ?? null;
+
+    p.statutQualifId = statutId;
+    p.statutQualif = this.labelForStatutQualification(statutId) ?? previousLabel ?? null;
     this.savingStatus[propId] = true;
 
-    this.propositionsApi.updateStatus(propId, statutValue).subscribe({
+    this.propositionsApi.updateStatus(propId, statutId).subscribe({
       next: (saved) => {
         if (saved) {
-          p.statutQualif = saved.statutQualif ?? statutValue ?? null;
+          p.statutQualifId = saved.statutQualifId ?? statutId ?? null;
+          p.statutQualif = saved.statutQualif ?? this.labelForStatutQualification(p.statutQualifId) ?? null;
           p.candidat = saved.candidat ?? p.candidat;
           p.besoin = saved.besoin ?? p.besoin;
           p.candidatName = formatCandidatName(p.candidat, p.candidatName);
           p.besoinLibelle = formatBesoinLabel(p.besoin, p.besoinLibelle);
         } else {
-          p.statutQualif = statutValue;
+          p.statutQualifId = statutId;
+          p.statutQualif = this.labelForStatutQualification(statutId) ?? null;
         }
         this.propositionsPourBesoin = [...this.propositionsPourBesoin];
         delete this.savingStatus[propId];
@@ -450,11 +418,22 @@ export class BesoinsComponent implements OnInit {
       error: (err) => {
         console.error('[Besoins] updatePropositionStatus error', err);
         this.error = err?.error?.message || this.translate('besoins.errors.statusUpdate');
-        p.statutQualif = previousStatus;
+        p.statutQualifId = previousId;
+        p.statutQualif = previousLabel;
         this.propositionsPourBesoin = [...this.propositionsPourBesoin];
         delete this.savingStatus[propId];
       }
     });
+  }
+
+
+  private labelForStatutQualification(id: number | null | undefined): string | null {
+    if (id == null) {
+      return null;
+    }
+    const found = this.propStatusOptions.find((s) => s.id === id);
+    const label = found?.label?.toString().trim();
+    return label && label.length > 0 ? label : null;
   }
 
 

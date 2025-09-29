@@ -153,7 +153,10 @@
           </div>
           <div class="col-md-12">
             <label class="form-label">{{ 'propositions.form.status' | translate }}</label>
-            <input type="text" class="form-control" formControlName="statutQualif" />
+            <select class="form-select" formControlName="statutQualifId">
+              <option [ngValue]="null">{{ 'propositions.form.selectStatus' | translate }}</option>
+              <option *ngFor="let s of statutQualifs" [ngValue]="s.id">{{ s.label }}</option>
+            </select>
           </div>
         </div>
       </div>
