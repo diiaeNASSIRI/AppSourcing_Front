@@ -2,7 +2,7 @@
   position: fixed;
   left: 0;
   top: 0;
-  height: 100vh;
+  height: calc(100vh / var(--app-shell-scale, 1));
   width: 260px;
   font-size: 1.05rem;
   background: #fff;

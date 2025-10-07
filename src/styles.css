@@ -1,3 +1,18 @@
+:root {
+  --app-shell-scale: 0.8;
+}
+
+body {
+  margin: 0;
+  overflow-x: auto;
+}
+
+@media (max-width: 991.98px) {
+  :root {
+    --app-shell-scale: 1;
+  }
+}
+
 /* Global styles: managed via angular.json styles array */
 /* You can add global overrides below */
 
@@ -130,7 +145,34 @@
 /* =====================================================
    Layout shell: navbar + fixed sidebar + content
    ----------------------------------------------------- */
-.app-shell { min-height: 100vh; }
+.app-shell {
+  min-height: 100vh;
+}
+
+@media (min-width: 992px) {
+  .app-shell {
+    min-height: calc(100vh / var(--app-shell-scale));
+  }
+
+  @supports (zoom: 1) {
+    .app-shell {
+      zoom: var(--app-shell-scale);
+      width: calc(100vw / var(--app-shell-scale));
+      min-width: calc(100vw / var(--app-shell-scale));
+      transform: none;
+    }
+  }
+
+  @supports not (zoom: 1) {
+    .app-shell {
+      transform: scale(var(--app-shell-scale));
+      transform-origin: top left;
+      width: calc(100vw / var(--app-shell-scale));
+      min-width: calc(100vw / var(--app-shell-scale));
+    }
+  }
+}
+
 
 /* Content offset when sidebar visible on desktop */
 .app-content { margin-left: 260px; padding: 16px; }
