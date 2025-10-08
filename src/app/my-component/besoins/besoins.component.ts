@@ -31,6 +31,8 @@ export class BesoinsComponent implements OnInit {
   selectedBesoin: Besoin | null = null;
   propositionsPourBesoin: Proposition[] = [];
   candidatsMap: Map<number, Candidat> = new Map<number, Candidat>();
+  modalCandidatesCount = 0;
+  modalPropositionsCount = 0;
   // Removed candidateDetail and besoinDetail (info modals removed)
   // Inline statut options for propositions in the modal
   propStatusOptions: RefItem[] = [];
@@ -312,6 +314,8 @@ export class BesoinsComponent implements OnInit {
     this.selectedBesoin = b;
     this.loading = true;
     this.error = null;
+    this.modalCandidatesCount = 0;
+    this.modalPropositionsCount = 0;
     // Ouvre le modal immédiatement avec l'état "Chargement..."
     this.modal.open(this.candidatsForBesoinTpl, {
       backdrop: 'static',
@@ -327,6 +331,7 @@ export class BesoinsComponent implements OnInit {
           candidatName: formatCandidatName(p.candidat, p.candidatName),
           besoinLibelle: formatBesoinLabel(p.besoin, p.besoinLibelle)
         }));
+        this.refreshModalCounters();
         // Charger les fiches candidat complètes
         this.loadCandidatsDetailsForPropositions(this.propositionsPourBesoin);
         this.loading = false;
@@ -345,6 +350,18 @@ export class BesoinsComponent implements OnInit {
 
   displayCandidatFromProposition(p: Proposition): string {
     return formatCandidatName(p?.candidat, p?.candidatName) ?? '-';
+  }
+
+  private refreshModalCounters(): void {
+    this.modalPropositionsCount = this.propositionsPourBesoin.length;
+    const uniqueIds = new Set<number>();
+    for (const proposition of this.propositionsPourBesoin) {
+      const id = extractCandidatId(proposition?.candidat);
+      if (typeof id === 'number') {
+        uniqueIds.add(id);
+      }
+    }
+    this.modalCandidatesCount = uniqueIds.size;
   }
 
   private loadCandidatsDetailsForPropositions(list: Proposition[]): void {
@@ -413,6 +430,7 @@ export class BesoinsComponent implements OnInit {
           p.statutQualif = this.labelForStatutQualification(statutId) ?? null;
         }
         this.propositionsPourBesoin = [...this.propositionsPourBesoin];
+        this.refreshModalCounters();
         delete this.savingStatus[propId];
       },
       error: (err) => {
@@ -421,6 +439,7 @@ export class BesoinsComponent implements OnInit {
         p.statutQualifId = previousId;
         p.statutQualif = previousLabel;
         this.propositionsPourBesoin = [...this.propositionsPourBesoin];
+        this.refreshModalCounters();
         delete this.savingStatus[propId];
       }
     });
