@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 
 export type ReferenceType = 'status' | 'site' | 'priority' | 'statut-qualification';
@@ -15,7 +16,7 @@ export interface ReferenceItem {
 
 @Injectable({ providedIn: 'root' })
 export class ReferenceService {
-  private readonly base = `/api/admin/reference`;
+  private readonly base = `${environment.apiUrl}/admin/reference`;
 
   constructor(private http: HttpClient) {}
 
@@ -35,3 +36,4 @@ export class ReferenceService {
     return this.http.delete<void>(`${this.base}/${type}/${id}`);
   }
 }
+

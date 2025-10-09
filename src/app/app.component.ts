@@ -24,7 +24,10 @@ export class AppComponent {
     this.updateChromeVisibility(this.router.url);
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe((e) => this.updateChromeVisibility(e.urlAfterRedirects || e.url));
+      .subscribe((e) => {
+        this.updateChromeVisibility(e.urlAfterRedirects || e.url);
+        this.closeSidebarIfOverlay();
+      });
 
     // Initialize user info from JWT (if present) and keep it in sync on login/logout
     this.refreshUserInfo();
@@ -39,6 +42,13 @@ export class AppComponent {
     const cleanUrl = (url || '').split('?')[0].split('#')[0];
     this.showChrome = cleanUrl !== '/' && cleanUrl !== '';
     if (!this.showChrome) {
+      this.sidebarOpen = false;
+    }
+  }
+
+  private closeSidebarIfOverlay(): void {
+    // When browsing on mobile the sidebar floats above the content, so close it after navigation
+    if (this.isMobile && this.sidebarOpen) {
       this.sidebarOpen = false;
     }
   }

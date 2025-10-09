@@ -11,6 +11,7 @@ import { PropositionServiceClient } from '../../my-service/proposition.service';
 import { CandidatServiceClient } from '../../my-service/candidat.service';
 import { BesoinServiceClient } from '../../my-service/besoin.service';
 import { ReferenceService } from '../../my-service/reference.service';
+import { ReferenceStyleService } from '../../my-service/reference-style.service';
 import { AuthService } from '../../my-service/auth.service';
 import { TranslationService } from '../../config/i18n/translation.service';
 
@@ -66,7 +67,8 @@ export class PropositionsComponent implements OnInit, OnDestroy {
     private readonly besoinsApi: BesoinServiceClient,
     private readonly refs: ReferenceService,
     private readonly auth: AuthService,
-    private readonly translation: TranslationService
+  private readonly translation: TranslationService,
+  private readonly style: ReferenceStyleService
   ) {}
 
   private translate(key: string, params?: Record<string, unknown>): string {
@@ -134,6 +136,21 @@ export class PropositionsComponent implements OnInit, OnDestroy {
       ...p,
       statutQualif: this.labelForStatut(p.statutQualifId ?? null, p.statutQualif),
     }));
+  }
+
+  // ================= Color helpers for statut qualification =================
+  private findStatutRef(id: number | null | undefined): RefItem | undefined {
+    if (id == null) return undefined;
+    return this.statutQualifs.find(r => r.id === id);
+  }
+
+  statusBadgeClass(p: Proposition): string {
+    const ref = this.findStatutRef(p.statutQualifId);
+    return this.style.colorClassFor(ref?.sortOrder);
+  }
+
+  statusLabel(p: Proposition): string {
+    return p.statutQualif || '-';
   }
 
   loadLookups() {

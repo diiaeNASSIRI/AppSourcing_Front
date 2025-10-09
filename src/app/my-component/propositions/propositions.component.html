@@ -179,7 +179,7 @@
         <div class="col-lg-6">
           <div class="mb-2 fw-semibold d-flex align-items-center justify-content-between">
             <span>Candidat — {{ fullName(candidateDetail) }}</span>
-            <a *ngIf="candidateDetail?.id" class="small" [routerLink]="['/candidats']" [queryParams]="{ q: fullName(candidateDetail) }" [attr.title]="'propositions.detail.actions.openInCandidates' | translate">
+            <a *ngIf="candidateDetail?.id" class="small" [routerLink]="['/candidats']" [queryParams]="{ q: fullName(candidateDetail) }" (click)="modal.dismiss('navigate-to-candidate')" [attr.title]="'propositions.detail.actions.openInCandidates' | translate">
               <i class="bi bi-box-arrow-up-right"></i>
             </a>
           </div>
@@ -354,3 +354,4 @@
     </div>
   </ng-template>
 </div>
+

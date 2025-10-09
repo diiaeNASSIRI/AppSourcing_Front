@@ -169,8 +169,8 @@
   <!-- Modal: candidats pour un besoin -->
   <ng-template #candidatsForBesoinTpl let-modal>
     <div class="modal-header align-items-center bg-light border-bottom shadow-sm">
-      <h5 class="modal-title m-0">{{ 'besoins.modal.candidatesFor' | translate }}
-        <span class="text-primary">{{ selectedBesoin?.libelle }}</span>
+      <h5 class="modal-title m-0">{{ 'besoins.modal.candidateSummary' | translate:{ candidates: modalCandidatesCount, propositions: modalPropositionsCount } }}
+        <span class="text-primary ms-2">{{ selectedBesoin?.libelle }}</span>
       </h5>
       <div class="ms-auto d-flex gap-2">
         <button type="button" class="btn-close" [attr.aria-label]="'common.close' | translate" (click)="modal.close()"></button>
@@ -191,6 +191,9 @@
               <th><i class="bi bi-cash-coin me-1 text-secondary"></i>{{ 'besoins.modal.table.columns.pru' | translate }}</th>
               <th><i class="bi bi-flag-fill me-1 text-secondary"></i>{{ 'besoins.details.status' | translate }}</th>
               <th><i class="bi bi-calendar-event me-1 text-secondary"></i>{{ 'besoins.modal.table.columns.dateProposition' | translate }}</th>
+              <th><i class="bi bi-clock-history me-1 text-secondary"></i>{{ 'besoins.modal.table.columns.responseDelay' | translate }}</th>
+              <th><i class="bi bi-calendar-check me-1 text-secondary"></i>{{ 'besoins.modal.table.columns.dateOffer' | translate }}</th>
+              <th><i class="bi bi-play-fill me-1 text-secondary"></i>{{ 'besoins.modal.table.columns.dateStart' | translate }}</th>
               <th><i class="bi bi-link-45deg me-1 text-secondary"></i>{{ 'besoins.modal.table.columns.links' | translate }}</th>
             </tr>
           </thead>
@@ -199,7 +202,7 @@
               <td>{{ p.id }}</td>
               <td>
                 {{ displayCandidatFromProposition(p) }}
-                <a class="ms-2 small" [routerLink]="['/candidats']" [queryParams]="{ q: displayCandidatFromProposition(p) }" [attr.title]="'besoins.modal.actions.openInCandidates' | translate">
+                <a class="ms-2 small" [routerLink]="['/candidats']" [queryParams]="{ q: displayCandidatFromProposition(p) }" (click)="modal.dismiss('navigate-to-candidate')" [attr.title]="'besoins.modal.actions.openInCandidates' | translate">
                   <i class="bi bi-box-arrow-up-right"></i>
                 </a>
                 <!-- Candidate info modal removed -->
@@ -220,6 +223,9 @@
                 </div>
               </td>
               <td>{{ p.dateProposition || '-' }}</td>
+              <td>{{ p.delaiReponse || '-' }}</td>
+              <td>{{ p.datePropale || '-' }}</td>
+              <td>{{ p.dateDemarrage || '-' }}</td>
               <td>
                 <ng-container *ngIf="getCandidatDetails(p)?.links?.length; else nolinksc">
                   <div class="small" *ngFor="let l of getCandidatDetails(p)?.links">
