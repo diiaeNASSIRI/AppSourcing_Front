@@ -1,0 +1,65 @@
+﻿image: node:20-bullseye
+
+definitions:
+  variables:
+    SERVER_IP: "57.130.29.221"
+    APP_DIR: "/home/ubuntu/apps/frontend-01"   # dossier côté serveur
+
+pipelines:
+  branches:
+    preprod:
+      - step:
+          name: Install & Build (Angular)
+          caches:
+            - node
+          script:
+            - node -v && npm -v
+            - npm ci
+            # build avec la config "preprod" (change en "production" si tu veux)
+            - npx ng build --configuration=preprod --output-hashing=all
+            # détecter automatiquement le outputPath depuis angular.json
+            - |
+              DIST_DIR=$(node -e "const j=require('./angular.json');const p=j.defaultProject||Object.keys(j.projects)[0];console.log(j.projects[p].architect.build.options.outputPath)")
+              echo "dist dir: $DIST_DIR"
+              [ -d "$DIST_DIR" ] || (echo "❌ dossier dist introuvable"; exit 1)
+              tar -C "$DIST_DIR" -czf dist.tgz .
+          artifacts:
+            - dist.tgz
+
+      - step:
+          name: Upload bundle to server
+          script:
+            - pipe: atlassian/scp-deploy:1.1.0
+              variables:
+                USER: "ubuntu"
+                SERVER: "${SERVER_IP}"
+                REMOTE_PATH: "/tmp/dist.tgz"
+                LOCAL_PATH: "dist.tgz"
+                EXTRA_ARGS: "-o StrictHostKeyChecking=no"
+
+      - step:
+          name: Activate release on server
+          script:
+            - pipe: atlassian/ssh-run:0.4.2
+              variables:
+                SSH_USER: "ubuntu"
+                SERVER: "${SERVER_IP}"
+                COMMAND: |
+                  set -euo pipefail
+                  APP_DIR="${APP_DIR}"
+                  mkdir -p "$APP_DIR/releases" "$APP_DIR/shared" "$APP_DIR/shared/nginx"
+                  ts=$(date +%Y%m%d-%H%M%S)
+                  rel="$APP_DIR/releases/$ts"
+                  mkdir -p "$rel"
+                  tar -xzf /tmp/dist.tgz -C "$rel"
+                  ln -sfn "$rel" "$APP_DIR/current"
+                  # Si tu utilises Nginx pour servir le frontend:
+                  sudo systemctl reload nginx || true
+                  echo "✅ deploy OK -> $rel"
+
+      - step:
+          name: Smoke test (home page)
+          script:
+            # si Nginx pointe sur APP_DIR/current, il servira index.html
+            - curl -fsS "http://${SERVER_IP}/" | head -c 200 > /dev/null
+            - echo "✅ Front reachable"
