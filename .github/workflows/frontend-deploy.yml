@@ -19,11 +19,9 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-      working-directory: appsourcing-frontend
 
     - name: Build Angular app
       run: npm run build --prod
-      working-directory: appsourcing-frontend
 
     - name: Upload dist to server
       uses: appleboy/scp-action@master
@@ -31,9 +29,9 @@ jobs:
         host: ${{ secrets.DO_HOST }}
         username: ${{ vars.DO_USER }}
         key: ${{ secrets.DO_SSH_KEY }}
-        source: "appsourcing-frontend/dist/*"
+        source: "dist/*"
         target: "~/apps/frontend-prod"
-        strip_components: 2
+        strip_components: 1
 
     - name: Deploy frontend
       uses: appleboy/ssh-action@master
