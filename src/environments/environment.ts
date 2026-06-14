@@ -3,7 +3,7 @@
 // Ajuste proxy.conf.json si besoin (context doit inclure /api)
 export const environment = {
 	production: false,
-	apiUrl: 'https://api.appsourciing.com/api'
+	apiUrl: 'http://localhost:5470/api'
 };
 
 export type Environment = typeof environment;

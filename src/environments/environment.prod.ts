@@ -3,7 +3,7 @@
 // Nginx doit avoir: location /api/ { proxy_pass http://127.0.0.1:5470/; }
 export const environment = {
 	production: true,
-	apiUrl: '/api'
+	apiUrl: 'https://api.appsourciing.com/api'
 };
 
 export type Environment = typeof environment;

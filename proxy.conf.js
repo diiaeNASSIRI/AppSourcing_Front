@@ -8,7 +8,7 @@ module.exports = [
       "/candidats",
       "/propositions"
     ],
-    target: "https://api.appsourciing.com/",
+    target: "http://localhost:5470",
     secure: false,
     changeOrigin: true,
     logLevel: "debug",

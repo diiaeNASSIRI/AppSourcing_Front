@@ -1,0 +1,56 @@
+name: frontend-deploy.yml
+on:
+  push:
+    branches: [ deploy-frontend ]
+
+jobs:
+  build-and-deploy:
+    runs-on: [ self-hosted ]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm install
+      working-directory: appsourcing-frontend
+
+    - name: Build Angular app
+      run: npm run build --prod
+      working-directory: appsourcing-frontend
+
+    - name: Upload dist to server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.DO_HOST }}
+        username: ${{ vars.DO_USER }}
+        key: ${{ secrets.DO_SSH_KEY }}
+        source: "appsourcing-frontend/dist/*"
+        target: "~/apps/frontend-prod"
+        strip_components: 2
+
+    - name: Deploy frontend
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DO_HOST }}
+        username: ${{ secrets.DO_USER }}
+        key: ${{ secrets.DO_SSH_KEY }}
+        script: |
+          set -euo pipefail
+          # Nettoyer anciens fichiers
+          rm -rf /var/www/html/*
+          # Copier nouveaux fichiers
+          cp -r ~/apps/frontend-prod/* /var/www/html/
+          # Redémarrer Nginx
+          sudo systemctl reload nginx
+
+    - name: Smoke Test
+      run: |
+        sleep 10
+        curl -fsS --retry 5 --retry-delay 3 https://appsourcing.com | grep -qi "<title>"
